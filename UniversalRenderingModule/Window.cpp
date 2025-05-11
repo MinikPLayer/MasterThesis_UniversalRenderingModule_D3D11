@@ -59,7 +59,7 @@ bool Window::Create(WindowCreationParams p) {
 }
 
 LRESULT Window::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
-    switch (message)
+	switch (message)
     {
     case WM_PAINT:
         if (isResizing) {
@@ -147,7 +147,7 @@ LRESULT Window::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
 
     }
 
-	return DefWindowProc(hwnd, message, wParam, lParam);
+    return DefWindowProc(hwnd, message, wParam, lParam);
 }
 
 void Window::Show() {
