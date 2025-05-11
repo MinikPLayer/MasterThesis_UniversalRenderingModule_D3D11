@@ -28,30 +28,34 @@ class Window {
 	int width = -1;
 	int height = -1;
 
+	bool isDestroyed = false;
+
 	std::function<void(Window&)> OnPaint = {};
 	std::function<void(Window& window, Size2i oldSize, Size2i newSize)> OnResize = {};
 
 	std::function<void(Window& window, bool isFocused)> OnFocusChange = {};
 
 	// Return true to prevent the window from closing.
-	std::function<bool(Window& window)> OnClosing = {};
+	std::function<bool(Window& window)> OnCloseRequested = {};
 
 	bool Create(WindowCreationParams params);
 
 	LRESULT WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
+public:
+	void PollEvents();
+
 	HWND GetHandle() {
 		return this->handle;
 	}
 
-	int RunHandlerLoop();
-public:
+	bool IsDestroyed() {
+		return isDestroyed;
+	}
 
 	void Show();
 	void Hide();
-
-	void SetFullscreen(bool fullscreen);
-	bool IsFullscreen();
+	void Close(bool ignoreOnCloseRequested = false);
 
 	Size2i GetSize() {
 		return Size2i(this->width, this->height);

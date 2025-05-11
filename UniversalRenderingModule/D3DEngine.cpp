@@ -176,9 +176,9 @@ void D3DEngine::WindowFocusChanged(Window& window, bool isFocused) {
 		this->OnWindowFocusChanged(*this, isFocused);
 }
 
-bool D3DEngine::WindowClosing(Window& window) {
-    if (this->OnWindowClosing) {
-		return this->OnWindowClosing(*this);
+bool D3DEngine::WindowCloseRequested(Window& window) {
+    if (this->OnWindowCloseRequested) {
+		return this->OnWindowCloseRequested(*this);
     }
 
     return false;
@@ -190,10 +190,6 @@ void D3DEngine::WindowPaint(Window& window) {
     }
 }
 
-int D3DEngine::Run() {
-    return this->window->RunHandlerLoop();
-}
-
 D3DEngine::D3DEngine(WindowCreationParams windowParams) {
 	this->window = std::make_unique<Window>(windowParams);
 
@@ -202,6 +198,6 @@ D3DEngine::D3DEngine(WindowCreationParams windowParams) {
 
 	this->window->OnResize = std::bind(&D3DEngine::WindowResized, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
 	this->window->OnFocusChange = std::bind(&D3DEngine::WindowFocusChanged, this, std::placeholders::_1, std::placeholders::_2);
-	this->window->OnClosing = std::bind(&D3DEngine::WindowClosing, this, std::placeholders::_1);
+	this->window->OnCloseRequested = std::bind(&D3DEngine::WindowCloseRequested, this, std::placeholders::_1);
 	this->window->OnPaint = std::bind(&D3DEngine::WindowPaint, this, std::placeholders::_1);
 }

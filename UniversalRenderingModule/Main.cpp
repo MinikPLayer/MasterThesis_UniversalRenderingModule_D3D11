@@ -49,12 +49,24 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     if (FAILED(hr))
         return 1;
 
+	g_game = std::make_unique<Game>();
+
     Logger::InitLogger();
     D3DEngine engine(WindowCreationParams(1280, 720, "UniversalRenderingModule", hInstance));
-    auto result = engine.Run();
+
+    g_game->Initialize(engine.GetWindow().GetHandle(), 1280, 720);
+
+	engine.OnWindowPaint = [&](D3DEngine& engine) {
+		g_game->Tick();
+	};
+
+    while(!engine.GetWindow().IsDestroyed()) {
+        engine.GetWindow().PollEvents();
+        g_game->Tick();
+    }
     Logger::DisposeLogger();
 
-    return result;
+    return 0;
 }
 
 // Windows procedure

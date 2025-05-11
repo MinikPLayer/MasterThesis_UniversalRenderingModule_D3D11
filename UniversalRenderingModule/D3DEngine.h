@@ -26,21 +26,19 @@ class D3DEngine {
 
 	void WindowResized(Window& window, Size2i oldSize, Size2i newSize);
 	void WindowFocusChanged(Window& window, bool isFocused);
-	bool WindowClosing(Window& window);
+	bool WindowCloseRequested(Window& window);
 	void WindowPaint(Window& window);
 public:
 	std::function<void(D3DEngine& engine, Size2i oldSize, Size2i newSize)> OnWindowResized = {};
 	std::function<void(D3DEngine& engine, bool isFocused)> OnWindowFocusChanged = {};
 	std::function<void(D3DEngine& engine)> OnWindowPaint = {};
 
-	// Return true if the window should close.
-	std::function<bool(D3DEngine& engine)> OnWindowClosing = {};
+	// Return true to prevent closing.
+	std::function<bool(D3DEngine& engine)> OnWindowCloseRequested = {};
 
 	Window& GetWindow() {
 		return *this->window;
 	}
-
-	int Run();
 
 	D3DEngine(WindowCreationParams windowParams);
 };

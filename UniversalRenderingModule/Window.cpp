@@ -112,16 +112,19 @@ LRESULT Window::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
     }
 
 	// TODO: Allow for multiple windows to be created, so WM_DESTROY shouldn't close the app when other windows are opened.
-    case WM_DESTROY:
-        if (this->OnClosing)
-        {
-			auto preventClosing = this->OnClosing(*this);
+    case WM_CLOSE:
+        if (this->OnCloseRequested) {
+            auto preventClosing = this->OnCloseRequested(*this);
             if (preventClosing)
-                break;
+                return 0;
         }
 
-        PostQuitMessage(0);
+        DestroyWindow(hwnd);
         break;
+
+    case WM_DESTROY:
+		this->isDestroyed = true;
+		break;
 
     }
 
@@ -138,31 +141,19 @@ void Window::Hide() {
 	UpdateWindow(this->handle);
 }
 
-void Window::SetFullscreen(bool fullscreen) {
-    if (fullscreen) {
-        SetWindowLongPtr(this->handle, GWL_STYLE, WS_POPUP);
-		//SetWindowLongPtr(this->handle, GWL_EXSTYLE, WS_EX_TOPMOST);
-
-		SetWindowPos(this->handle, HWND_TOP, 0, 0, 0, 0, WS_EX_TOPMOST | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
-		ShowWindow(this->handle, SW_SHOWMAXIMIZED);
-	}
-    else {
-        SetWindowLongPtr(this->handle, GWL_STYLE, WS_OVERLAPPEDWINDOW);
-        SetWindowLongPtr(this->handle, GWL_EXSTYLE, 0);
-
-        ShowWindow(this->handle, SW_SHOWNORMAL);
-        SetWindowPos(this->handle, HWND_TOP, 0, 0, this->width, this->height, SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
+void Window::Close(bool ignoreOnCloseRequested) {
+    if (!ignoreOnCloseRequested && this->OnCloseRequested) {
+        auto preventClosing = this->OnCloseRequested(*this);
+        if (preventClosing)
+            return;
     }
+
+	if (this->handle) {
+		DestroyWindow(this->handle);
+	}
 }
 
-bool Window::IsFullscreen() {
-    auto style = GetWindowLongPtr(this->handle, GWL_STYLE);
-	auto exStyle = GetWindowLongPtr(this->handle, GWL_EXSTYLE);
-
-	return ((style & WS_POPUP) == WS_POPUP) && ((exStyle & WS_EX_TOPMOST) == WS_EX_TOPMOST);
-}
-
-int Window::RunHandlerLoop() {
+void Window::PollEvents() {
     MSG msg = {};
 
     while (msg.message != WM_QUIT) {
@@ -170,9 +161,10 @@ int Window::RunHandlerLoop() {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
+        else {
+            break;
+        }
     }
-
-    return msg.wParam;
 }
 
 Window::Window(WindowCreationParams p, bool show) {
