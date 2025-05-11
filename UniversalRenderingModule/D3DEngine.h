@@ -18,10 +18,11 @@ class D3DEngine {
 	ComPtr<ID3D11DepthStencilView> depthStencilView;
 
 	void CreateDevice();
+
+	// Create or recreate resources.
 	void CreateResources();
 
 	void OnDeviceLost();
-
 	void FreeResources();
 
 	void WindowResized(Window& window, Size2i oldSize, Size2i newSize);

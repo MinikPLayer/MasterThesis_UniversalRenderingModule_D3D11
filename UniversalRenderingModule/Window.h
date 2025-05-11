@@ -25,6 +25,9 @@ class Window {
 
 	HWND handle = NULL;
 
+	Size2i oldSize = { -1, -1 };
+	bool isResizing = false;
+
 	int width = -1;
 	int height = -1;
 

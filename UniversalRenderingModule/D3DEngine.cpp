@@ -68,7 +68,7 @@ void D3DEngine::CreateResources() {
     const UINT backBufferHeight = static_cast<UINT>(windowSize.height);
     const DXGI_FORMAT backBufferFormat = DXGI_FORMAT_B8G8R8A8_UNORM;
     const DXGI_FORMAT depthBufferFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-    constexpr UINT backBufferCount = 3;
+    constexpr UINT backBufferCount = 2;
 
     // If the swap chain already exists, resize it, otherwise create one.
     if (this->swapChain)
@@ -165,7 +165,10 @@ void D3DEngine::FreeResources() {
 }
 
 void D3DEngine::WindowResized(Window& window, Size2i oldSize, Size2i newSize) {
-	spdlog::info("Window resized from {}x{} to {}x{}", oldSize.width, oldSize.height, newSize.width, newSize.height);
+    auto windowSize = this->window->GetSize();
+	spdlog::info("Window resized from {}x{} to {}x{} [{}x{}]", oldSize.width, oldSize.height, newSize.width, newSize.height, windowSize.width, windowSize.height);
+
+    CreateResources();
 
 	if (this->OnWindowResized)
 		this->OnWindowResized(*this, oldSize, newSize);

@@ -34,6 +34,7 @@ bool Window::Create(WindowCreationParams p) {
     wcex.style = CS_HREDRAW | CS_VREDRAW;
     wcex.lpfnWndProc = WndProdDispatcher;
     wcex.hIcon = p.icon;
+	wcex.hInstance = p.hInstance;
     wcex.hCursor = LoadCursorW(nullptr, IDC_ARROW);
     wcex.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
     wcex.lpszClassName = L"UniversalRenderingModuleWindowClass";
@@ -61,8 +62,15 @@ LRESULT Window::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message)
     {
     case WM_PAINT:
-        if (this->OnPaint)
-            this->OnPaint(*this);
+        if (isResizing) {
+            if (this->OnPaint)
+                this->OnPaint(*this);
+        }
+        else {
+            PAINTSTRUCT ps;
+            std::ignore = BeginPaint(hwnd, &ps);
+            EndPaint(hwnd, &ps);
+        }
 
         break;
 
@@ -83,11 +91,22 @@ LRESULT Window::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
             this->height = HIWORD(lParam);
         }
 
-        if (this->OnResize)
+        if (!isResizing && this->OnResize)
             this->OnResize(*this, oldSize, Size2i(this->width, this->height));
 
         break;
     }
+
+    case WM_ENTERSIZEMOVE:
+        this->isResizing = true;
+		this->oldSize = Size2i(this->width, this->height);
+		break;
+
+    case WM_EXITSIZEMOVE:
+        this->isResizing = false;
+        if (this->OnResize)
+            this->OnResize(*this, this->oldSize, Size2i(this->width, this->height));
+        break;
 
     case WM_ACTIVATEAPP:
     {
