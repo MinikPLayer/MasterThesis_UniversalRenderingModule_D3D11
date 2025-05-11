@@ -24,9 +24,17 @@ extern "C"
     __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
 
+std::chrono::high_resolution_clock::time_point lastTime = std::chrono::high_resolution_clock::now();
+std::chrono::high_resolution_clock::time_point programStartTime = std::chrono::high_resolution_clock::now();
 void Draw(D3DEngine& engine) {
-	engine.Clear(Colors::Black);
-    engine.Present(0);
+	auto now = std::chrono::high_resolution_clock::now();
+	auto deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(now - lastTime).count() / 1000000.0f;
+	lastTime = now;
+
+	auto elapsedTime = std::chrono::duration_cast<std::chrono::microseconds>(now - programStartTime).count() / 1000000.0f;
+
+    engine.Clear(DirectX::XMVECTORF32{ sin(elapsedTime / 2.0f) / 2.0f + 0.5f, cos(elapsedTime / 3.f) / 2.0f + 0.5f, 0.0f, 1.0f});
+    engine.Present(1);
 }
 
 // Entry point
@@ -45,33 +53,15 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 
     Logger::InitLogger();
     
-    std::vector<std::unique_ptr<D3DEngine>> engines;
-    for (int i = 0; i < 10; i++) {
-		engines.push_back(std::make_unique<D3DEngine>(WindowCreationParams(1280, 720, "UniversalRenderingModule", hInstance)));
-    }
 
-    //D3DEngine engine(WindowCreationParams(1280, 720, "UniversalRenderingModule", hInstance));
-    //D3DEngine engine2(WindowCreationParams(800, 600, "UniversalRenderingModule", hInstance));
+    D3DEngine engine(WindowCreationParams(1600, 1000, "UniversalRenderingModule", hInstance));
+    engine.OnWindowPaint = [&](D3DEngine& engine) {
+        Draw(engine);
+    };
 
-    for (auto& engine : engines) {
-        engine->OnWindowPaint = [&](D3DEngine& engine) {
-            Draw(engine);
-        };
-    }
-
-
-    while(engines.size() > 0) {
-        for(auto i = 0; i < engines.size(); i++) {
-			auto* engine = engines[i].get();
-            if (engine->GetWindow().IsDestroyed()) {
-				engines.erase(engines.begin() + i);
-				i--;
-                continue;
-            }
-
-            engine->GetWindow().PollEvents();
-            Draw(*engine);
-        }
+    while(!engine.GetWindow().IsDestroyed()) {
+        engine.GetWindow().PollEvents();
+        Draw(engine);
     }
     Logger::DisposeLogger();
 
