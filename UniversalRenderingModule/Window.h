@@ -20,7 +20,7 @@ struct WindowCreationParams {
 };
 
 class Window {
-	friend class D3DEngine;
+	friend class D3DCore;
 	friend LRESULT WndProdDispatcher(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 	HWND handle = NULL;

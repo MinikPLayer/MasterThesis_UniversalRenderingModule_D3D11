@@ -1,9 +1,9 @@
 #include "pch.h"
-#include "D3DEngine.h"
+#include "D3DCore.h"
 
 using namespace DirectX;
 
-void D3DEngine::CreateDevice() {
+void D3DCore::CreateDevice() {
 	UINT creationFlags = 0;
 
 #if !NDEBUG
@@ -57,7 +57,7 @@ void D3DEngine::CreateDevice() {
 	DX::ThrowIfFailed(newContext.As(&this->context));
 }
 
-void D3DEngine::CreateResources() {
+void D3DCore::CreateResources() {
     // Clear the previous window size specific context.
     this->context->OMSetRenderTargets(0, nullptr, nullptr);
     this->renderTargetView.Reset();
@@ -152,14 +152,14 @@ void D3DEngine::CreateResources() {
     // TODO: Initialize windows-size dependent objects here.
 }
 
-void D3DEngine::OnDeviceLost() {
+void D3DCore::OnDeviceLost() {
     this->FreeResources();
 
     this->CreateDevice();
     this->CreateResources();
 }
 
-void D3DEngine::FreeResources() {
+void D3DCore::FreeResources() {
     this->depthStencilView.Reset();
     this->renderTargetView.Reset();
     this->swapChain.Reset();
@@ -167,7 +167,7 @@ void D3DEngine::FreeResources() {
     this->device.Reset();
 }
 
-void D3DEngine::WindowResized(Window& win, Size2i oldSize, Size2i newSize) {
+void D3DCore::WindowResized(Window& win, Size2i oldSize, Size2i newSize) {
     auto windowSize = win.GetSize();
 	spdlog::info("Window resized from {}x{} to {}x{} [{}x{}]", oldSize.width, oldSize.height, newSize.width, newSize.height, windowSize.width, windowSize.height);
 
@@ -177,12 +177,12 @@ void D3DEngine::WindowResized(Window& win, Size2i oldSize, Size2i newSize) {
 		this->OnWindowResized(*this, oldSize, newSize);
 }
 
-void D3DEngine::WindowFocusChanged(Window&, bool isFocused) {
+void D3DCore::WindowFocusChanged(Window&, bool isFocused) {
 	if (this->OnWindowFocusChanged)
 		this->OnWindowFocusChanged(*this, isFocused);
 }
 
-bool D3DEngine::WindowCloseRequested(Window&) {
+bool D3DCore::WindowCloseRequested(Window&) {
     if (this->OnWindowCloseRequested) {
 		return this->OnWindowCloseRequested(*this);
     }
@@ -190,13 +190,13 @@ bool D3DEngine::WindowCloseRequested(Window&) {
     return false;
 }
 
-void D3DEngine::WindowPaint(Window&) {
+void D3DCore::WindowPaint(Window&) {
     if (this->OnWindowPaint) {
 		this->OnWindowPaint(*this);
     }
 }
 
-void D3DEngine::Clear(XMVECTORF32 color) {
+void D3DCore::Clear(XMVECTORF32 color) {
     // Clear the views.
     context->ClearRenderTargetView(this->renderTargetView.Get(), color);
     context->ClearDepthStencilView(this->depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -209,7 +209,7 @@ void D3DEngine::Clear(XMVECTORF32 color) {
     context->RSSetViewports(1, &viewport);
 }
 
-void D3DEngine::Present(int syncInterval) {
+void D3DCore::Present(int syncInterval) {
     HRESULT hr = this->swapChain->Present(syncInterval, 0);
 
     // If the device was reset we must completely reinitialize the renderer.
@@ -223,7 +223,7 @@ void D3DEngine::Present(int syncInterval) {
     }
 }
 
-D3DEngine::D3DEngine(WindowCreationParams windowParams) {
+D3DCore::D3DCore(WindowCreationParams windowParams) {
 	this->window = std::make_unique<Window>(windowParams);
 
 	this->CreateDevice();

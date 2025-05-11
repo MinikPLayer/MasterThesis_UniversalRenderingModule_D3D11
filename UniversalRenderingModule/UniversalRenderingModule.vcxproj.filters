@@ -17,10 +17,16 @@
       <Filter>Module</Filter>
     </ClInclude>
     <ClInclude Include="Log.h" />
-    <ClInclude Include="D3DEngine.h">
+    <ClInclude Include="D3DCore.h">
       <Filter>Module</Filter>
     </ClInclude>
     <ClInclude Include="Utils.h">
+      <Filter>Module</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Module</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexPosition.h">
       <Filter>Module</Filter>
     </ClInclude>
   </ItemGroup>
@@ -32,7 +38,7 @@
       <Filter>Module</Filter>
     </ClCompile>
     <ClCompile Include="Log.cpp" />
-    <ClCompile Include="D3DEngine.cpp">
+    <ClCompile Include="D3DCore.cpp">
       <Filter>Module</Filter>
     </ClCompile>
   </ItemGroup>

@@ -5,7 +5,7 @@
 
 using Microsoft::WRL::ComPtr;
 
-class D3DEngine {
+class D3DCore {
 	std::unique_ptr<Window> window;
 
 	D3D_FEATURE_LEVEL featureLevel;
@@ -30,12 +30,12 @@ class D3DEngine {
 	bool WindowCloseRequested(Window& window);
 	void WindowPaint(Window& window);
 public:
-	std::function<void(D3DEngine& engine, Size2i oldSize, Size2i newSize)> OnWindowResized = {};
-	std::function<void(D3DEngine& engine, bool isFocused)> OnWindowFocusChanged = {};
-	std::function<void(D3DEngine& engine)> OnWindowPaint = {};
+	std::function<void(D3DCore& core, Size2i oldSize, Size2i newSize)> OnWindowResized = {};
+	std::function<void(D3DCore& core, bool isFocused)> OnWindowFocusChanged = {};
+	std::function<void(D3DCore& core)> OnWindowPaint = {};
 
 	// Return true to prevent closing.
-	std::function<bool(D3DEngine& engine)> OnWindowCloseRequested = {};
+	std::function<bool(D3DCore& core)> OnWindowCloseRequested = {};
 
 	ID3D11Device1* GetDevice() { return this->device.Get(); }
 	ID3D11DeviceContext1* GetContext() { return this->context.Get(); }
@@ -48,9 +48,9 @@ public:
 	void Clear(DirectX::XMVECTORF32 color);
 	void Present(int syncInterval);
 
-	D3DEngine(const D3DEngine&) = delete;
-	D3DEngine& operator= (const D3DEngine&) = delete;
+	D3DCore(const D3DCore&) = delete;
+	D3DCore& operator= (const D3DCore&) = delete;
 
-	D3DEngine(WindowCreationParams windowParams);
+	D3DCore(WindowCreationParams windowParams);
 };
 

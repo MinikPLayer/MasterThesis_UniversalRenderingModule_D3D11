@@ -8,7 +8,9 @@
 
 #include "Window.h"
 #include <Log.h>
-#include <D3DEngine.h>
+#include <D3DCore.h>
+#include <Mesh.h>
+#include <VertexPosition.h>
 
 using namespace DirectX;
 
@@ -26,15 +28,15 @@ extern "C"
 
 std::chrono::high_resolution_clock::time_point lastTime = std::chrono::high_resolution_clock::now();
 std::chrono::high_resolution_clock::time_point programStartTime = std::chrono::high_resolution_clock::now();
-void Draw(D3DEngine& engine) {
+void Draw(D3DCore& core) {
 	auto now = std::chrono::high_resolution_clock::now();
 	auto deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(now - lastTime).count() / 1000000.0f;
 	lastTime = now;
 
 	auto elapsedTime = std::chrono::duration_cast<std::chrono::microseconds>(now - programStartTime).count() / 1000000.0f;
 
-    engine.Clear(DirectX::XMVECTORF32{ sin(elapsedTime / 2.0f) / 2.0f + 0.5f, cos(elapsedTime / 3.f) / 2.0f + 0.5f, 0.0f, 1.0f});
-    engine.Present(1);
+    core.Clear(DirectX::XMVECTORF32{ sin(elapsedTime / 2.0f) / 2.0f + 0.5f, cos(elapsedTime / 3.f) / 2.0f + 0.5f, 0.0f, 1.0f});
+    core.Present(1);
 }
 
 // Entry point
@@ -52,11 +54,19 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
         return 1;
 
     Logger::InitLogger();
-    
 
-    D3DEngine engine(WindowCreationParams(1600, 1000, "UniversalRenderingModule", hInstance));
-    engine.OnWindowPaint = [&](D3DEngine& engine) {
-        Draw(engine);
+    Mesh<VertexPosition> mesh;
+    mesh.AddVertices(
+        {
+            VertexPosition(0.0f, 0.5f, 0.0f),
+            VertexPosition(0.5f, -0.5f, 0.0f),
+            VertexPosition(-0.5f, -0.5f, 0.0f)
+        }
+    );
+
+    D3DCore engine(WindowCreationParams(1600, 1000, "UniversalRenderingModule", hInstance));
+    engine.OnWindowPaint = [&](D3DCore& core) {
+        Draw(core);
     };
 
     while(!engine.GetWindow().IsDestroyed()) {

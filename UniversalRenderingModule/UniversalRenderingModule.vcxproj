@@ -180,16 +180,18 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="D3DEngine.h" />
+    <ClInclude Include="D3DCore.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Log.h" />
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="StepTimer.h" />
     <ClInclude Include="Utils.h" />
+    <ClInclude Include="VertexPosition.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="D3DEngine.cpp" />
+    <ClCompile Include="D3DCore.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="Main.cpp" />
