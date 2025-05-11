@@ -47,6 +47,9 @@
 #include <memory>
 #include <stdexcept>
 #include <tuple>
+#include <functional>
+
+#include <spdlog/spdlog.h>
 
 namespace DX
 {

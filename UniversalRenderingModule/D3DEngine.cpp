@@ -164,6 +164,32 @@ void D3DEngine::FreeResources() {
     this->device.Reset();
 }
 
+void D3DEngine::WindowResized(Window& window, Size2i oldSize, Size2i newSize) {
+	spdlog::info("Window resized from {}x{} to {}x{}", oldSize.width, oldSize.height, newSize.width, newSize.height);
+
+	if (this->OnWindowResized)
+		this->OnWindowResized(*this, oldSize, newSize);
+}
+
+void D3DEngine::WindowFocusChanged(Window& window, bool isFocused) {
+	if (this->OnWindowFocusChanged)
+		this->OnWindowFocusChanged(*this, isFocused);
+}
+
+bool D3DEngine::WindowClosing(Window& window) {
+    if (this->OnWindowClosing) {
+		return this->OnWindowClosing(*this);
+    }
+
+    return false;
+}
+
+void D3DEngine::WindowPaint(Window& window) {
+    if (this->OnWindowPaint) {
+		this->OnWindowPaint(*this);
+    }
+}
+
 int D3DEngine::Run() {
     return this->window->RunHandlerLoop();
 }
@@ -173,4 +199,9 @@ D3DEngine::D3DEngine(WindowCreationParams windowParams) {
 
 	this->CreateDevice();
 	this->CreateResources();
+
+	this->window->OnResize = std::bind(&D3DEngine::WindowResized, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+	this->window->OnFocusChange = std::bind(&D3DEngine::WindowFocusChanged, this, std::placeholders::_1, std::placeholders::_2);
+	this->window->OnClosing = std::bind(&D3DEngine::WindowClosing, this, std::placeholders::_1);
+	this->window->OnPaint = std::bind(&D3DEngine::WindowPaint, this, std::placeholders::_1);
 }

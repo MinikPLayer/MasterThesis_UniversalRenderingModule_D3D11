@@ -61,30 +61,39 @@ LRESULT Window::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message)
     {
     case WM_PAINT:
-        // TODO: Add OnPaint() event.
+        if (this->OnPaint)
+            this->OnPaint(*this);
+
         break;
 
     case WM_SIZE:
-        // TODO: Add OnResize() event.
-		if (wParam == SIZE_MINIMIZED)
-		{
-			if (!this->width && !this->height)
-			{
-				this->width = LOWORD(lParam);
-				this->height = HIWORD(lParam);
-			}
-		}
-		else
-		{
-			this->width = LOWORD(lParam);
-			this->height = HIWORD(lParam);
-		}
-		break;
+    {
+        auto oldSize = Size2i(this->width, this->height);
+        if (wParam == SIZE_MINIMIZED)
+        {
+            if (!this->width && !this->height)
+            {
+                this->width = LOWORD(lParam);
+                this->height = HIWORD(lParam);
+            }
+        }
+        else
+        {
+            this->width = LOWORD(lParam);
+            this->height = HIWORD(lParam);
+        }
+
+        if (this->OnResize)
+            this->OnResize(*this, oldSize, Size2i(this->width, this->height));
+
+        break;
+    }
 
     case WM_ACTIVATEAPP:
     {
-        auto isActive = wParam;
-		// TODO: Add OnActivated() and OnDeactivated() events.
+        auto isFocused = wParam;
+		if(this->OnFocusChange)
+			this->OnFocusChange(*this, isFocused);
 
         break;
     }
@@ -92,6 +101,7 @@ LRESULT Window::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
     case WM_SYSKEYDOWN:
     {
         // TODO: Add OnKeyPressed().
+
 
 		// Toggle fullscreen on ALT+ENTER
         //     if (wParam == VK_RETURN && (lParam & 0x60000000) == 0x20000000) {
@@ -102,8 +112,14 @@ LRESULT Window::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
     }
 
 	// TODO: Allow for multiple windows to be created, so WM_DESTROY shouldn't close the app when other windows are opened.
-    // TODO: Add OnClose();
     case WM_DESTROY:
+        if (this->OnClosing)
+        {
+			auto preventClosing = this->OnClosing(*this);
+            if (preventClosing)
+                break;
+        }
+
         PostQuitMessage(0);
         break;
 

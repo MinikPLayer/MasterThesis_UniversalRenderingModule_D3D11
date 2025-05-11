@@ -1,6 +1,7 @@
 #pragma once
 #include <Windows.h>
 #include "Utils.h"
+#include <functional>
 
 struct WindowCreationParams {
 	int width;
@@ -19,21 +20,32 @@ struct WindowCreationParams {
 };
 
 class Window {
+	friend class D3DEngine;
+	friend LRESULT WndProdDispatcher(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+
 	HWND handle = NULL;
 
 	int width = -1;
 	int height = -1;
 
+	std::function<void(Window&)> OnPaint = {};
+	std::function<void(Window& window, Size2i oldSize, Size2i newSize)> OnResize = {};
+
+	std::function<void(Window& window, bool isFocused)> OnFocusChange = {};
+
+	// Return true to prevent the window from closing.
+	std::function<bool(Window& window)> OnClosing = {};
+
 	bool Create(WindowCreationParams params);
 
 	LRESULT WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-	friend LRESULT WndProdDispatcher(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
-
-public:
 	HWND GetHandle() {
 		return this->handle;
 	}
+
+	int RunHandlerLoop();
+public:
 
 	void Show();
 	void Hide();
@@ -44,8 +56,6 @@ public:
 	Size2i GetSize() {
 		return Size2i(this->width, this->height);
 	}
-
-	int RunHandlerLoop();
 
 	Window(WindowCreationParams params, bool show = true);
 };
