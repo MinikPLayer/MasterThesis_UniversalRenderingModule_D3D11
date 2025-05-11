@@ -16,12 +16,23 @@
     <ClInclude Include="Window.h">
       <Filter>Module</Filter>
     </ClInclude>
+    <ClInclude Include="Log.h" />
+    <ClInclude Include="D3DEngine.h">
+      <Filter>Module</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>Module</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Window.cpp">
+      <Filter>Module</Filter>
+    </ClCompile>
+    <ClCompile Include="Log.cpp" />
+    <ClCompile Include="D3DEngine.cpp">
       <Filter>Module</Filter>
     </ClCompile>
   </ItemGroup>

@@ -4,15 +4,31 @@
 #include "Log.h"
 
 LRESULT CALLBACK WndProdDispatcher(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
-	Window* window = reinterpret_cast<Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-    if (window == nullptr) {
-		spdlog::critical("[Internal error] Window pointer is not set as a Window USERDATA LongPtr.");
+    Window* window = nullptr;
+
+    if (message == WM_NCCREATE)
+    {
+        window = (Window*)(((LPCREATESTRUCT)lParam)->lpCreateParams);
+
+        SetLastError(0);
+        if (!SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)window) && GetLastError() != 0) {
+			auto lastError = GetLastError();
+			Logger::GetFatalLogger()->critical("Failed to set window user data: {}", lastError);
+        }
+    }
+    else {
+        window = (Window*)(GetWindowLongPtr(hwnd, GWLP_USERDATA));
     }
 
-	return window->WndProc(hwnd, message, wParam, lParam);
+    if (window != nullptr) {
+        return window->WndProc(hwnd, message, wParam, lParam);
+    }
+    else {
+        return DefWindowProc(hwnd, message, wParam, lParam);
+    }
 }
 
-bool Window::Create(WindowCreationParameters p) {
+bool Window::Create(WindowCreationParams p) {
     WNDCLASSEXW wcex = {};
     wcex.cbSize = sizeof(WNDCLASSEXW);
     wcex.style = CS_HREDRAW | CS_VREDRAW;
@@ -26,6 +42,8 @@ bool Window::Create(WindowCreationParameters p) {
     if (!RegisterClassExW(&wcex))
         return false;
 
+    this->width = p.width;
+    this->height = p.height;
 	RECT rc = { 0, 0, (LONG)p.width, (LONG)p.height };
 	AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
 
@@ -40,7 +58,58 @@ bool Window::Create(WindowCreationParameters p) {
 }
 
 LRESULT Window::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
-    return LRESULT();
+    switch (message)
+    {
+    case WM_PAINT:
+        // TODO: Add OnPaint() event.
+        break;
+
+    case WM_SIZE:
+        // TODO: Add OnResize() event.
+		if (wParam == SIZE_MINIMIZED)
+		{
+			if (!this->width && !this->height)
+			{
+				this->width = LOWORD(lParam);
+				this->height = HIWORD(lParam);
+			}
+		}
+		else
+		{
+			this->width = LOWORD(lParam);
+			this->height = HIWORD(lParam);
+		}
+		break;
+
+    case WM_ACTIVATEAPP:
+    {
+        auto isActive = wParam;
+		// TODO: Add OnActivated() and OnDeactivated() events.
+
+        break;
+    }
+
+    case WM_SYSKEYDOWN:
+    {
+        // TODO: Add OnKeyPressed().
+
+		// Toggle fullscreen on ALT+ENTER
+        //     if (wParam == VK_RETURN && (lParam & 0x60000000) == 0x20000000) {
+		//          this->SetFullscreen(!this->IsFullscreen());
+        //     }
+
+        break;
+    }
+
+	// TODO: Allow for multiple windows to be created, so WM_DESTROY shouldn't close the app when other windows are opened.
+    // TODO: Add OnClose();
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        break;
+
+    }
+
+	return DefWindowProc(hwnd, message, wParam, lParam);
 }
 
 void Window::Show() {
@@ -51,6 +120,30 @@ void Window::Show() {
 void Window::Hide() {
 	ShowWindow(this->handle, SW_HIDE);
 	UpdateWindow(this->handle);
+}
+
+void Window::SetFullscreen(bool fullscreen) {
+    if (fullscreen) {
+        SetWindowLongPtr(this->handle, GWL_STYLE, WS_POPUP);
+		//SetWindowLongPtr(this->handle, GWL_EXSTYLE, WS_EX_TOPMOST);
+
+		SetWindowPos(this->handle, HWND_TOP, 0, 0, 0, 0, WS_EX_TOPMOST | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+		ShowWindow(this->handle, SW_SHOWMAXIMIZED);
+	}
+    else {
+        SetWindowLongPtr(this->handle, GWL_STYLE, WS_OVERLAPPEDWINDOW);
+        SetWindowLongPtr(this->handle, GWL_EXSTYLE, 0);
+
+        ShowWindow(this->handle, SW_SHOWNORMAL);
+        SetWindowPos(this->handle, HWND_TOP, 0, 0, this->width, this->height, SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
+    }
+}
+
+bool Window::IsFullscreen() {
+    auto style = GetWindowLongPtr(this->handle, GWL_STYLE);
+	auto exStyle = GetWindowLongPtr(this->handle, GWL_EXSTYLE);
+
+	return ((style & WS_POPUP) == WS_POPUP) && ((exStyle & WS_EX_TOPMOST) == WS_EX_TOPMOST);
 }
 
 int Window::RunHandlerLoop() {
@@ -66,8 +159,11 @@ int Window::RunHandlerLoop() {
     return msg.wParam;
 }
 
-Window::Window(WindowCreationParameters p, bool show) {
-	this->Create(p);
+Window::Window(WindowCreationParams p, bool show) {
+    if (!this->Create(p)) {
+		spdlog::critical("Failed to create a window.");
+		throw std::runtime_error("Failed to create a window");
+    }
 
 	if (show)
 		this->Show();

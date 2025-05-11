@@ -8,10 +8,20 @@
 
 #include <Windows.h>
 
-void InitLogger() {
+void Logger::InitLogger() {
 	auto msvcSink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
 	auto stdoutSink = std::make_shared<spdlog::sinks::stdout_sink_mt>();
-	auto callbackSink = std::make_shared<spdlog::sinks::callback_sink_mt>(
+
+	auto finalLogger = std::make_shared<spdlog::logger>(spdlog::logger("logger", { msvcSink, stdoutSink }));
+
+#if !NDEBUG
+	finalLogger->set_level(spdlog::level::trace);
+#else
+	finalLogger->set_level(spdlog::level::info);
+#endif
+
+	// Logger is auto registered
+	spdlog::callback_logger_mt("fatal",
 		[](const spdlog::details::log_msg& msg) {
 			std::wstring str(msg.payload.begin(), msg.payload.end());
 			auto leftBracket = str.find(L"[");
@@ -29,21 +39,22 @@ void InitLogger() {
 		}
 	);
 
-	callbackSink->set_level(spdlog::level::critical);
-
-	auto finalLogger = std::make_shared<spdlog::logger>(spdlog::logger("logger", { msvcSink, stdoutSink, callbackSink }));
-
-#if !NDEBUG
-	finalLogger->set_level(spdlog::level::trace);
-#else
-	finalLogger->set_level(spdlog::level::info);
-#endif
 
 	spdlog::set_default_logger(finalLogger);
 	spdlog::set_pattern("%Y-%m-%d %H:%M:%S.%e %l : %v");
 	spdlog::flush_on(spdlog::level::info);
 }
 
-void DisposeLogger()
+void Logger::DisposeLogger()
 {
+}
+
+std::shared_ptr<spdlog::logger> Logger::GetFatalLogger() {
+	auto fatalErrorLogger = spdlog::get("fatal");
+	if (!fatalErrorLogger) {
+		spdlog::critical("Fatal error logger not found.");
+		MessageBox(nullptr, L"Unrecoverable error: No fatal logger found.", L"Fatal error", MB_OK | MB_ICONERROR);
+		throw std::runtime_error("Fatal error logger not found.");
+	}
+	return fatalErrorLogger;
 }

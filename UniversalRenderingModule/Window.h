@@ -1,7 +1,8 @@
 #pragma once
 #include <Windows.h>
+#include "Utils.h"
 
-struct WindowCreationParameters {
+struct WindowCreationParams {
 	int width;
 	int height;
 	std::string title;
@@ -9,7 +10,7 @@ struct WindowCreationParameters {
 	HINSTANCE hInstance;
 	HICON icon;
 
-	WindowCreationParameters(int width, int height, std::string title, HINSTANCE hInstance, HICON icon = NULL):	
+	WindowCreationParams(int width, int height, std::string title, HINSTANCE hInstance, HICON icon = NULL):	
 		width(width), 
 		height(height), 
 		title(title), 
@@ -23,22 +24,29 @@ class Window {
 	int width = -1;
 	int height = -1;
 
-	bool Create(WindowCreationParameters params);
+	bool Create(WindowCreationParams params);
 
 	LRESULT WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 	friend LRESULT WndProdDispatcher(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 public:
-	HWND getHandle() {
+	HWND GetHandle() {
 		return this->handle;
 	}
 
 	void Show();
 	void Hide();
 
+	void SetFullscreen(bool fullscreen);
+	bool IsFullscreen();
+
+	Size2i GetSize() {
+		return Size2i(this->width, this->height);
+	}
+
 	int RunHandlerLoop();
 
-	Window(WindowCreationParameters params, bool show = true);
+	Window(WindowCreationParams params, bool show = true);
 };
 

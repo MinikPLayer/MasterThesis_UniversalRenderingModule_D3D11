@@ -307,7 +307,6 @@ void Game::CreateResources()
 void Game::OnDeviceLost()
 {
     // TODO: Add Direct3D resource cleanup here.
-
     m_depthStencilView.Reset();
     m_renderTargetView.Reset();
     m_swapChain.Reset();

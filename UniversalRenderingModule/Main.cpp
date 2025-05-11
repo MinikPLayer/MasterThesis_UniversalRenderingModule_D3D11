@@ -8,6 +8,7 @@
 
 #include "Window.h"
 #include <Log.h>
+#include <D3DEngine.h>
 
 using namespace DirectX;
 
@@ -44,9 +45,9 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     if (!XMVerifyCPUSupport())
         return 1;
 
-    HRESULT hr = CoInitializeEx(nullptr, COINITBASE_MULTITHREADED);
-    if (FAILED(hr))
-        return 1;
+    //HRESULT hr = CoInitializeEx(nullptr, COINITBASE_MULTITHREADED);
+    //if (FAILED(hr))
+    //    return 1;
 
     //g_game = std::make_unique<Game>();
 
@@ -109,10 +110,12 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 
     //g_game.reset();
 
-    InitLogger();
-	Window window(WindowCreationParameters(1280, 720, "UniversalRenderingModule", hInstance));
-    auto result = window.RunHandlerLoop();
-    DisposeLogger();
+    Logger::InitLogger();
+	//Window window(WindowCreationParams(1280, 720, "UniversalRenderingModule", hInstance));
+ //   auto result = window.RunHandlerLoop();
+    D3DEngine engine(WindowCreationParams(1280, 720, "UniversalRenderingModule", hInstance));
+    auto result = engine.Run();
+    Logger::DisposeLogger();
 
     return result;
     //MSG msg = {};
