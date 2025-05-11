@@ -28,7 +28,27 @@ LRESULT CALLBACK WndProdDispatcher(HWND hwnd, UINT message, WPARAM wParam, LPARA
     }
 }
 
+static std::wstring FindUnusedClassName(HINSTANCE hInstance, std::string base) {
+    auto className = std::wstring(base.begin(), base.end());
+
+    const int triesCount = 10000;
+    for (int i = 0; i < triesCount; i++) {
+        WNDCLASS wndClass = {};
+		auto isRegistered = GetClassInfo(hInstance, className.c_str(), &wndClass);
+        if (!isRegistered) {
+            return className;
+        }
+
+        className = std::wstring(base.begin(), base.end()) + L"_" + std::to_wstring(i);
+    }
+
+	Logger::GetFatalLogger()->critical("Failed to find an unused class name after {} tries.", triesCount);
+}
+
 bool Window::Create(WindowCreationParams p) {
+	auto className = FindUnusedClassName(p.hInstance, p.title);
+	spdlog::trace("Using class name \"{}\"", std::string(className.begin(), className.end()));
+
     WNDCLASSEXW wcex = {};
     wcex.cbSize = sizeof(WNDCLASSEXW);
     wcex.style = CS_HREDRAW | CS_VREDRAW;
@@ -37,7 +57,7 @@ bool Window::Create(WindowCreationParams p) {
 	wcex.hInstance = p.hInstance;
     wcex.hCursor = LoadCursorW(nullptr, IDC_ARROW);
     wcex.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
-    wcex.lpszClassName = L"UniversalRenderingModuleWindowClass";
+    wcex.lpszClassName = className.c_str();
     wcex.hIconSm = p.icon;
 
     if (!RegisterClassExW(&wcex))
@@ -49,7 +69,7 @@ bool Window::Create(WindowCreationParams p) {
 	AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
 
     std::wstring wTitle = std::wstring(p.title.begin(), p.title.end());
-    this->handle = CreateWindowExW(0, L"UniversalRenderingModuleWindowClass", wTitle.c_str(), WS_OVERLAPPEDWINDOW,
+    this->handle = CreateWindowExW(0, className.c_str(), wTitle.c_str(), WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top,
         nullptr, nullptr, p.hInstance,
         this);

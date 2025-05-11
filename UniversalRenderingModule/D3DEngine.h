@@ -48,6 +48,9 @@ public:
 	void Clear(DirectX::XMVECTORF32 color);
 	void Present(int syncInterval);
 
+	D3DEngine(const D3DEngine&) = delete;
+	D3DEngine& operator= (const D3DEngine&) = delete;
+
 	D3DEngine(WindowCreationParams windowParams);
 };
 
