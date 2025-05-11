@@ -43,6 +43,7 @@ static std::wstring FindUnusedClassName(HINSTANCE hInstance, std::string base) {
     }
 
 	Logger::GetFatalLogger()->critical("Failed to find an unused class name after {} tries.", triesCount);
+	throw std::runtime_error("Failed to find an unused class name");
 }
 
 bool Window::Create(WindowCreationParams p) {
@@ -76,6 +77,8 @@ bool Window::Create(WindowCreationParams p) {
 
 	if (!this->handle)
 		return false;
+
+    return true;
 }
 
 LRESULT Window::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -96,7 +99,7 @@ LRESULT Window::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
 
     case WM_SIZE:
     {
-        auto oldSize = Size2i(this->width, this->height);
+        this->oldSize = Size2i(this->width, this->height);
         if (wParam == SIZE_MINIMIZED)
         {
             if (!this->width && !this->height)
@@ -111,8 +114,8 @@ LRESULT Window::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
             this->height = HIWORD(lParam);
         }
 
-        if (!isResizing && this->OnResize)
-            this->OnResize(*this, oldSize, Size2i(this->width, this->height));
+        if (this->OnResize)
+            this->OnResize(*this, this->oldSize, Size2i(this->width, this->height));
 
         break;
     }
@@ -214,4 +217,11 @@ Window::Window(WindowCreationParams p, bool show) {
 
 	if (show)
 		this->Show();
+}
+
+Window::~Window() {
+    if (this->handle) {
+		DestroyWindow(this->handle);
+		this->handle = nullptr;
+    }
 }

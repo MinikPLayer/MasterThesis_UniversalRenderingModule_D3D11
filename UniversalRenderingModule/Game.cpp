@@ -5,8 +5,6 @@
 #include "pch.h"
 #include "Game.h"
 
-extern void ExitGame() noexcept;
-
 using namespace DirectX;
 
 using Microsoft::WRL::ComPtr;

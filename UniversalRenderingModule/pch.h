@@ -53,12 +53,12 @@
 
 namespace DX
 {
-    inline void ThrowIfFailed(HRESULT hr)
+    inline void ThrowIfFailed(HRESULT hr, std::string message = "WinAPI call failed")
     {
         if (FAILED(hr))
         {
             // Set a breakpoint on this line to catch DirectX API errors
-            throw std::exception();
+            throw std::exception(message.c_str());
         }
     }
 }

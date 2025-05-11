@@ -65,5 +65,6 @@ public:
 	}
 
 	Window(WindowCreationParams params, bool show = true);
+	~Window();
 };
 

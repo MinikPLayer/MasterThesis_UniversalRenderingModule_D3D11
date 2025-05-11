@@ -3,44 +3,48 @@
 #include <concepts>
 #include <vector>
 
-template<typename T>
-concept VertexTypeConcept = requires {
-	{ T::GetInputLayout() } -> std::same_as<std::vector<D3D11_INPUT_ELEMENT_DESC>>;
-};
+#include "D3DBuffer.h"
+#include "VertexConcept.h"
 
 template<VertexTypeConcept VertexType>
 class Mesh {
+	D3DBuffer vertexBuffer;
 	std::vector<VertexType> vertices;
 
+	// TODO: Test
+	void UpdateBuffer(D3DCore& core);
+
 public:
-	Mesh() = default;
-	void RemoveVertexAt(size_t index) {
-		if (index < vertices.size()) {
-			vertices.erase(vertices.begin() + index);
-		}
+	D3DBuffer& GetVertexBuffer() {
+		return vertexBuffer;
 	}
+
+	Mesh(D3DCore& core, std::vector<VertexType> data)
+		: vertexBuffer(D3DBuffer::CreateFromArray(core, data, D3D11_BIND_VERTEX_BUFFER)) {}
 	
-	void ResetVertices() {
+	void ResetVertices(D3DCore& core) {
 		vertices.clear();
+		UpdateBuffer(core);
 	}
 
-	void SetVertices(const std::vector<VertexType>& newVertices) {
+	void SetVertices(D3DCore& core, const std::vector<VertexType>& newVertices) {
 		vertices = newVertices;
+		UpdateBuffer(core);
 	}
 
-	void InsertVertex(const std::vector<VertexType>& newVertices) {
-		vertices.insert(vertices.end(), newVertices.begin(), newVertices.end());
-	}
-
-	void AddVertices(const std::initializer_list<VertexType> newVertices) {
-		vertices.insert(vertices.end(), newVertices.begin(), newVertices.end());
-	}
-
-	void AddVertex(const VertexType& vertex) {
-		vertices.push_back(vertex);
-	}
-
-	const std::vector<VertexType>& GetVertices() const {
+	const std::vector<VertexType> GetVerticesCopy() const {
 		return vertices;
 	}
 };
+
+template<VertexTypeConcept VertexType>
+inline void Mesh<VertexType>::UpdateBuffer(D3DCore& core) {
+	core.GetContext()->UpdateSubresource(
+		vertexBuffer.get(),
+		0,
+		nullptr,
+		vertices.data(),
+		sizeof(VertexType) * vertices.size(),
+		sizeof(VertexType)
+	);
+}

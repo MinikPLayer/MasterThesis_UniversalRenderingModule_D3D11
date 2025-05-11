@@ -39,7 +39,6 @@ void Logger::InitLogger() {
 		}
 	);
 
-
 	spdlog::set_default_logger(finalLogger);
 	spdlog::set_pattern("%Y-%m-%d %H:%M:%S.%e %l : %v");
 	spdlog::flush_on(spdlog::level::info);
