@@ -137,7 +137,7 @@ void Game::OnWindowSizeChanged(int width, int height)
     m_outputWidth = std::max(width, 1);
     m_outputHeight = std::max(height, 1);
 
-    CreateResources();
+    // CreateResources();
 
     // TODO: Game window is being resized.
 }

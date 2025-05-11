@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "D3DEngine.h"
 
+using namespace DirectX;
+
 void D3DEngine::CreateDevice() {
 	UINT creationFlags = 0;
 
@@ -191,6 +193,33 @@ bool D3DEngine::WindowCloseRequested(Window& window) {
 void D3DEngine::WindowPaint(Window& window) {
     if (this->OnWindowPaint) {
 		this->OnWindowPaint(*this);
+    }
+}
+
+void D3DEngine::Clear(XMVECTORF32 color) {
+    // Clear the views.
+    context->ClearRenderTargetView(this->renderTargetView.Get(), color);
+    context->ClearDepthStencilView(this->depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+    context->OMSetRenderTargets(1, this->renderTargetView.GetAddressOf(), this->depthStencilView.Get());
+
+    // Set the viewport.
+    auto size = GetWindow().GetSize();
+    D3D11_VIEWPORT viewport = { 0.0f, 0.0f, size.width, size.height, 0.f, 1.f };
+    context->RSSetViewports(1, &viewport);
+}
+
+void D3DEngine::Present(int syncInterval) {
+    HRESULT hr = this->swapChain->Present(syncInterval, 0);
+
+    // If the device was reset we must completely reinitialize the renderer.
+    if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
+    {
+        OnDeviceLost();
+    }
+    else
+    {
+        DX::ThrowIfFailed(hr);
     }
 }
 

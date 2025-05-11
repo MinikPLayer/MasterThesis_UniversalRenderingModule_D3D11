@@ -36,6 +36,11 @@ extern "C"
     __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
 
+void Draw(D3DEngine& engine) {
+	engine.Clear(Colors::Black);
+    engine.Present(0);
+}
+
 // Entry point
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
@@ -49,24 +54,16 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     if (FAILED(hr))
         return 1;
 
-	auto game = std::make_unique<Game>();
-
     Logger::InitLogger();
     D3DEngine engine(WindowCreationParams(1280, 720, "UniversalRenderingModule", hInstance));
 
-    game->Initialize(engine.GetWindow().GetHandle(), 1280, 720);
-
-	engine.OnWindowPaint = [&game](D3DEngine& engine) {
-        game->Tick();
+	engine.OnWindowPaint = [&](D3DEngine& engine) {
+		Draw(engine);
 	};
-
-    engine.OnWindowResized = [&game](D3DEngine& engine, Size2i oldSize, Size2i newSize) {
-        game->OnWindowSizeChanged(newSize.width, newSize.height);
-    };
 
     while(!engine.GetWindow().IsDestroyed()) {
         engine.GetWindow().PollEvents();
-        game->Tick();
+        Draw(engine);
     }
     Logger::DisposeLogger();
 

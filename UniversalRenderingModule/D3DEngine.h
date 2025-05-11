@@ -37,9 +37,16 @@ public:
 	// Return true to prevent closing.
 	std::function<bool(D3DEngine& engine)> OnWindowCloseRequested = {};
 
-	Window& GetWindow() {
-		return *this->window;
-	}
+	ID3D11Device1* GetDevice() { return this->device.Get(); }
+	ID3D11DeviceContext1* GetContext() { return this->context.Get(); }
+	IDXGISwapChain1* GetSwapChain() { return this->swapChain.Get(); }
+	ID3D11RenderTargetView* GetRenderTargetView() { return this->renderTargetView.Get(); }
+	ID3D11DepthStencilView* GetDepthStencilView() { return this->depthStencilView.Get(); }
+
+	Window& GetWindow() { return *this->window; }
+
+	void Clear(DirectX::XMVECTORF32 color);
+	void Present(int syncInterval);
 
 	D3DEngine(WindowCreationParams windowParams);
 };
