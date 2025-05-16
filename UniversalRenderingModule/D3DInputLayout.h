@@ -10,7 +10,9 @@ class D3DInputLayout {
 	ComPtr<ID3D11InputLayout> inputLayout;
 
 public:
-	// TODO: Add function to bind to the context
+	void Bind(D3DCore& core) {
+		core.GetContext()->IASetInputLayout(this->inputLayout.Get());
+	}
 
 	ComPtr<ID3D11InputLayout> get() {
 		return this->inputLayout;
@@ -25,7 +27,7 @@ inline D3DInputLayout<VertexType>::D3DInputLayout(D3DCore& core, ShaderProgram p
 
 	core.GetDevice()->CreateInputLayout(
 		layout.data(),
-		layout.size(),
+		(UINT)layout.size(),
 		program.GetVertexShaderSource()->GetBufferPointer(),
 		program.GetVertexShaderSource()->GetBufferSize(),
 		this->inputLayout.GetAddressOf()

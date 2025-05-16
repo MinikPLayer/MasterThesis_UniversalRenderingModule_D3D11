@@ -3,6 +3,9 @@
 #include <spdlog/spdlog.h>
 #include "Log.h"
 
+#include <locale>
+#include <codecvt>
+
 LRESULT CALLBACK WndProdDispatcher(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
     Window* window = nullptr;
 
@@ -48,7 +51,7 @@ static std::wstring FindUnusedClassName(HINSTANCE hInstance, std::string base) {
 
 bool Window::Create(WindowCreationParams p) {
 	auto className = FindUnusedClassName(p.hInstance, p.title);
-	spdlog::trace("Using class name \"{}\"", std::string(className.begin(), className.end()));
+	spdlog::trace("Using class name \"{}\"", StringUtils::WStringToString(className));
 
     WNDCLASSEXW wcex = {};
     wcex.cbSize = sizeof(WNDCLASSEXW);

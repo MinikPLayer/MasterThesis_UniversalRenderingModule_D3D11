@@ -16,7 +16,7 @@ class ShaderProgram {
 	ComPtr<ID3DBlob> LoadShaderBytecode(const std::wstring& fileName);
 
 public:
-	// TODO: Add function to bind to the context
+	void Bind(D3DCore& core);
 
 	ComPtr<ID3D11VertexShader> GetVertexShader() {
 		return this->vertexShader;

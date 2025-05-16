@@ -5,17 +5,17 @@ void D3DViewport::Bind(D3DCore& core) {
 	core.GetContext()->RSSetViewports(1, &this->viewport);
 }
 
-void D3DViewport::Set(D3DViewportData data) {
-    this->data = data;
+void D3DViewport::Set(D3DViewportData newData) {
+    this->data = newData;
 
-    this->viewport.Width = static_cast<FLOAT>(data.size.width);
-    this->viewport.Height = static_cast<FLOAT>(data.size.height);
-    this->viewport.MinDepth = data.minDepth;
-    this->viewport.MaxDepth = data.maxDepth;
-    this->viewport.TopLeftX = data.topLeft.x;
-    this->viewport.TopLeftY = data.topLeft.y;
+    this->viewport.Width = static_cast<FLOAT>(newData.size.width);
+    this->viewport.Height = static_cast<FLOAT>(newData.size.height);
+    this->viewport.MinDepth = newData.minDepth;
+    this->viewport.MaxDepth = newData.maxDepth;
+    this->viewport.TopLeftX = newData.topLeft.x;
+    this->viewport.TopLeftY = newData.topLeft.y;
 }
 
-D3DViewport::D3DViewport(D3DViewportData data) : data(data) {
-    this->Set(data);
+D3DViewport::D3DViewport(D3DViewportData newData) : data(newData) {
+    this->Set(newData);
 }

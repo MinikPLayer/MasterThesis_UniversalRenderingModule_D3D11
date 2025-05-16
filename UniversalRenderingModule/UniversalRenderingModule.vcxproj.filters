@@ -32,7 +32,7 @@
     <ClInclude Include="VertexPosition.h">
       <Filter>Module</Filter>
     </ClInclude>
-    <ClInclude Include="D3DBuffer.h">
+    <ClInclude Include="ID3DBuffer.h">
       <Filter>Module</Filter>
     </ClInclude>
     <ClInclude Include="ShaderProgram.h">
@@ -47,6 +47,12 @@
     <ClInclude Include="D3DViewport.h">
       <Filter>Module</Filter>
     </ClInclude>
+    <ClInclude Include="D3DConstantBuffer.h">
+      <Filter>Module</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DVertexBuffer.h">
+      <Filter>Module</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -59,7 +65,7 @@
     <ClCompile Include="D3DCore.cpp">
       <Filter>Module</Filter>
     </ClCompile>
-    <ClCompile Include="D3DBuffer.cpp">
+    <ClCompile Include="ID3DBuffer.cpp">
       <Filter>Module</Filter>
     </ClCompile>
     <ClCompile Include="ShaderProgram.cpp">

@@ -11,11 +11,12 @@
 #include <D3DCore.h>
 #include <Mesh.h>
 #include <VertexPosition.h>
-#include <D3DBuffer.h>
+#include <ID3DBuffer.h>
 #include <ShaderProgram.h>
 #include <D3DInputLayout.h>
 
 #include "D3DViewport.h"
+#include <D3DConstantBuffer.h>
 
 using namespace DirectX;
 
@@ -36,6 +37,7 @@ std::chrono::high_resolution_clock::time_point programStartTime = std::chrono::h
 void Clear(D3DCore& core) {
     auto now = std::chrono::high_resolution_clock::now();
     auto deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(now - lastTime).count() / 1000000.0f;
+	UNREFERENCED_PARAMETER(deltaTime);
     lastTime = now;
 
     auto elapsedTime = std::chrono::duration_cast<std::chrono::microseconds>(now - programStartTime).count() / 1000000.0f;
@@ -96,13 +98,13 @@ DirectX::XMMATRIX CreateTransformationMatrix(
 
 struct TestDrawData {
     D3DCore& core;
-    D3DBuffer& constantBuffer;
+    ID3DBuffer& constantBuffer;
     D3DViewport& viewport;
     ShaderProgram& program;
 	D3DInputLayout<VertexPositionColor>& iLayout;
     Mesh<VertexPositionColor>& mesh;
 
-	TestDrawData(D3DCore& core, D3DBuffer& constantBuffer, D3DViewport& viewport, ShaderProgram& program, D3DInputLayout<VertexPositionColor>& iLayout, Mesh<VertexPositionColor>& mesh)
+	TestDrawData(D3DCore& core, ID3DBuffer& constantBuffer, D3DViewport& viewport, ShaderProgram& program, D3DInputLayout<VertexPositionColor>& iLayout, Mesh<VertexPositionColor>& mesh)
 		: core(core), constantBuffer(constantBuffer), viewport(viewport), program(program), iLayout(iLayout), mesh(mesh) {
 	}
 };
@@ -169,16 +171,14 @@ void TestDraw(TestDrawData data) {
     );
     context->RSSetState(g_pRasterizerState_NoCulling);
 
-    auto inputLayout = V::GetInputLayout();
-	context->IASetInputLayout(data.iLayout.get().Get());
+	data.iLayout.Bind(data.core);
 
     UINT stride = sizeof(V);
     UINT offset = 0;
 	context->IASetVertexBuffers(0, 1, data.mesh.GetVertexBuffer().get().GetAddressOf(), &stride, &offset);
     context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    context->VSSetShader(data.program.GetVertexShader().Get(), nullptr, 0);
-    context->PSSetShader(data.program.GetPixelShader().Get(), nullptr, 0);
+    data.program.Bind(data.core);
 
     context->VSSetConstantBuffers(0, 1, data.constantBuffer.get().GetAddressOf());
 
@@ -211,7 +211,7 @@ int actualMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ 
     Mesh<VertexPositionColor> mesh(core, vertices);
 	ShaderProgram shader(core, L"SimpleVertexShader.cso", L"SimplePixelShader.cso");
 
-	D3DBuffer constantBuffer = D3DBuffer::CreateSingle<ConstantBuffer>(core, D3D11_BIND_CONSTANT_BUFFER);
+	D3DConstantBuffer constantBuffer = D3DConstantBuffer::Create<ConstantBuffer>(core, D3D11_BIND_CONSTANT_BUFFER);
     D3DInputLayout<VertexPositionColor> inputLayout(core, shader);
 	D3DViewport viewport(D3DViewportData(core.GetWindow().GetSize()));
 

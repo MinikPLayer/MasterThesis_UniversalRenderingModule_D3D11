@@ -10,17 +10,22 @@ ComPtr<ID3DBlob> ShaderProgram::LoadShaderBytecode(const std::wstring& fileName)
 	ID3DBlob* blob;
 	DX::ThrowIfFailed(
 		D3DReadFileToBlob(fileName.c_str(), &blob), 
-		fmt::format("Unable to load shader bytecode from {}", std::string(fileName.begin(), fileName.end()))
+		fmt::format("Unable to load shader bytecode from {}", StringUtils::WStringToString(fileName))
 	);
 
 	return blob;
+}
+
+void ShaderProgram::Bind(D3DCore& core) {
+	core.GetContext()->VSSetShader(this->vertexShader.Get(), nullptr, 0);
+	core.GetContext()->PSSetShader(this->pixelShader.Get(), nullptr, 0);
 }
 
 ShaderProgram::ShaderProgram(D3DCore& core, const std::wstring& vertexPath, const std::wstring& pixelPath)
 {
     ID3D11VertexShader* vShader;
 	this->vsSource = LoadShaderBytecode(vertexPath);
-	spdlog::trace("Creating vertex shader from {}", std::string(vertexPath.begin(), vertexPath.end()));
+	spdlog::trace("Creating vertex shader from {}", StringUtils::WStringToString(vertexPath));
 	spdlog::trace("Vertex shader size: {} bytes", this->vsSource->GetBufferSize());
 	auto hr = core.GetDevice()->CreateVertexShader(this->vsSource->GetBufferPointer(), this->vsSource->GetBufferSize(), nullptr, &vShader);
 	if (FAILED(hr)) {

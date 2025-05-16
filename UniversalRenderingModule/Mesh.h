@@ -3,24 +3,24 @@
 #include <concepts>
 #include <vector>
 
-#include "D3DBuffer.h"
+#include "D3DVertexBuffer.h"
 #include "VertexConcept.h"
 
 template<VertexTypeConcept VertexType>
 class Mesh {
-	D3DBuffer vertexBuffer;
+	D3DVertexBuffer<VertexType> vertexBuffer;
 	std::vector<VertexType> vertices;
 
 	// TODO: Test
 	void UpdateBuffer(D3DCore& core);
 
 public:
-	D3DBuffer& GetVertexBuffer() {
+	D3DVertexBuffer<VertexType>& GetVertexBuffer() {
 		return vertexBuffer;
 	}
 
 	Mesh(D3DCore& core, std::vector<VertexType> data)
-		: vertexBuffer(D3DBuffer::CreateFromArray(core, data, D3D11_BIND_VERTEX_BUFFER)) {}
+		: vertexBuffer(D3DVertexBuffer<VertexType>::Create(core, data, D3D11_BIND_VERTEX_BUFFER)) {}
 	
 	void ResetVertices(D3DCore& core) {
 		vertices.clear();
@@ -40,7 +40,7 @@ public:
 template<VertexTypeConcept VertexType>
 inline void Mesh<VertexType>::UpdateBuffer(D3DCore& core) {
 	core.GetContext()->UpdateSubresource(
-		vertexBuffer.get(),
+		vertexBuffer.get().Get(),
 		0,
 		nullptr,
 		vertices.data(),

@@ -7,10 +7,10 @@ struct D3DViewportData {
 	Size2i size;
 	float minDepth;
 	float maxDepth;
-	Pos2i topLeft;
+	Pos2f topLeft;
 
-	D3DViewportData(Size2i size, float minDepth = 0.0f, float maxDepth = 1.0f, Pos2i topLeft = Pos2i::ZERO)
-		: size(size), minDepth(minDepth), maxDepth(maxDepth), topLeft(topLeft) {
+	D3DViewportData(Size2i size, float minDepth = 0.0f, float maxDepth = 1.0f, Pos2f topLeft = Pos2f::ZERO)
+		: size(size), minDepth(minDepth), maxDepth(maxDepth), topLeft(topLeft) { 
 	}
 };
 
