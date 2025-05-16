@@ -17,6 +17,7 @@
 
 #include "D3DViewport.h"
 #include <D3DConstantBuffer.h>
+#include <D3DRasterizerState.h>
 
 using namespace DirectX;
 
@@ -100,12 +101,13 @@ struct TestDrawData {
     D3DCore& core;
     D3DConstantBuffer& constantBuffer;
     D3DViewport& viewport;
+    D3DRasterizerState& rState;
     ShaderProgram& program;
 	D3DInputLayout<VertexPositionColor>& iLayout;
     Mesh<VertexPositionColor>& mesh;
 
-	TestDrawData(D3DCore& core, D3DConstantBuffer& constantBuffer, D3DViewport& viewport, ShaderProgram& program, D3DInputLayout<VertexPositionColor>& iLayout, Mesh<VertexPositionColor>& mesh)
-		: core(core), constantBuffer(constantBuffer), viewport(viewport), program(program), iLayout(iLayout), mesh(mesh) {
+	TestDrawData(D3DCore& core, D3DConstantBuffer& constantBuffer, D3DViewport& viewport, D3DRasterizerState& rState, ShaderProgram& program, D3DInputLayout<VertexPositionColor>& iLayout, Mesh<VertexPositionColor>& mesh)
+		: core(core), constantBuffer(constantBuffer), viewport(viewport), rState(rState), program(program), iLayout(iLayout), mesh(mesh) {
 	}
 };
 
@@ -146,30 +148,10 @@ void TestDraw(TestDrawData data) {
 
     auto vp = data.viewport.GetData();
 	vp.size = data.core.GetWindow().GetSize();
-	data.viewport.Set(vp);
+	data.viewport.SetData(vp);
     data.viewport.Bind(data.core);
 
-    D3D11_RASTERIZER_DESC rasterizerDesc;
-    ZeroMemory(&rasterizerDesc, sizeof(D3D11_RASTERIZER_DESC)); // Initialize with zeros
-    // --- Core settings for disabling backface culling ---
-    rasterizerDesc.CullMode = D3D11_CULL_NONE; // This disables all culling (neither front nor back faces are culled)
-    // --- Other common rasterizer settings (set them as needed) ---
-    rasterizerDesc.FillMode = D3D11_FILL_SOLID;         // Render polygons as solid
-    rasterizerDesc.FrontCounterClockwise = false;       // Default: Clockwise vertices are front-facing.
-    // Set to 'true' if your vertices are defined in counter-clockwise order for front faces.
-    rasterizerDesc.DepthBias = 0;
-    rasterizerDesc.DepthBiasClamp = 0.0f;
-    rasterizerDesc.SlopeScaledDepthBias = 0.0f;
-    rasterizerDesc.DepthClipEnable = true;              // Enable depth clipping (pixels outside near/far planes are clipped)
-    rasterizerDesc.ScissorEnable = false;               // Disable scissor testing
-    rasterizerDesc.MultisampleEnable = false;           // Disable multisampling (MSAA) for this state (can be true if using MSAA render targets)
-    rasterizerDesc.AntialiasedLineEnable = false;       // Disable anti-aliased line rendering
-    ID3D11RasterizerState* g_pRasterizerState_NoCulling = nullptr;
-    DX::ThrowIfFailed(
-        data.core.GetDevice()->CreateRasterizerState(&rasterizerDesc, &g_pRasterizerState_NoCulling),
-		"Failed to create Rasterizer State!"
-    );
-    context->RSSetState(g_pRasterizerState_NoCulling);
+	data.rState.Bind(data.core);
 
     data.core.SetPrimitiveTopology(PrimitiveTopologies::TRIANGLE_STRIP);
 	data.iLayout.Bind(data.core);
@@ -212,7 +194,11 @@ int actualMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ 
     D3DInputLayout<VertexPositionColor> inputLayout(core, shader);
 	D3DViewport viewport(D3DViewportData(core.GetWindow().GetSize()));
 
-	auto testDrawData = TestDrawData(core, constantBuffer, viewport, shader, inputLayout, mesh);
+	auto rStateData = D3DRasterizerStateData();
+    rStateData.cullMode = CullModes::NONE;
+	auto rState = D3DRasterizerState(rStateData);
+
+	auto testDrawData = TestDrawData(core, constantBuffer, viewport, rState, shader, inputLayout, mesh);
 
     core.OnWindowPaint = [&](D3DCore& core) {
         Clear(core);

@@ -167,6 +167,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/Zc:__cplusplus /ZH:SHA_256 /utf-8 %(AdditionalOptions)</AdditionalOptions>
       <GuardEHContMetadata>true</GuardEHContMetadata>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -180,6 +181,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="D3DRasterizerState.h" />
     <ClInclude Include="D3DVertexBuffer.h" />
     <ClInclude Include="ID3DBuffer.h" />
     <ClInclude Include="D3DConstantBuffer.h" />
@@ -198,6 +200,7 @@
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="D3DRasterizerState.cpp" />
     <ClCompile Include="ID3DBuffer.cpp" />
     <ClCompile Include="D3DCore.cpp" />
     <ClCompile Include="D3DViewport.cpp" />

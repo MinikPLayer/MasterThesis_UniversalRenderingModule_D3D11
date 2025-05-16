@@ -15,7 +15,6 @@ struct D3DViewportData {
 };
 
 class D3DViewport {
-	D3D11_VIEWPORT viewport;
 	D3DViewportData data;
 
 public:
@@ -24,7 +23,7 @@ public:
 	D3DViewportData GetData() {
 		return this->data;
 	}
-	void Set(D3DViewportData data);
+	void SetData(D3DViewportData data);
 
 	D3DViewport(D3DViewportData data);
 };
