@@ -15,6 +15,8 @@
 #include <ShaderProgram.h>
 #include <D3DInputLayout.h>
 
+#include "D3DViewport.h"
+
 using namespace DirectX;
 
 #ifdef __clang__
@@ -92,13 +94,25 @@ DirectX::XMMATRIX CreateTransformationMatrix(
     return matWVP;
 }
 
+struct TestDrawData {
+    D3DCore& core;
+    D3DBuffer& constantBuffer;
+    D3DViewport& viewport;
+    ShaderProgram& program;
+	D3DInputLayout<VertexPositionColor>& iLayout;
+    Mesh<VertexPositionColor>& mesh;
+
+	TestDrawData(D3DCore& core, D3DBuffer& constantBuffer, D3DViewport& viewport, ShaderProgram& program, D3DInputLayout<VertexPositionColor>& iLayout, Mesh<VertexPositionColor>& mesh)
+		: core(core), constantBuffer(constantBuffer), viewport(viewport), program(program), iLayout(iLayout), mesh(mesh) {
+	}
+};
+
 static int cbCounter = 0;
 template<VertexTypeConcept V>
-void TestDraw(D3DCore& core, D3DBuffer& constantBuffer, ShaderProgram& program, D3DInputLayout<V>& iLayout, Mesh<V>& mesh) {
-	auto context = core.GetContext();
+void TestDraw(TestDrawData data) {
+	auto context = data.core.GetContext();
 
     // Aktualizacja stałej buforowej
-    ConstantBuffer cb{};
     DirectX::XMFLOAT3 modelPos = { 0.0f, 0.0f, 0.0f };
     DirectX::XMFLOAT3 modelRot = { 0.0f, cbCounter / 100.0f, 0.0f };
     DirectX::XMFLOAT3 modelScl = { 1.0f, 1.0f, 1.0f };
@@ -120,21 +134,18 @@ void TestDraw(D3DCore& core, D3DBuffer& constantBuffer, ShaderProgram& program, 
         fov,
         nearPlane,
         farPlane,
-        core.GetWindow().GetSize()
+        data.core.GetWindow().GetSize()
     );
+
+    ConstantBuffer cb{};
     cb.mWorldViewProjection = DirectX::XMMatrixTranspose(WVP);
-    context->UpdateSubresource(constantBuffer.get().Get(), 0, nullptr, &cb, 0, 0);
+    data.constantBuffer.UpdateWithData(data.core, &cb);
     cbCounter++;
 
-    D3D11_VIEWPORT vp;
-	auto size = core.GetWindow().GetSize();
-    vp.Width = static_cast<FLOAT>(size.width);
-    vp.Height = static_cast<FLOAT>(size.height);
-    vp.MinDepth = 0.0f;
-    vp.MaxDepth = 1.0f;
-    vp.TopLeftX = 0;
-    vp.TopLeftY = 0;
-    context->RSSetViewports(1, &vp);
+    auto vp = data.viewport.GetData();
+	vp.size = data.core.GetWindow().GetSize();
+	data.viewport.Set(vp);
+    data.viewport.Bind(data.core);
 
     D3D11_RASTERIZER_DESC rasterizerDesc;
     ZeroMemory(&rasterizerDesc, sizeof(D3D11_RASTERIZER_DESC)); // Initialize with zeros
@@ -153,27 +164,27 @@ void TestDraw(D3DCore& core, D3DBuffer& constantBuffer, ShaderProgram& program, 
     rasterizerDesc.AntialiasedLineEnable = false;       // Disable anti-aliased line rendering
     ID3D11RasterizerState* g_pRasterizerState_NoCulling = nullptr;
     DX::ThrowIfFailed(
-        core.GetDevice()->CreateRasterizerState(&rasterizerDesc, &g_pRasterizerState_NoCulling),
+        data.core.GetDevice()->CreateRasterizerState(&rasterizerDesc, &g_pRasterizerState_NoCulling),
 		"Failed to create Rasterizer State!"
     );
     context->RSSetState(g_pRasterizerState_NoCulling);
 
     auto inputLayout = V::GetInputLayout();
-	context->IASetInputLayout(iLayout.get().Get());
+	context->IASetInputLayout(data.iLayout.get().Get());
 
     UINT stride = sizeof(V);
     UINT offset = 0;
-	context->IASetVertexBuffers(0, 1, mesh.GetVertexBuffer().get().GetAddressOf(), &stride, &offset);
+	context->IASetVertexBuffers(0, 1, data.mesh.GetVertexBuffer().get().GetAddressOf(), &stride, &offset);
     context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    context->VSSetShader(program.GetVertexShader().Get(), nullptr, 0);
-    context->PSSetShader(program.GetPixelShader().Get(), nullptr, 0);
+    context->VSSetShader(data.program.GetVertexShader().Get(), nullptr, 0);
+    context->PSSetShader(data.program.GetPixelShader().Get(), nullptr, 0);
 
-    context->VSSetConstantBuffers(0, 1, constantBuffer.get().GetAddressOf());
+    context->VSSetConstantBuffers(0, 1, data.constantBuffer.get().GetAddressOf());
 
     context->Draw(3, 0);
 
-    core.Present(0);
+    data.core.Present(0);
 }
 
 #pragma endregion
@@ -202,16 +213,19 @@ int actualMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ 
 
 	D3DBuffer constantBuffer = D3DBuffer::CreateSingle<ConstantBuffer>(core, D3D11_BIND_CONSTANT_BUFFER);
     D3DInputLayout<VertexPositionColor> inputLayout(core, shader);
+	D3DViewport viewport(D3DViewportData(core.GetWindow().GetSize()));
+
+	auto testDrawData = TestDrawData(core, constantBuffer, viewport, shader, inputLayout, mesh);
 
     core.OnWindowPaint = [&](D3DCore& core) {
         Clear(core);
-        TestDraw<VertexPositionColor>(core, constantBuffer, shader, inputLayout, mesh);
+        TestDraw<VertexPositionColor>(testDrawData);
     };
 
     while (!core.GetWindow().IsDestroyed()) {
         core.GetWindow().PollEvents();
         Clear(core);
-        TestDraw<VertexPositionColor>(core, constantBuffer, shader, inputLayout, mesh);
+        TestDraw<VertexPositionColor>(testDrawData);
     }
     Logger::DisposeLogger();
 

@@ -10,7 +10,7 @@ class D3DBuffer {
 	D3DBuffer(D3DCore& core, D3D11_BUFFER_DESC desc, D3D11_SUBRESOURCE_DATA* initData);
 
 public:
-	// TODO: Add update function
+	void UpdateWithData(D3DCore& core, const void* data);
 
 	ComPtr<ID3D11Buffer> get() {
 		return this->buffer;

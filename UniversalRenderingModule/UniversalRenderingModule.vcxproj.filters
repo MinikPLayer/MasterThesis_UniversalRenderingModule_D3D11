@@ -44,6 +44,9 @@
     <ClInclude Include="D3DInputLayout.h">
       <Filter>Module</Filter>
     </ClInclude>
+    <ClInclude Include="D3DViewport.h">
+      <Filter>Module</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -62,6 +65,10 @@
     <ClCompile Include="ShaderProgram.cpp">
       <Filter>Module</Filter>
     </ClCompile>
+    <ClCompile Include="Utils.cpp">
+      <Filter>Module</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DViewport.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

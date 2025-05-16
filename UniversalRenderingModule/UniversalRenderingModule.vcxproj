@@ -183,6 +183,7 @@
     <ClInclude Include="D3DBuffer.h" />
     <ClInclude Include="D3DCore.h" />
     <ClInclude Include="D3DInputLayout.h" />
+    <ClInclude Include="D3DViewport.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="Mesh.h" />
@@ -197,6 +198,7 @@
   <ItemGroup>
     <ClCompile Include="D3DBuffer.cpp" />
     <ClCompile Include="D3DCore.cpp" />
+    <ClCompile Include="D3DViewport.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -207,6 +209,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="ShaderProgram.cpp" />
+    <ClCompile Include="Utils.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
