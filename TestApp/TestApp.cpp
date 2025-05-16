@@ -1,23 +1,18 @@
-﻿//
-// Main.cpp
-//
+﻿#include <spdlog/spdlog.h>
 
-#include "pch.h"
-#include "Game.h"
-#include <spdlog/spdlog.h>
+#include <URM/Core/pch.h>
+#include <URM/Core/Window.h>
+#include <URM/Core/Log.h>
+#include <URM/Core/D3DCore.h>
+#include <URM/Core/Mesh.h>
+#include <URM/Core/VertexPosition.h>
+#include <URM/Core/ID3DBuffer.h>
+#include <URM/Core/ShaderProgram.h>
+#include <URM/Core/D3DInputLayout.h>
 
-#include "Window.h"
-#include <Log.h>
-#include <D3DCore.h>
-#include <Mesh.h>
-#include <VertexPosition.h>
-#include <ID3DBuffer.h>
-#include <ShaderProgram.h>
-#include <D3DInputLayout.h>
-
-#include "D3DViewport.h"
-#include <D3DConstantBuffer.h>
-#include <D3DRasterizerState.h>
+#include <URM/Core/D3DViewport.h>
+#include <URM/Core/D3DConstantBuffer.h>
+#include <URM/Core/D3DRasterizerState.h>
 
 using namespace DirectX;
 
@@ -38,7 +33,7 @@ std::chrono::high_resolution_clock::time_point programStartTime = std::chrono::h
 void Clear(D3DCore& core) {
     auto now = std::chrono::high_resolution_clock::now();
     auto deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(now - lastTime).count() / 1000000.0f;
-	UNREFERENCED_PARAMETER(deltaTime);
+    UNREFERENCED_PARAMETER(deltaTime);
     lastTime = now;
 
     auto elapsedTime = std::chrono::duration_cast<std::chrono::microseconds>(now - programStartTime).count() / 1000000.0f;
@@ -65,7 +60,7 @@ DirectX::XMMATRIX CreateTransformationMatrix(
     float nearPlane,
     float farPlane,
     Size2i windowSize
-    )
+)
 {
     // 1. World Matrix
     DirectX::XMMATRIX matScale = DirectX::XMMatrixScaling(modelScale.x, modelScale.y, modelScale.z);
@@ -103,18 +98,18 @@ struct TestDrawData {
     D3DViewport& viewport;
     D3DRasterizerState& rState;
     ShaderProgram& program;
-	D3DInputLayout<VertexPositionColor>& iLayout;
+    D3DInputLayout<VertexPositionColor>& iLayout;
     Mesh<VertexPositionColor>& mesh;
 
-	TestDrawData(D3DCore& core, D3DConstantBuffer& constantBuffer, D3DViewport& viewport, D3DRasterizerState& rState, ShaderProgram& program, D3DInputLayout<VertexPositionColor>& iLayout, Mesh<VertexPositionColor>& mesh)
-		: core(core), constantBuffer(constantBuffer), viewport(viewport), rState(rState), program(program), iLayout(iLayout), mesh(mesh) {
-	}
+    TestDrawData(D3DCore& core, D3DConstantBuffer& constantBuffer, D3DViewport& viewport, D3DRasterizerState& rState, ShaderProgram& program, D3DInputLayout<VertexPositionColor>& iLayout, Mesh<VertexPositionColor>& mesh)
+        : core(core), constantBuffer(constantBuffer), viewport(viewport), rState(rState), program(program), iLayout(iLayout), mesh(mesh) {
+    }
 };
 
 static int cbCounter = 0;
 template<VertexTypeConcept V>
 void TestDraw(TestDrawData data) {
-	auto context = data.core.GetContext();
+    auto context = data.core.GetContext();
 
     // Aktualizacja stałej buforowej
     DirectX::XMFLOAT3 modelPos = { 0.0f, 0.0f, 0.0f };
@@ -147,17 +142,17 @@ void TestDraw(TestDrawData data) {
     cbCounter++;
 
     auto vp = data.viewport.GetData();
-	vp.size = data.core.GetWindow().GetSize();
-	data.viewport.SetData(vp);
+    vp.size = data.core.GetWindow().GetSize();
+    data.viewport.SetData(vp);
     data.viewport.Bind(data.core);
 
-	data.rState.Bind(data.core);
+    data.rState.Bind(data.core);
 
     data.core.SetPrimitiveTopology(PrimitiveTopologies::TRIANGLE_STRIP);
-	data.iLayout.Bind(data.core);
+    data.iLayout.Bind(data.core);
 
-	data.mesh.GetVertexBuffer().Bind(data.core);
-	data.constantBuffer.Bind(data.core);
+    data.mesh.GetVertexBuffer().Bind(data.core);
+    data.constantBuffer.Bind(data.core);
 
     data.program.Bind(data.core);
 
@@ -188,22 +183,22 @@ int actualMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ 
             VertexPositionColor(-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f)
     };
     Mesh<VertexPositionColor> mesh(core, vertices);
-	ShaderProgram shader(core, L"SimpleVertexShader.cso", L"SimplePixelShader.cso");
+    ShaderProgram shader(core, L"SimpleVertexShader.cso", L"SimplePixelShader.cso");
 
-	D3DConstantBuffer constantBuffer = D3DConstantBuffer::Create<ConstantBuffer>(core, D3D11_BIND_CONSTANT_BUFFER);
+    D3DConstantBuffer constantBuffer = D3DConstantBuffer::Create<ConstantBuffer>(core, D3D11_BIND_CONSTANT_BUFFER);
     D3DInputLayout<VertexPositionColor> inputLayout(core, shader);
-	D3DViewport viewport(D3DViewportData(core.GetWindow().GetSize()));
+    D3DViewport viewport(D3DViewportData(core.GetWindow().GetSize()));
 
-	auto rStateData = D3DRasterizerStateData();
-    rStateData.cullMode = CullModes::NONE;
-	auto rState = D3DRasterizerState(rStateData);
+    auto rStateData = D3DRasterizerStateData();
+    rStateData.cullMode = CullModes::BACK;
+    auto rState = D3DRasterizerState(rStateData);
 
-	auto testDrawData = TestDrawData(core, constantBuffer, viewport, rState, shader, inputLayout, mesh);
+    auto testDrawData = TestDrawData(core, constantBuffer, viewport, rState, shader, inputLayout, mesh);
 
     core.OnWindowPaint = [&](D3DCore& core) {
         Clear(core);
         TestDraw<VertexPositionColor>(testDrawData);
-    };
+        };
 
     while (!core.GetWindow().IsDestroyed()) {
         core.GetWindow().PollEvents();
@@ -245,18 +240,18 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     Logger::InitLogger();
     int returnCode = 123456;
     try {
-		returnCode = actualMain(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
+        returnCode = actualMain(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
     }
     catch (std::exception e) {
-		spdlog::critical("Exception: {}", e.what());
+        spdlog::critical("Exception: {}", e.what());
 
-		std::wstring msgBoxMessage = L"Unrecoverable error: \n" + std::wstring(e.what(), e.what() + strlen(e.what()));
+        std::wstring msgBoxMessage = L"Unrecoverable error: \n" + std::wstring(e.what(), e.what() + strlen(e.what()));
         if (GetLastError() != 0) {
             auto lastWinApiErrorString = GetLastErrorAsString();
-			msgBoxMessage += L"\n\nLast WinAPI error: " + std::wstring(lastWinApiErrorString.begin(), lastWinApiErrorString.end());
+            msgBoxMessage += L"\n\nLast WinAPI error: " + std::wstring(lastWinApiErrorString.begin(), lastWinApiErrorString.end());
         }
 
-		MessageBox(nullptr, std::wstring(e.what(), e.what() + strlen(e.what())).c_str(), L"Unrecoverable general error.", MB_OK | MB_ICONERROR);
+        MessageBox(nullptr, std::wstring(e.what(), e.what() + strlen(e.what())).c_str(), L"Unrecoverable general error.", MB_OK | MB_ICONERROR);
         PostQuitMessage(0);
     }
     Logger::DisposeLogger();

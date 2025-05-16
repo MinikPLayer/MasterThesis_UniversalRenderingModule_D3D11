@@ -2,7 +2,7 @@
 
 #include <d3d11.h>
 #include <vector>
-#include <D3DCore.h>
+#include "D3DCore.h"
 
 class ID3DBuffer {
 protected:

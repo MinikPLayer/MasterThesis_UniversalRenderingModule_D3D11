@@ -8,18 +8,13 @@
     <Filter Include="Module">
       <UniqueIdentifier>{3d1614e7-9c66-4bbd-9b72-9264414cbf1f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Assets\Shaders">
-      <UniqueIdentifier>{f0002b3f-ee16-4a94-b752-800857f2e964}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="pch.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="StepTimer.h" />
     <ClInclude Include="Window.h">
       <Filter>Module</Filter>
     </ClInclude>
-    <ClInclude Include="Log.h" />
     <ClInclude Include="D3DCore.h">
       <Filter>Module</Filter>
     </ClInclude>
@@ -56,15 +51,16 @@
     <ClInclude Include="D3DRasterizerState.h">
       <Filter>Module</Filter>
     </ClInclude>
+    <ClInclude Include="Log.h">
+      <Filter>Module</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="pch.cpp" />
     <ClCompile Include="Game.cpp" />
-    <ClCompile Include="Main.cpp" />
     <ClCompile Include="Window.cpp">
       <Filter>Module</Filter>
     </ClCompile>
-    <ClCompile Include="Log.cpp" />
     <ClCompile Include="D3DCore.cpp">
       <Filter>Module</Filter>
     </ClCompile>
@@ -77,8 +73,16 @@
     <ClCompile Include="Utils.cpp">
       <Filter>Module</Filter>
     </ClCompile>
-    <ClCompile Include="D3DViewport.cpp" />
-    <ClCompile Include="D3DRasterizerState.cpp" />
+    <ClCompile Include="D3DRasterizerState.cpp">
+      <Filter>Module</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DViewport.cpp">
+      <Filter>Module</Filter>
+    </ClCompile>
+    <ClCompile Include="Log.cpp">
+      <Filter>Module</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -95,13 +99,5 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="SimplePixelShader.hlsl">
-      <Filter>Assets\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="SimpleVertexShader.hlsl">
-      <Filter>Assets\Shaders</Filter>
-    </FxCompile>
   </ItemGroup>
 </Project>

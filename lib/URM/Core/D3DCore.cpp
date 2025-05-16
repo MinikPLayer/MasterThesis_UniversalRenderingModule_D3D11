@@ -1,6 +1,9 @@
 #include "pch.h"
 #include "D3DCore.h"
 
+#pragma comment(lib, "d3d11.lib")
+#pragma comment(lib, "d3dcompiler.lib")
+
 using namespace DirectX;
 
 void D3DCore::CreateDevice() {

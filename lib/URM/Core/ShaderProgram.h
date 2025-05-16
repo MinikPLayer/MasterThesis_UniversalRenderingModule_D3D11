@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <string>
-#include <D3DCore.h>
+#include "D3DCore.h"
 
 #include <d3dcommon.h>
 
