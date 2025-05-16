@@ -5,84 +5,34 @@
       <UniqueIdentifier>c90b97fc-0f48-4275-b120-3f8e1bbcd37e</UniqueIdentifier>
       <Extensions>ico;cur;bmp;dds;dlg;fbx;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tga;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Module">
-      <UniqueIdentifier>{3d1614e7-9c66-4bbd-9b72-9264414cbf1f}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Game.h" />
-    <ClInclude Include="StepTimer.h" />
-    <ClInclude Include="Window.h">
-      <Filter>Module</Filter>
-    </ClInclude>
-    <ClInclude Include="D3DCore.h">
-      <Filter>Module</Filter>
-    </ClInclude>
-    <ClInclude Include="Utils.h">
-      <Filter>Module</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>Module</Filter>
-    </ClInclude>
-    <ClInclude Include="VertexPosition.h">
-      <Filter>Module</Filter>
-    </ClInclude>
-    <ClInclude Include="ID3DBuffer.h">
-      <Filter>Module</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderProgram.h">
-      <Filter>Module</Filter>
-    </ClInclude>
-    <ClInclude Include="VertexConcept.h">
-      <Filter>Module</Filter>
-    </ClInclude>
-    <ClInclude Include="D3DInputLayout.h">
-      <Filter>Module</Filter>
-    </ClInclude>
-    <ClInclude Include="D3DViewport.h">
-      <Filter>Module</Filter>
-    </ClInclude>
-    <ClInclude Include="D3DConstantBuffer.h">
-      <Filter>Module</Filter>
-    </ClInclude>
-    <ClInclude Include="D3DVertexBuffer.h">
-      <Filter>Module</Filter>
-    </ClInclude>
-    <ClInclude Include="D3DRasterizerState.h">
-      <Filter>Module</Filter>
-    </ClInclude>
-    <ClInclude Include="Log.h">
-      <Filter>Module</Filter>
-    </ClInclude>
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Window.h" />
+    <ClInclude Include="D3DConstantBuffer.h" />
+    <ClInclude Include="D3DCore.h" />
+    <ClInclude Include="D3DInputLayout.h" />
+    <ClInclude Include="D3DRasterizerState.h" />
+    <ClInclude Include="D3DVertexBuffer.h" />
+    <ClInclude Include="D3DViewport.h" />
+    <ClInclude Include="ID3DBuffer.h" />
+    <ClInclude Include="Log.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="ShaderProgram.h" />
+    <ClInclude Include="Utils.h" />
+    <ClInclude Include="VertexConcept.h" />
+    <ClInclude Include="VertexPosition.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Game.cpp" />
-    <ClCompile Include="Window.cpp">
-      <Filter>Module</Filter>
-    </ClCompile>
-    <ClCompile Include="D3DCore.cpp">
-      <Filter>Module</Filter>
-    </ClCompile>
-    <ClCompile Include="ID3DBuffer.cpp">
-      <Filter>Module</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderProgram.cpp">
-      <Filter>Module</Filter>
-    </ClCompile>
-    <ClCompile Include="Utils.cpp">
-      <Filter>Module</Filter>
-    </ClCompile>
-    <ClCompile Include="D3DRasterizerState.cpp">
-      <Filter>Module</Filter>
-    </ClCompile>
-    <ClCompile Include="D3DViewport.cpp">
-      <Filter>Module</Filter>
-    </ClCompile>
-    <ClCompile Include="Log.cpp">
-      <Filter>Module</Filter>
-    </ClCompile>
     <ClCompile Include="pch.cpp" />
+    <ClCompile Include="D3DCore.cpp" />
+    <ClCompile Include="D3DRasterizerState.cpp" />
+    <ClCompile Include="D3DViewport.cpp" />
+    <ClCompile Include="ID3DBuffer.cpp" />
+    <ClCompile Include="Log.cpp" />
+    <ClCompile Include="ShaderProgram.cpp" />
+    <ClCompile Include="Utils.cpp" />
+    <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
