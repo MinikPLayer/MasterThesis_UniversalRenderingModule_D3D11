@@ -20,7 +20,7 @@ public:
 	}
 
 	Mesh(D3DCore& core, std::vector<VertexType> data)
-		: vertexBuffer(D3DVertexBuffer<VertexType>::Create(core, data, D3D11_BIND_VERTEX_BUFFER)) {}
+		: vertexBuffer(D3DVertexBuffer<VertexType>::Create(core, data)) {}
 	
 	void ResetVertices(D3DCore& core) {
 		vertices.clear();

@@ -185,12 +185,12 @@ int actualMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ 
     Mesh<VertexPositionColor> mesh(core, vertices);
     ShaderProgram shader(core, L"SimpleVertexShader.cso", L"SimplePixelShader.cso");
 
-    D3DConstantBuffer constantBuffer = D3DConstantBuffer::Create<ConstantBuffer>(core, D3D11_BIND_CONSTANT_BUFFER);
+    D3DConstantBuffer constantBuffer = D3DConstantBuffer::Create<ConstantBuffer>(core);
     D3DInputLayout<VertexPositionColor> inputLayout(core, shader);
     D3DViewport viewport(D3DViewportData(core.GetWindow().GetSize()));
 
     auto rStateData = D3DRasterizerStateData();
-    rStateData.cullMode = CullModes::BACK;
+    rStateData.cullMode = CullModes::NONE;
     auto rState = D3DRasterizerState(rStateData);
 
     auto testDrawData = TestDrawData(core, constantBuffer, viewport, rState, shader, inputLayout, mesh);
@@ -198,7 +198,7 @@ int actualMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ 
     core.OnWindowPaint = [&](D3DCore& core) {
         Clear(core);
         TestDraw<VertexPositionColor>(testDrawData);
-        };
+    };
 
     while (!core.GetWindow().IsDestroyed()) {
         core.GetWindow().PollEvents();

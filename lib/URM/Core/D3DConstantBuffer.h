@@ -14,10 +14,10 @@ public:
 	}
 
 	template<typename T>
-	static D3DConstantBuffer Create(D3DCore& core, UINT bindFlags, UINT cpuAccessFlags = 0, D3D11_USAGE usage = D3D11_USAGE_DEFAULT) {
+	static D3DConstantBuffer Create(D3DCore& core, UINT cpuAccessFlags = 0, D3D11_USAGE usage = D3D11_USAGE_DEFAULT) {
 		D3D11_BUFFER_DESC desc = {};
 		desc.Usage = usage;
-		desc.BindFlags = bindFlags;
+		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		desc.ByteWidth = static_cast<UINT>(sizeof(T));
 		desc.CPUAccessFlags = cpuAccessFlags;
 

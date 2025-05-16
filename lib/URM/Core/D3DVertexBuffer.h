@@ -17,10 +17,10 @@ public:
 		core.GetContext()->IASetVertexBuffers(0, 1, this->buffer.GetAddressOf(), &stride, &offset);
 	}
 
-	static D3DVertexBuffer Create(D3DCore& core, std::vector<VertexType> data, UINT bindFlags, UINT cpuAccessFlags = 0, D3D11_USAGE usage = D3D11_USAGE_DEFAULT) {
+	static D3DVertexBuffer Create(D3DCore& core, std::vector<VertexType> data, UINT cpuAccessFlags = 0, D3D11_USAGE usage = D3D11_USAGE_DEFAULT) {
 		D3D11_BUFFER_DESC desc = {};
 		desc.Usage = usage;
-		desc.BindFlags = bindFlags;
+		desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		desc.ByteWidth = static_cast<UINT>(sizeof(VertexType) * data.size());
 		desc.CPUAccessFlags = cpuAccessFlags;
 
