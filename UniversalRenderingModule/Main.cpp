@@ -98,13 +98,13 @@ DirectX::XMMATRIX CreateTransformationMatrix(
 
 struct TestDrawData {
     D3DCore& core;
-    ID3DBuffer& constantBuffer;
+    D3DConstantBuffer& constantBuffer;
     D3DViewport& viewport;
     ShaderProgram& program;
 	D3DInputLayout<VertexPositionColor>& iLayout;
     Mesh<VertexPositionColor>& mesh;
 
-	TestDrawData(D3DCore& core, ID3DBuffer& constantBuffer, D3DViewport& viewport, ShaderProgram& program, D3DInputLayout<VertexPositionColor>& iLayout, Mesh<VertexPositionColor>& mesh)
+	TestDrawData(D3DCore& core, D3DConstantBuffer& constantBuffer, D3DViewport& viewport, ShaderProgram& program, D3DInputLayout<VertexPositionColor>& iLayout, Mesh<VertexPositionColor>& mesh)
 		: core(core), constantBuffer(constantBuffer), viewport(viewport), program(program), iLayout(iLayout), mesh(mesh) {
 	}
 };
@@ -171,16 +171,13 @@ void TestDraw(TestDrawData data) {
     );
     context->RSSetState(g_pRasterizerState_NoCulling);
 
+    data.core.SetPrimitiveTopology(PrimitiveTopologies::TRIANGLE_STRIP);
 	data.iLayout.Bind(data.core);
 
-    UINT stride = sizeof(V);
-    UINT offset = 0;
-	context->IASetVertexBuffers(0, 1, data.mesh.GetVertexBuffer().get().GetAddressOf(), &stride, &offset);
-    context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	data.mesh.GetVertexBuffer().Bind(data.core);
+	data.constantBuffer.Bind(data.core);
 
     data.program.Bind(data.core);
-
-    context->VSSetConstantBuffers(0, 1, data.constantBuffer.get().GetAddressOf());
 
     context->Draw(3, 0);
 

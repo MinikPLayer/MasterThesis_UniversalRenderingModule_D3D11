@@ -196,6 +196,10 @@ void D3DCore::WindowPaint(Window&) {
     }
 }
 
+void D3DCore::SetPrimitiveTopology(PrimitiveTopologies topology) {
+	context->IASetPrimitiveTopology(static_cast<D3D11_PRIMITIVE_TOPOLOGY>(topology));
+}
+
 void D3DCore::Clear(XMVECTORF32 color) {
     // Clear the views.
     context->ClearRenderTargetView(this->renderTargetView.Get(), color);
