@@ -27,8 +27,12 @@ public:
 		return vertexBuffer;
 	}
 
+	// TODO: Add index buffer support
 	Mesh(D3DCore& core, std::vector<VertexType> data)
-		: vertexBuffer(D3DVertexBuffer<VertexType>::Create(core, data)) {}
+		: vertexBuffer(D3DVertexBuffer<VertexType>::Create(core, data)) 
+	{
+		this->vertices = data;
+	}
 	
 	void ResetVertices(D3DCore& core) override {
 		vertices.clear();
