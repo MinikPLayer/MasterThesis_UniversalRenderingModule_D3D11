@@ -182,15 +182,19 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="D3DIndexBuffer.h" />
     <ClInclude Include="D3DRasterizerState.h" />
+    <ClInclude Include="D3DTexture.h" />
     <ClInclude Include="D3DVertexBuffer.h" />
     <ClInclude Include="ID3DBuffer.h" />
     <ClInclude Include="D3DConstantBuffer.h" />
     <ClInclude Include="D3DCore.h" />
     <ClInclude Include="D3DInputLayout.h" />
     <ClInclude Include="D3DViewport.h" />
+    <ClInclude Include="IMesh.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="ModelLoader.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="ShaderProgram.h" />
     <ClInclude Include="Utils.h" />
@@ -204,6 +208,7 @@
     <ClCompile Include="D3DCore.cpp" />
     <ClCompile Include="D3DViewport.cpp" />
     <ClCompile Include="Log.cpp" />
+    <ClCompile Include="ModelLoader.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>

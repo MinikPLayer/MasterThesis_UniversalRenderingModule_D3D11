@@ -38,4 +38,9 @@
       <Filter>Assets</Filter>
     </Manifest>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="cube.fbx">
+      <Filter>Assets</Filter>
+    </None>
+  </ItemGroup>
 </Project>

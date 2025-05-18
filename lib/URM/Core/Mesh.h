@@ -4,16 +4,24 @@
 #include <vector>
 
 #include "D3DVertexBuffer.h"
+#include "D3DIndexBuffer.h"
 #include "VertexConcept.h"
+#include "IMesh.h"
 
 template<VertexTypeConcept VertexType>
-class Mesh {
+class Mesh : public IMesh {
 	D3DVertexBuffer<VertexType> vertexBuffer;
+	std::optional<D3DIndexBuffer> indexBuffer;
+
 	std::vector<VertexType> vertices;
+	std::vector<unsigned int> indices;
 
 	// TODO: Test
 	void UpdateBuffer(D3DCore& core);
 
+	size_t GetVertexTypeHashCode() override {
+		return GetTypeHashCode<VertexType>();
+	}
 public:
 	D3DVertexBuffer<VertexType>& GetVertexBuffer() {
 		return vertexBuffer;
@@ -22,7 +30,7 @@ public:
 	Mesh(D3DCore& core, std::vector<VertexType> data)
 		: vertexBuffer(D3DVertexBuffer<VertexType>::Create(core, data)) {}
 	
-	void ResetVertices(D3DCore& core) {
+	void ResetVertices(D3DCore& core) override {
 		vertices.clear();
 		UpdateBuffer(core);
 	}
@@ -44,7 +52,7 @@ inline void Mesh<VertexType>::UpdateBuffer(D3DCore& core) {
 		0,
 		nullptr,
 		vertices.data(),
-		sizeof(VertexType) * vertices.size(),
+		(UINT)(sizeof(VertexType) * vertices.size()),
 		sizeof(VertexType)
 	);
 }

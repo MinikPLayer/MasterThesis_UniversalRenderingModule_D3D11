@@ -27,8 +27,8 @@ void D3DRasterizerState::Bind(D3DCore& core) {
 	core.GetContext()->RSSetState(rasterizerState.Get());
 }
 
-void D3DRasterizerState::SetData(D3DRasterizerStateData data) {
-	this->data = data;
+void D3DRasterizerState::SetData(D3DRasterizerStateData newData) {
+	this->data = newData;
 }
 
 D3DRasterizerState::D3DRasterizerState(D3DRasterizerStateData data) {
