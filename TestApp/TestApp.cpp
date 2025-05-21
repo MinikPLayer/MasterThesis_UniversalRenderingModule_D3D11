@@ -13,6 +13,7 @@
 #include <URM/Core/D3DViewport.h>
 #include <URM/Core/D3DConstantBuffer.h>
 #include <URM/Core/D3DRasterizerState.h>
+#include <URM/Core/ModelLoader.h>
 
 using namespace DirectX;
 
@@ -99,12 +100,27 @@ struct TestDrawData {
     D3DRasterizerState& rState;
     ShaderProgram& program;
     D3DInputLayout<VertexPositionColor>& iLayout;
-    Mesh<VertexPositionColor>& mesh;
+    //Mesh<VertexPositionColor>& mesh;
+    ModelLoaderNode& mesh;
 
-    TestDrawData(D3DCore& core, D3DConstantBuffer& constantBuffer, D3DViewport& viewport, D3DRasterizerState& rState, ShaderProgram& program, D3DInputLayout<VertexPositionColor>& iLayout, Mesh<VertexPositionColor>& mesh)
+    TestDrawData(D3DCore& core, D3DConstantBuffer& constantBuffer, D3DViewport& viewport, D3DRasterizerState& rState, ShaderProgram& program, D3DInputLayout<VertexPositionColor>& iLayout, ModelLoaderNode& mesh)
         : core(core), constantBuffer(constantBuffer), viewport(viewport), rState(rState), program(program), iLayout(iLayout), mesh(mesh) {
     }
 };
+
+void TestDrawNode(D3DCore& core, ModelLoaderNode& node) {
+    for (auto& m : node.meshes) {
+		m.GetVertexBuffer().Bind(core);
+        m.GetIndexBuffer().Bind(core);
+
+		core.GetContext()->DrawIndexed(m.GetIndicesCount(), 0, 0);
+		//core.GetContext()->Draw(m.GetVertexBuffer().GetCount(), 0);
+    }
+
+	for (auto& child : node.children) {
+		TestDrawNode(core, child);
+	}
+}
 
 static int cbCounter = 0;
 template<VertexTypeConcept V>
@@ -151,12 +167,12 @@ void TestDraw(TestDrawData data) {
     data.core.SetPrimitiveTopology(PrimitiveTopologies::TRIANGLE_STRIP);
     data.iLayout.Bind(data.core);
 
-    data.mesh.GetVertexBuffer().Bind(data.core);
     data.constantBuffer.Bind(data.core);
-
     data.program.Bind(data.core);
 
-    context->Draw(3, 0);
+    //data.mesh.GetVertexBuffer().Bind(data.core);
+    //context->Draw(3, 0);
+	TestDrawNode(data.core, data.mesh);
 
     data.core.Present(0);
 }
@@ -177,13 +193,8 @@ int actualMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ 
 
     D3DCore core(WindowCreationParams(1600, 1000, "UniversalRenderingModule", hInstance));
 
-    auto vertices = {
-            VertexPositionColor(0.0f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f),
-            VertexPositionColor(0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f),
-            VertexPositionColor(-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f)
-    };
-    IMesh* mesh = new Mesh<VertexPositionColor>(core, vertices);
-    auto meshImpl = mesh->GetImplementation<VertexPositionColor>();
+	auto model = ModelLoader::LoadFromFile(core, "cube.fbx");
+
     ShaderProgram shader(core, L"SimpleVertexShader.cso", L"SimplePixelShader.cso");
 
     D3DConstantBuffer constantBuffer = D3DConstantBuffer::Create<ConstantBuffer>(core);
@@ -191,10 +202,10 @@ int actualMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ 
     D3DViewport viewport(D3DViewportData(core.GetWindow().GetSize()));
 
     auto rStateData = D3DRasterizerStateData();
-    rStateData.cullMode = CullModes::NONE;
+    rStateData.cullMode = CullModes::FRONT;
     auto rState = D3DRasterizerState(rStateData);
 
-    auto testDrawData = TestDrawData(core, constantBuffer, viewport, rState, shader, inputLayout, *meshImpl);
+    auto testDrawData = TestDrawData(core, constantBuffer, viewport, rState, shader, inputLayout, model);
 
     core.OnWindowPaint = [&](D3DCore& core) {
         Clear(core);

@@ -45,6 +45,23 @@ public:
 	VertexPositionNormal(float x, float y, float z, float nx, float ny, float nz) : position(x, y, z), normal(nx, ny, nz) {}
 };
 
+class VertexPositionTexture {
+public:
+	DirectX::XMFLOAT3 position;
+	DirectX::XMFLOAT2 texcoord;
+	static std::vector<D3D11_INPUT_ELEMENT_DESC> GetInputLayout() {
+		return {
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosition, position), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(VertexPositionTexture, texcoord), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		};
+	}
+	VertexPositionTexture(float x, float y, float z, float u, float v) : position(x, y, z), texcoord(u, v) {}
+	VertexPositionTexture() {
+		position = { 0.0f, 0.0f, 0.0f };
+		texcoord = { 0.0f, 0.0f };
+	}
+};
+
 class VertexPositionNormalTexture {
 public:
 	DirectX::XMFLOAT3 position;

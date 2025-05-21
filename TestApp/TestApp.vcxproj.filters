@@ -19,6 +19,9 @@
     <Filter Include="Assets\Shaders">
       <UniqueIdentifier>{b418a21a-e46e-46fd-8edd-293eb4ed5351}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Assets\Models">
+      <UniqueIdentifier>{5fca618c-a67e-4ebe-b7cb-6e5d3a516760}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TestApp.cpp">
@@ -39,8 +42,11 @@
     </Manifest>
   </ItemGroup>
   <ItemGroup>
-    <None Include="cube.fbx">
-      <Filter>Assets</Filter>
-    </None>
+    <None Include="vcpkg.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="cube.fbx">
+      <Filter>Assets\Models</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>

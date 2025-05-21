@@ -23,8 +23,26 @@ class Mesh : public IMesh {
 		return GetTypeHashCode<VertexType>();
 	}
 public:
+	bool ContainsIndices() const {
+		return indexBuffer.has_value();
+	}
+
 	D3DVertexBuffer<VertexType>& GetVertexBuffer() {
 		return vertexBuffer;
+	}
+
+	D3DIndexBuffer& GetIndexBuffer() {
+		if (indexBuffer.has_value()) {
+			return indexBuffer.value();
+		}
+		throw std::runtime_error("Index buffer not available");
+	}
+
+	size_t GetIndicesCount() {
+		if (indexBuffer.has_value()) {
+			return indices.size();
+		}
+		return 0;
 	}
 
 	// TODO: Add index buffer support
@@ -32,6 +50,14 @@ public:
 		: vertexBuffer(D3DVertexBuffer<VertexType>::Create(core, data)) 
 	{
 		this->vertices = data;
+	}
+
+	Mesh(D3DCore& core, std::vector<VertexType> data, std::vector<unsigned int> indices)
+		: vertexBuffer(D3DVertexBuffer<VertexType>::Create(core, data)),
+		indexBuffer(D3DIndexBuffer::Create(core, indices))
+	{
+		this->vertices = data;
+		this->indices = indices;
 	}
 	
 	void ResetVertices(D3DCore& core) override {
@@ -46,6 +72,24 @@ public:
 
 	const std::vector<VertexType> GetVerticesCopy() const {
 		return vertices;
+	}
+
+	void ResetIndices(D3DCore& core) {
+		indices.clear();
+		if (indexBuffer.has_value()) {
+			indexBuffer->UpdateWithData(core, indices.data());
+		}
+	}
+
+	void SetIndices(D3DCore& core, const std::vector<unsigned int>& newIndices) {
+		indices = newIndices;
+		if (indexBuffer.has_value()) {
+			indexBuffer->UpdateWithData(core, indices.data());
+		}
+	}
+
+	const std::vector<unsigned int> GetIndicesCopy() const {
+		return indices;
 	}
 };
 

@@ -19,7 +19,7 @@ public:
 	static D3DIndexBuffer Create(D3DCore& core, std::vector<IndexBufferType> data, UINT cpuAccessFlags = 0, D3D11_USAGE usage = D3D11_USAGE_DEFAULT) {
 		D3D11_BUFFER_DESC desc = {};
 		desc.Usage = usage;
-		desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 		desc.ByteWidth = static_cast<UINT>(sizeof(IndexBufferType) * data.size());
 		desc.CPUAccessFlags = cpuAccessFlags;
 

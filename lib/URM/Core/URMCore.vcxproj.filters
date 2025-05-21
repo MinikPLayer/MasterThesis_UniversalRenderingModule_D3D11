@@ -22,10 +22,10 @@
     <ClInclude Include="Utils.h" />
     <ClInclude Include="VertexConcept.h" />
     <ClInclude Include="VertexPosition.h" />
-    <ClInclude Include="ModelLoader.h" />
     <ClInclude Include="D3DTexture.h" />
     <ClInclude Include="D3DIndexBuffer.h" />
     <ClInclude Include="IMesh.h" />
+    <ClInclude Include="ModelLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
