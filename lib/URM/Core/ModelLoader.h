@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Mesh.h"
-#include "VertexPosition.h"
+#include "StandardVertexTypes.h"
 #include "D3DCore.h"
 
 using LoaderVertexType = VertexPositionTexture;

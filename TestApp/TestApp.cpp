@@ -5,7 +5,7 @@
 #include <URM/Core/Log.h>
 #include <URM/Core/D3DCore.h>
 #include <URM/Core/Mesh.h>
-#include <URM/Core/VertexPosition.h>
+#include <URM/Core/StandardVertexTypes.h>
 #include <URM/Core/ID3DBuffer.h>
 #include <URM/Core/ShaderProgram.h>
 #include <URM/Core/D3DInputLayout.h>
@@ -99,22 +99,27 @@ struct TestDrawData {
     D3DViewport& viewport;
     D3DRasterizerState& rState;
     ShaderProgram& program;
-    D3DInputLayout<VertexPositionColor>& iLayout;
-    //Mesh<VertexPositionColor>& mesh;
+    D3DInputLayout<VertexPositionTexture>& iLayout;
+    ModelLoaderNode& vertexOnlyMesh;
     ModelLoaderNode& mesh;
 
-    TestDrawData(D3DCore& core, D3DConstantBuffer& constantBuffer, D3DViewport& viewport, D3DRasterizerState& rState, ShaderProgram& program, D3DInputLayout<VertexPositionColor>& iLayout, ModelLoaderNode& mesh)
-        : core(core), constantBuffer(constantBuffer), viewport(viewport), rState(rState), program(program), iLayout(iLayout), mesh(mesh) {
+    TestDrawData(D3DCore& core, D3DConstantBuffer& constantBuffer, D3DViewport& viewport, D3DRasterizerState& rState, ShaderProgram& program, D3DInputLayout<VertexPositionTexture>& iLayout, ModelLoaderNode& mesh, ModelLoaderNode& vertexOnlyMesh)
+        : core(core), constantBuffer(constantBuffer), viewport(viewport), rState(rState), program(program), iLayout(iLayout), mesh(mesh), vertexOnlyMesh(vertexOnlyMesh) {
     }
 };
 
 void TestDrawNode(D3DCore& core, ModelLoaderNode& node) {
     for (auto& m : node.meshes) {
 		m.GetVertexBuffer().Bind(core);
-        m.GetIndexBuffer().Bind(core);
+        if (m.ContainsIndices()) {
+            m.GetIndexBuffer().Bind(core);
 
-		core.GetContext()->DrawIndexed(m.GetIndicesCount(), 0, 0);
-		//core.GetContext()->Draw(m.GetVertexBuffer().GetCount(), 0);
+            core.GetContext()->DrawIndexed(m.GetIndicesCount(), 0, 0);
+        }
+        else {
+			m.GetVertexBuffer().Bind(core);
+			core.GetContext()->Draw(m.GetVerticesCount(), 0);
+        }
     }
 
 	for (auto& child : node.children) {
@@ -131,7 +136,7 @@ void TestDraw(TestDrawData data) {
     DirectX::XMFLOAT3 modelPos = { 0.0f, 0.0f, 0.0f };
     DirectX::XMFLOAT3 modelRot = { 0.0f, cbCounter / 100.0f, 0.0f };
     DirectX::XMFLOAT3 modelScl = { 1.0f, 1.0f, 1.0f };
-    DirectX::XMFLOAT3 camPos = { 2.0f, 2.0f, -2.0f };
+    DirectX::XMFLOAT3 camPos = { 4.0f, 4.0f, -4.0f };
     DirectX::XMFLOAT3 camTarget = { 0.0f, 0.0f, 0.0f };
     DirectX::XMFLOAT3 camUp = { 0.0f, 1.0f, 0.0f };
 
@@ -172,7 +177,9 @@ void TestDraw(TestDrawData data) {
 
     //data.mesh.GetVertexBuffer().Bind(data.core);
     //context->Draw(3, 0);
-	TestDrawNode(data.core, data.mesh);
+    
+	//TestDrawNode(data.core, data.mesh);
+    TestDrawNode(data.core, data.vertexOnlyMesh);
 
     data.core.Present(0);
 }
@@ -198,14 +205,24 @@ int actualMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ 
     ShaderProgram shader(core, L"SimpleVertexShader.cso", L"SimplePixelShader.cso");
 
     D3DConstantBuffer constantBuffer = D3DConstantBuffer::Create<ConstantBuffer>(core);
-    D3DInputLayout<VertexPositionColor> inputLayout(core, shader);
+    D3DInputLayout<VertexPositionTexture> inputLayout(core, shader);
     D3DViewport viewport(D3DViewportData(core.GetWindow().GetSize()));
 
     auto rStateData = D3DRasterizerStateData();
     rStateData.cullMode = CullModes::FRONT;
     auto rState = D3DRasterizerState(rStateData);
 
-    auto testDrawData = TestDrawData(core, constantBuffer, viewport, rState, shader, inputLayout, model);
+    auto vertices = {
+        VertexPositionTexture(0.0f, 0.5f, 0.0f, 1.0f, 0.0f),
+        VertexPositionTexture(0.5f, -0.5f, 0.0f, 0.0f, 1.0f),
+        VertexPositionTexture(-0.5f, -0.5f, 0.0f, 0.0f, 0.0f)
+    };
+    IMesh* vertexOnlyMesh = new Mesh<VertexPositionTexture>(core, vertices);
+    auto vertexOnlyMeshImpl = vertexOnlyMesh->GetImplementation<VertexPositionTexture>();
+    auto vertexOnlyModelNode = ModelLoaderNode();
+	vertexOnlyModelNode.meshes.push_back(*vertexOnlyMeshImpl);
+
+    auto testDrawData = TestDrawData(core, constantBuffer, viewport, rState, shader, inputLayout, model, vertexOnlyModelNode);
 
     core.OnWindowPaint = [&](D3DCore& core) {
         Clear(core);

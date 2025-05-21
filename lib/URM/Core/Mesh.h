@@ -11,7 +11,7 @@
 template<VertexTypeConcept VertexType>
 class Mesh : public IMesh {
 	D3DVertexBuffer<VertexType> vertexBuffer;
-	std::optional<D3DIndexBuffer> indexBuffer;
+	std::optional<D3DIndexBuffer> indexBuffer = std::nullopt;
 
 	std::vector<VertexType> vertices;
 	std::vector<unsigned int> indices;
@@ -38,9 +38,13 @@ public:
 		throw std::runtime_error("Index buffer not available");
 	}
 
-	size_t GetIndicesCount() {
+	UINT GetVerticesCount() {
+		return (UINT)vertices.size();
+	}
+
+	UINT GetIndicesCount() {
 		if (indexBuffer.has_value()) {
-			return indices.size();
+			return (UINT)indices.size();
 		}
 		return 0;
 	}

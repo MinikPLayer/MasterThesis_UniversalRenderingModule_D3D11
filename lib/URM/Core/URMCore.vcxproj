@@ -199,7 +199,7 @@
     <ClInclude Include="ShaderProgram.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="VertexConcept.h" />
-    <ClInclude Include="VertexPosition.h" />
+    <ClInclude Include="StandardVertexTypes.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
