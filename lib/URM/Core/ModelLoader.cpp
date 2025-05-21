@@ -171,7 +171,7 @@ std::optional<ModelLoaderNode> Load(D3DCore& core, std::string filePath) {
 
 	const aiScene* pScene = importer.ReadFile(filePath,
 		aiProcess_Triangulate |
-		aiProcess_MakeLeftHanded);
+		aiProcess_ConvertToLeftHanded);
 
 	if (pScene == nullptr)
 		return std::nullopt;

@@ -193,6 +193,12 @@
     <CopyFileToFolders Include="cube_textured.glb">
       <FileType>Document</FileType>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="suzanne.fbx">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="suzanne.glb">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
     <None Include="vcpkg.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

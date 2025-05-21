@@ -51,5 +51,11 @@
     <CopyFileToFolders Include="cube_textured.glb">
       <Filter>Assets\Models</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="suzanne.fbx">
+      <Filter>Assets\Models</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="suzanne.glb">
+      <Filter>Assets\Models</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>

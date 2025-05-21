@@ -133,9 +133,9 @@ void TestDrawNode(D3DCore& core, ModelLoaderNode& node, D3DConstantBuffer& cb, X
 }
 
 static int cbCounter = 0;
-XMMATRIX TestDrawCreateWVP(XMFLOAT3 positionOffset, Size2i windowSize) {
+XMMATRIX TestDrawCreateWVP(XMFLOAT3 positionOffset, Size2i windowSize, float rotation) {
     DirectX::XMFLOAT3 modelPos = positionOffset;
-    DirectX::XMFLOAT3 modelRot = { 0.0f, cbCounter / 100.0f, 0.0f };
+    DirectX::XMFLOAT3 modelRot = { 0.0f, rotation, 0.0f };
     DirectX::XMFLOAT3 modelScl = { 1.0f, 1.0f, 1.0f };
     DirectX::XMFLOAT3 camPos = { 0.0f, 4.0f, 8.0f };
     DirectX::XMFLOAT3 camTarget = { 0.0f, 0.0f, 0.0f };
@@ -166,7 +166,7 @@ void TestDraw(TestDrawData data) {
     auto context = data.core.GetContext();
 
     // Aktualizacja stałej buforowej
-    //cbCounter++;
+	auto elapsedTime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - programStartTime).count() / 1000000.0f;
 
     auto vp = data.viewport.GetData();
     vp.size = data.core.GetWindow().GetSize();
@@ -175,20 +175,20 @@ void TestDraw(TestDrawData data) {
 
     data.rState.Bind(data.core);
 
-    data.core.SetPrimitiveTopology(PrimitiveTopologies::TRIANGLE_STRIP);
+    data.core.SetPrimitiveTopology(PrimitiveTopologies::TRIANGLE_LIST);
     data.iLayout.Bind(data.core);
 
     data.constantBuffer.Bind(data.core);
     data.program.Bind(data.core);
     
 	auto windowSize = data.core.GetWindow().GetSize();
-    auto WVP = TestDrawCreateWVP({ -2.0f, 0.0f, 0.0f }, windowSize);
+    auto WVP = TestDrawCreateWVP({ -2.0f, 0.0f, 0.0f }, windowSize, 90 * elapsedTime);
     ConstantBuffer cb{};
     cb.mWorldViewProjection = DirectX::XMMatrixTranspose(WVP);
     data.constantBuffer.UpdateWithData(data.core, &cb);
 	TestDrawNode(data.core, data.mesh, data.constantBuffer, WVP);
 
-    WVP = TestDrawCreateWVP({ 2.0f, 0.0f, 0.0f }, windowSize);
+    WVP = TestDrawCreateWVP({ 2.0f, 0.0f, 0.0f }, windowSize, -45 * elapsedTime);
     cb.mWorldViewProjection = DirectX::XMMatrixTranspose(WVP);
     data.constantBuffer.UpdateWithData(data.core, &cb);
     TestDrawNode(data.core, data.secondMesh, data.constantBuffer, WVP);
@@ -212,7 +212,7 @@ int actualMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ 
 
     D3DCore core(WindowCreationParams(1600, 1000, "UniversalRenderingModule", hInstance));
 
-	auto model = ModelLoader::LoadFromFile(core, "cube.fbx");
+	auto model = ModelLoader::LoadFromFile(core, "suzanne.fbx");
 	auto model2 = ModelLoader::LoadFromFile(core, "cube_textured.glb");
 
     ShaderProgram shader(core, L"SimpleVertexShader.cso", L"SimplePixelShader.cso");
