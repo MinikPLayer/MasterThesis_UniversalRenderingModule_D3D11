@@ -48,5 +48,8 @@
     <CopyFileToFolders Include="cube.fbx">
       <Filter>Assets\Models</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="cube_textured.glb">
+      <Filter>Assets\Models</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>

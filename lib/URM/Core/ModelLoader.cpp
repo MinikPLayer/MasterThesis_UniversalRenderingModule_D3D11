@@ -145,6 +145,13 @@ Mesh<LoaderVertexType> processMesh(D3DCore& core, aiMesh* mesh, const aiScene* s
 
 ModelLoaderNode processNode(D3DCore& core, aiNode* node, const aiScene* scene) {
 	ModelLoaderNode newNode;
+	if (node->mTransformation.IsIdentity()) {
+		newNode.transform = DirectX::XMMatrixIdentity();
+	}
+	else {
+		aiMatrix4x4 transform = node->mTransformation;
+		newNode.transform = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&transform)));
+	}
 
 	for (UINT i = 0; i < node->mNumMeshes; i++) {
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
@@ -164,7 +171,7 @@ std::optional<ModelLoaderNode> Load(D3DCore& core, std::string filePath) {
 
 	const aiScene* pScene = importer.ReadFile(filePath,
 		aiProcess_Triangulate |
-		aiProcess_ConvertToLeftHanded);
+		aiProcess_MakeLeftHanded);
 
 	if (pScene == nullptr)
 		return std::nullopt;

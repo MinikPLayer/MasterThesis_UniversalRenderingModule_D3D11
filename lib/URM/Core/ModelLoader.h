@@ -8,8 +8,9 @@ using LoaderVertexType = VertexPositionTexture;
 
 class ModelLoaderNode {
 public:
-	std::vector<Mesh<LoaderVertexType>> meshes;
+	DirectX::XMMATRIX transform;
 
+	std::vector<Mesh<LoaderVertexType>> meshes;
 	std::vector<ModelLoaderNode> children;
 };
 
