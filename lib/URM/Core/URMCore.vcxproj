@@ -193,6 +193,7 @@
     <ClInclude Include="D3DViewport.h" />
     <ClInclude Include="IMesh.h" />
     <ClInclude Include="Log.h" />
+    <ClInclude Include="MaterialProperty.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="ModelLoader.h" />
     <ClInclude Include="pch.h" />
@@ -208,6 +209,7 @@
     <ClCompile Include="D3DCore.cpp" />
     <ClCompile Include="D3DViewport.cpp" />
     <ClCompile Include="Log.cpp" />
+    <ClCompile Include="MaterialProperty.cpp" />
     <ClCompile Include="ModelLoader.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

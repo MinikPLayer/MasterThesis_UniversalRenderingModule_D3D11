@@ -2,6 +2,7 @@
 #include "ModelLoader.h"
 #include "D3DTexture.h"
 #include "Mesh.h"
+#include "MaterialProperty.h"
 
 #include <assimp/mesh.h>
 #include <assimp/scene.h>
@@ -104,6 +105,75 @@
 //	return texture;
 //}
 
+float unpackFloat(const uint8_t* b) {
+	uint32_t temp = 0;
+	temp = ((b[3] << 24) |
+		(b[2] << 16) |
+		(b[1] << 8) |
+		b[0]);
+	return *((float*)&temp);
+}
+
+double unpackDouble(const uint8_t* b) {
+	uint64_t temp = 0;
+	temp = (b[0] << 56) |
+		(b[1] << 48) |
+		(b[2] << 40) |
+		(b[3] << 32) |
+		(b[4] << 24) |
+		(b[5] << 16) |
+		(b[6] << 8) |
+		b[7];
+	return *((double*)&temp);
+}
+
+int unpackInteger(const uint8_t* b) {
+	int temp = ((b[0] << 24) |
+		(b[1] << 16) |
+		(b[2] << 8) |
+		b[3]);
+	return temp;
+}
+
+template<typename T, int TSizeInBytes>
+std::vector<T> unpackPropertyData(const unsigned char* buf, unsigned int bufSizeInBytes, std::function<T(const unsigned char*)> unpackFunc) {
+
+	std::vector<T> temp;
+	for (size_t offset = 0; offset < bufSizeInBytes; offset += TSizeInBytes) {
+		auto value = unpackFunc(buf + offset);
+		temp.push_back(value);
+	}
+	return temp;
+}
+
+MaterialProperty GetPropertyFromAssimpProperty(aiMaterialProperty* prop) {
+	auto nameString = std::string(prop->mKey.C_Str());
+
+	switch (prop->mType) {
+	case aiPTI_String:
+		return MaterialProperty::CreateString(nameString, prop->mData, prop->mDataLength);
+
+	case aiPTI_Float:
+		return MaterialProperty::CreateFloat(nameString, unpackPropertyData<float, 4>((const unsigned char*)prop->mData, prop->mDataLength, unpackFloat));
+	
+	case aiPTI_Double:
+		return MaterialProperty::CreateDouble(nameString, unpackPropertyData<double, 8>((const unsigned char*)prop->mData, prop->mDataLength, unpackDouble));
+
+	case aiPTI_Integer:
+		return MaterialProperty::CreateInteger(nameString, unpackPropertyData<int, 4>((const unsigned char*)prop->mData, prop->mDataLength, unpackInteger));
+
+	case aiPTI_Buffer:
+	{
+		unsigned char* newData = new unsigned char[prop->mDataLength];
+		std::copy(prop->mData, prop->mData + prop->mDataLength, newData);
+		return MaterialProperty::CreateBuffer(nameString, newData, prop->mDataLength);
+	}
+
+	default:
+		throw std::runtime_error("Unknown property type");
+	}
+}
+
 Mesh<LoaderVertexType> processMesh(D3DCore& core, aiMesh* mesh, const aiScene* scene) {
 	// Data to fill
 	std::vector<LoaderVertexType> vertices;
@@ -140,7 +210,23 @@ Mesh<LoaderVertexType> processMesh(D3DCore& core, aiMesh* mesh, const aiScene* s
 	//	textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 	//}
 
-	return Mesh<LoaderVertexType>(core, vertices, indices);
+	auto newMesh = Mesh<LoaderVertexType>(core, vertices, indices);
+
+	if (scene->mNumMaterials > 0) {
+		auto mat = scene->mMaterials[mesh->mMaterialIndex];
+
+		for (auto i = 0; i < mat->mNumProperties; i++) {
+			auto prop = mat->mProperties[i];
+			newMesh.materialProperties.push_back(GetPropertyFromAssimpProperty(prop));
+		}
+	}
+
+	// Test
+	for (auto prop : newMesh.materialProperties) {
+		OutputDebugString(StringUtils::StringToWString(prop.name + "\n").c_str());
+	}
+
+	return newMesh;
 }
 
 ModelLoaderNode processNode(D3DCore& core, aiNode* node, const aiScene* scene) {

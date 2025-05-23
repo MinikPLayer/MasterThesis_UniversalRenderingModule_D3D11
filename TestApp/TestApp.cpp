@@ -212,7 +212,7 @@ int actualMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ 
 
     D3DCore core(WindowCreationParams(1600, 1000, "UniversalRenderingModule", hInstance));
 
-	auto model = ModelLoader::LoadFromFile(core, "suzanne.fbx");
+	auto model = ModelLoader::LoadFromFile(core, "suzanne.glb");
 	auto model2 = ModelLoader::LoadFromFile(core, "cube_textured.glb");
 
     ShaderProgram shader(core, L"SimpleVertexShader.cso", L"SimplePixelShader.cso");

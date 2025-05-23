@@ -7,6 +7,7 @@
 #include "D3DIndexBuffer.h"
 #include "VertexConcept.h"
 #include "IMesh.h"
+#include "MaterialProperty.h"
 
 template<VertexTypeConcept VertexType>
 class Mesh : public IMesh {
@@ -23,6 +24,8 @@ class Mesh : public IMesh {
 		return GetTypeHashCode<VertexType>();
 	}
 public:
+	std::vector<MaterialProperty> materialProperties;
+
 	bool ContainsIndices() const {
 		return indexBuffer.has_value();
 	}

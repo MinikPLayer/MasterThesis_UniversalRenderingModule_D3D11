@@ -26,6 +26,7 @@
     <ClInclude Include="D3DIndexBuffer.h" />
     <ClInclude Include="IMesh.h" />
     <ClInclude Include="ModelLoader.h" />
+    <ClInclude Include="MaterialProperty.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -38,6 +39,7 @@
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="Window.cpp" />
     <ClCompile Include="ModelLoader.cpp" />
+    <ClCompile Include="MaterialProperty.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
