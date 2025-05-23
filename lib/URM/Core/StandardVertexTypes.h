@@ -75,4 +75,9 @@ public:
 		};
 	}
 	VertexPositionNormalTexture(float x, float y, float z, float nx, float ny, float nz, float u, float v) : position(x, y, z), normal(nx, ny, nz), texcoord(u, v) {}
+	VertexPositionNormalTexture() {
+		position = { 0.0f, 0.0f, 0.0f };
+		normal = { 0.0f, 0.0f, 0.0f };
+		texcoord = { 0.0f, 0.0f };
+	}
 };

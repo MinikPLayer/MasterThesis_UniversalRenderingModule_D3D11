@@ -124,14 +124,14 @@ MaterialProperty GetPropertyFromAssimpProperty(aiMaterialProperty* prop) {
 	}
 }
 
-Mesh<LoaderVertexType> processMesh(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, std::string fileDirectory, aiMesh* mesh, const aiScene* scene) {
+Mesh<ModelLoaderVertexType> processMesh(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, std::string fileDirectory, aiMesh* mesh, const aiScene* scene) {
 	// Data to fill
-	std::vector<LoaderVertexType> vertices;
+	std::vector<ModelLoaderVertexType> vertices;
 	std::vector<UINT> indices;
 
 	// Walk through each of the mesh's vertices
 	for (UINT i = 0; i < mesh->mNumVertices; i++) {
-		LoaderVertexType vertex;
+		ModelLoaderVertexType vertex;
 
 		vertex.position.x = mesh->mVertices[i].x;
 		vertex.position.y = mesh->mVertices[i].y;
@@ -140,6 +140,12 @@ Mesh<LoaderVertexType> processMesh(D3DCore& core, std::vector<D3DTexture2D>& loa
 		if (mesh->mTextureCoords[0]) {
 			vertex.texcoord.x = (float)mesh->mTextureCoords[0][i].x;
 			vertex.texcoord.y = (float)mesh->mTextureCoords[0][i].y;
+		}
+
+		if (mesh->HasNormals()) {
+			vertex.normal.x = mesh->mNormals[i].x;
+			vertex.normal.y = mesh->mNormals[i].y;
+			vertex.normal.z = mesh->mNormals[i].z;
 		}
 
 		vertices.push_back(vertex);
@@ -173,7 +179,7 @@ Mesh<LoaderVertexType> processMesh(D3DCore& core, std::vector<D3DTexture2D>& loa
 	//	OutputDebugString(StringUtils::StringToWString(prop.name + ": " + prop.GetValueAsString() + "\n").c_str());
 	//}
 
-	auto newMesh = Mesh<LoaderVertexType>(core, vertices, indices, textures);
+	auto newMesh = Mesh<ModelLoaderVertexType>(core, vertices, indices, textures);
 	newMesh.materialProperties = materialProperties;
 
 	return newMesh;

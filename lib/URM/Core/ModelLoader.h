@@ -5,13 +5,13 @@
 #include "D3DCore.h"
 #include "D3DTexture2D.h"
 
-using LoaderVertexType = VertexPositionTexture;
+using ModelLoaderVertexType = VertexPositionNormalTexture;
 
 class ModelLoaderNode {
 public:
 	DirectX::XMMATRIX transform;
 
-	std::vector<Mesh<LoaderVertexType>> meshes;
+	std::vector<Mesh<ModelLoaderVertexType>> meshes;
 	std::vector<ModelLoaderNode> children;
 };
 

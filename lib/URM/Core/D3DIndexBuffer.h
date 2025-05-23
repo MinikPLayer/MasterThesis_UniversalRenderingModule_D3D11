@@ -12,8 +12,8 @@ class D3DIndexBuffer : public ID3DBuffer {
 	}
 
 public:
-	void Bind(D3DCore& core) override {
-		core.GetContext()->IASetIndexBuffer(this->buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+	void Bind(D3DCore& core, UINT offset) override {
+		core.GetContext()->IASetIndexBuffer(this->buffer.Get(), DXGI_FORMAT_R32_UINT, offset);
 	}
 
 	static D3DIndexBuffer Create(D3DCore& core, std::vector<IndexBufferType> data, UINT cpuAccessFlags = 0, D3D11_USAGE usage = D3D11_USAGE_DEFAULT) {

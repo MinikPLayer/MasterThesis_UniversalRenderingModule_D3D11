@@ -6,6 +6,12 @@
 
 #include <d3dcommon.h>
 
+enum ShaderStages {
+	VERTEX = 0,
+	PIXEL = 1,
+	GEOMETRY = 2,
+};
+
 class ShaderProgram {
 	ComPtr<ID3D11VertexShader> vertexShader;
 	ComPtr<ID3D11PixelShader> pixelShader;

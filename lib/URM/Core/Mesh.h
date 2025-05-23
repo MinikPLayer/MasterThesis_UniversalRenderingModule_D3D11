@@ -112,7 +112,7 @@ public:
 	}
 
 	void BindTextures(D3DCore& core) {
-		for (size_t i = 0; i < textures.size(); i++) {
+		for (UINT i = 0; i < (UINT)textures.size(); i++) {
 			textures[i].Bind(core, i);
 		}
 	}

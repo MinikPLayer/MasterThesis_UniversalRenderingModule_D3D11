@@ -10,11 +10,11 @@ class D3DVertexBuffer : public ID3DBuffer {
 	}
 
 public:
-	void Bind(D3DCore& core) override {
+	void Bind(D3DCore& core, UINT slot) override {
 		UINT stride = sizeof(VertexType);
 		UINT offset = 0;
 
-		core.GetContext()->IASetVertexBuffers(0, 1, this->buffer.GetAddressOf(), &stride, &offset);
+		core.GetContext()->IASetVertexBuffers(slot, 1, this->buffer.GetAddressOf(), &stride, &offset);
 	}
 
 	static D3DVertexBuffer Create(D3DCore& core, std::vector<VertexType> data, UINT cpuAccessFlags = 0, D3D11_USAGE usage = D3D11_USAGE_DEFAULT) {

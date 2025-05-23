@@ -77,6 +77,6 @@ D3DTexture2D::D3DTexture2D(D3DCore& core, std::string path, std::string type, D3
 			nullptr,
 			this->textureView.GetAddressOf()
 		),
-		"Failed to create a Texture2D from file."
+		"Failed to create a Texture2D from file (" + path + ")."
 	);
 }

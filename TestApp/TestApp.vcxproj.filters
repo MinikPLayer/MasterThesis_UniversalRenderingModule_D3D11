@@ -49,6 +49,9 @@
     <None Include="PixelShaderCommon.hlsl">
       <Filter>Assets\Shaders</Filter>
     </None>
+    <None Include="SimpleShaderCommonTypes.hlsl">
+      <Filter>Assets\Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="cube.fbx">
@@ -64,6 +67,9 @@
       <Filter>Assets\Models</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="cube_textured_external.glb">
+      <Filter>Assets\Models</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="cube.glb">
       <Filter>Assets\Models</Filter>
     </CopyFileToFolders>
   </ItemGroup>
