@@ -98,39 +98,47 @@ struct TestDrawData {
     D3DConstantBuffer& constantBuffer;
     D3DViewport& viewport;
     D3DRasterizerState& rState;
-    ShaderProgram& program;
+    ShaderProgram& texturedProgram;
+    ShaderProgram& nonTexturedProgram;
     D3DInputLayout<VertexPositionTexture>& iLayout;
     ModelLoaderNode& mesh;
     ModelLoaderNode& secondMesh;
 
-    TestDrawData(D3DCore& core, D3DConstantBuffer& constantBuffer, D3DViewport& viewport, D3DRasterizerState& rState, ShaderProgram& program, D3DInputLayout<VertexPositionTexture>& iLayout, ModelLoaderNode& mesh, ModelLoaderNode& secondMesh)
-        : core(core), constantBuffer(constantBuffer), viewport(viewport), rState(rState), program(program), iLayout(iLayout), mesh(mesh), secondMesh(secondMesh) {
+    TestDrawData(D3DCore& core, D3DConstantBuffer& constantBuffer, D3DViewport& viewport, D3DRasterizerState& rState, ShaderProgram& texturedProgram, ShaderProgram& nonTexturedProgram, D3DInputLayout<VertexPositionTexture>& iLayout, ModelLoaderNode& mesh, ModelLoaderNode& secondMesh)
+        : core(core), constantBuffer(constantBuffer), viewport(viewport), rState(rState), texturedProgram(texturedProgram), nonTexturedProgram(nonTexturedProgram), iLayout(iLayout), mesh(mesh), secondMesh(secondMesh) {
     }
 };
 
-void TestDrawNode(D3DCore& core, ModelLoaderNode& node, D3DConstantBuffer& cb, XMMATRIX transformMatrix = XMMatrixIdentity()) {
+void TestDrawNode(TestDrawData& data, ModelLoaderNode& node, XMMATRIX transformMatrix = XMMatrixIdentity()) {
     auto newTransform = node.transform * transformMatrix;
     ConstantBuffer newCb{};
 	newCb.mWorldViewProjection = DirectX::XMMatrixTranspose(newTransform);
-	cb.UpdateWithData(core, &newCb);
+	data.constantBuffer.UpdateWithData(data.core, &newCb);
 
     for (auto& m : node.meshes) {
-		m.GetVertexBuffer().Bind(core);
-		m.BindTextures(core);
+		m.GetVertexBuffer().Bind(data.core);
+		m.BindTextures(data.core);
 
-        if (m.ContainsIndices()) {
-            m.GetIndexBuffer().Bind(core);
-
-            core.GetContext()->DrawIndexed(m.GetIndicesCount(), 0, 0);
+        if (m.ContainsTextures()) {
+			data.texturedProgram.Bind(data.core);
         }
         else {
-			m.GetVertexBuffer().Bind(core);
-			core.GetContext()->Draw(m.GetVerticesCount(), 0);
+			data.nonTexturedProgram.Bind(data.core);
+        }
+
+        if (m.ContainsIndices()) {
+            m.GetIndexBuffer().Bind(data.core);
+
+            data.core.GetContext()->DrawIndexed(m.GetIndicesCount(), 0, 0);
+        }
+        else {
+			m.GetVertexBuffer().Bind(data.core);
+            data.core.GetContext()->Draw(m.GetVerticesCount(), 0);
         }
     }
 
 	for (auto& child : node.children) {
-		TestDrawNode(core, child, cb, newTransform);
+		TestDrawNode(data, child, newTransform);
 	}
 }
 
@@ -181,19 +189,18 @@ void TestDraw(TestDrawData data) {
     data.iLayout.Bind(data.core);
 
     data.constantBuffer.Bind(data.core);
-    data.program.Bind(data.core);
     
 	auto windowSize = data.core.GetWindow().GetSize();
     auto WVP = TestDrawCreateWVP({ -2.0f, 0.0f, 0.0f }, windowSize, 90 * elapsedTime);
     ConstantBuffer cb{};
     cb.mWorldViewProjection = DirectX::XMMatrixTranspose(WVP);
     data.constantBuffer.UpdateWithData(data.core, &cb);
-	TestDrawNode(data.core, data.mesh, data.constantBuffer, WVP);
+	TestDrawNode(data, data.mesh, WVP);
 
     WVP = TestDrawCreateWVP({ 2.0f, 0.0f, 0.0f }, windowSize, -45 * elapsedTime);
     cb.mWorldViewProjection = DirectX::XMMatrixTranspose(WVP);
     data.constantBuffer.UpdateWithData(data.core, &cb);
-    TestDrawNode(data.core, data.secondMesh, data.constantBuffer, WVP);
+    TestDrawNode(data, data.secondMesh, WVP);
 
     data.core.Present(0);
 }
@@ -218,10 +225,11 @@ int actualMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ 
 	auto model = ModelLoader::LoadFromFile(core, texturePool, "suzanne.glb");
 	auto model2 = ModelLoader::LoadFromFile(core, texturePool, "cube_textured.glb");
 
-    ShaderProgram shader(core, L"SimpleVertexShader.cso", L"SimplePixelShader.cso");
+    ShaderProgram nonTexturedProgram(core, L"SimpleVertexShader.cso", L"SimplePixelShader.cso");
+    ShaderProgram texturedProgram(core, L"SimpleVertexShader.cso", L"TexturedPixelShader.cso");
 
     D3DConstantBuffer constantBuffer = D3DConstantBuffer::Create<ConstantBuffer>(core);
-    D3DInputLayout<VertexPositionTexture> inputLayout(core, shader);
+    D3DInputLayout<VertexPositionTexture> inputLayout(core, texturedProgram);
     D3DViewport viewport(D3DViewportData(core.GetWindow().GetSize()));
 
     auto rStateData = D3DRasterizerStateData();
@@ -238,7 +246,7 @@ int actualMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ 
     auto vertexOnlyModelNode = ModelLoaderNode();
 	vertexOnlyModelNode.meshes.push_back(*vertexOnlyMeshImpl);*/
 
-    auto testDrawData = TestDrawData(core, constantBuffer, viewport, rState, shader, inputLayout, model, model2);
+    auto testDrawData = TestDrawData(core, constantBuffer, viewport, rState, texturedProgram, nonTexturedProgram, inputLayout, model, model2);
 
     core.OnWindowPaint = [&](D3DCore& core) {
         Clear(core);

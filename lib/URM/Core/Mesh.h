@@ -28,6 +28,10 @@ class Mesh : public IMesh {
 public:
 	std::vector<MaterialProperty> materialProperties;
 
+	bool ContainsTextures() {
+		return !textures.empty();
+	}
+
 	bool ContainsIndices() const {
 		return indexBuffer.has_value();
 	}

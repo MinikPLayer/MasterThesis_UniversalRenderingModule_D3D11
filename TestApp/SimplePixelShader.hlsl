@@ -11,6 +11,5 @@ bool useTexture = false;
 
 float4 main(PS_INPUT input) : SV_TARGET
 {
-    float4 textureColor = diffuseTexture.Sample(sampleType, input.textureUV);
-    return textureColor;
+    return float4(1.0, 0.0, 0.0, 1.0);
 }
