@@ -7,6 +7,6 @@ bool useTexture = false;
 
 float4 main(PS_INPUT input) : SV_TARGET
 {
-    float3 diffuse = CalculateDiffuseLighting(input);
-    return color * float4(diffuse, 1.0f);
+    float3 diffuse = CalculateLighting(input);
+    return 0.5f * float4(diffuse, 1.0f);
 }

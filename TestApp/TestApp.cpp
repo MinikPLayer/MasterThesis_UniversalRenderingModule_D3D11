@@ -53,9 +53,26 @@ struct VertexConstantBuffer
 };
 
 struct PixelConstantBuffer {
-    DirectX::XMFLOAT4 color;
+    struct Light {
+        XMFLOAT4 color;
+        XMFLOAT4 position;
+        float ambientIntensity;
+        float diffuseIntensity;
+        float specularIntensity;
 
-    DirectX::XMFLOAT4 ambientColor;
+		// Padding to align the structure to 16 bytes
+        float _;
+
+        Light(float r, float g, float b, 
+            float x, float y, float z, 
+            float ambient, float diffuse, float specular) 
+            : color(r, g, b, 1.0f), position(x, y, z, 1.0f), ambientIntensity(ambient), diffuseIntensity(diffuse), specularIntensity(specular)
+        {}
+    } light;
+
+    XMFLOAT4 viewPosition;
+
+	PixelConstantBuffer(Light light, XMFLOAT3 viewPos) : light(light), viewPosition(viewPos.x, viewPos.y, viewPos.z, 1.0f) {}
 };
 
 struct WVPMatrix {
@@ -164,13 +181,13 @@ void TestDrawNode(TestDrawData& data, ModelLoaderNode& node, WVPMatrix transform
 }
 
 static int cbCounter = 0;
-WVPMatrix TestDrawCreateWVP(XMFLOAT3 positionOffset, Size2i windowSize, float rotation) {
+static const DirectX::XMFLOAT3 camPos = { 0.0f, 4.0f, -8.0f };
+static const DirectX::XMFLOAT3 camTarget = { 0.0f, 0.0f, 0.0f };
+static const DirectX::XMFLOAT3 camUp = { 0.0f, 1.0f, 0.0f };
+WVPMatrix TestDrawCreateWVP(XMFLOAT3 positionOffset, Size2i windowSize, float rotation, float scale = 1.0f) {
     DirectX::XMFLOAT3 modelPos = positionOffset;
     DirectX::XMFLOAT3 modelRot = { 0.0f, rotation, 0.0f };
-    DirectX::XMFLOAT3 modelScl = { 1.0f, 1.0f, 1.0f };
-    DirectX::XMFLOAT3 camPos = { 0.0f, 4.0f, 8.0f };
-    DirectX::XMFLOAT3 camTarget = { 0.0f, 0.0f, 0.0f };
-    DirectX::XMFLOAT3 camUp = { 0.0f, 1.0f, 0.0f };
+    DirectX::XMFLOAT3 modelScl = { scale, scale, scale };
 
     float fov = 45.f;
     float nearPlane = 1.0f;
@@ -211,13 +228,36 @@ void TestDraw(TestDrawData data) {
 
     data.vertexConstantBuffer.Bind(data.core, 0);
 	data.pixelConstantBuffer.Bind(data.core, 1);
-    
+
 	auto windowSize = data.core.GetWindow().GetSize();
 	auto rotation = elapsedTime * 90.0f;
-    auto WVP = TestDrawCreateWVP({ -2.0f, 0.0f, 0.0f }, windowSize, rotation);
+	auto rotationRad = rotation * XM_PI / 180.0f;
+
+    const float lightDistance = 2.1f;
+	auto lightPosition = XMFLOAT3(
+		sin(rotationRad) * lightDistance,
+		lightDistance / 1.5f,
+		cos(rotationRad) * lightDistance
+	);
+    auto pixelBufferValue = PixelConstantBuffer(
+        PixelConstantBuffer::Light(
+            1.0f, 1.0f, 1.0f,
+			lightPosition.x, lightPosition.y, lightPosition.z,
+            0.05f, 0.9f, 1.0f
+        ),
+        camPos
+    );
+	data.pixelConstantBuffer.UpdateWithData(data.core, &pixelBufferValue);
+
+	// TODO: Calc proj * view once. 
+    auto WVP = TestDrawCreateWVP({ -2.0f, 0.0f, 0.0f }, windowSize, 0);
 	TestDrawNode(data, data.mesh, WVP);
 
-    WVP = TestDrawCreateWVP({ 2.0f, 0.0f, 0.0f }, windowSize, -rotation / 2.0f);
+    WVP = TestDrawCreateWVP({ 2.0f, 0.0f, 0.0f }, windowSize, 0);
+    TestDrawNode(data, data.secondMesh, WVP);
+
+    // Light indicator
+    WVP = TestDrawCreateWVP(lightPosition, windowSize, 0, 0.1f);
     TestDrawNode(data, data.secondMesh, WVP);
 
     data.core.Present(0);
@@ -240,7 +280,7 @@ int actualMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ 
     D3DCore core(WindowCreationParams(1600, 1000, "UniversalRenderingModule", hInstance));
 
     std::vector<D3DTexture2D> texturePool;
-	auto model = ModelLoader::LoadFromFile(core, texturePool, "cube.glb");
+	auto model = ModelLoader::LoadFromFile(core, texturePool, "suzanne.glb");
 	auto model2 = ModelLoader::LoadFromFile(core, texturePool, "cube_textured.glb");
 
     ShaderProgram nonTexturedProgram(core, L"SimpleVertexShader.cso", L"SimplePixelShader.cso");
@@ -248,11 +288,6 @@ int actualMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ 
 
     D3DConstantBuffer vertexConstantBuffer = D3DConstantBuffer::Create<VertexConstantBuffer>(core, ShaderStages::VERTEX);
     D3DConstantBuffer pixelConstantBuffer = D3DConstantBuffer::Create<PixelConstantBuffer>(core, ShaderStages::PIXEL);
-    
-    auto pixelCBData = PixelConstantBuffer{
-        XMFLOAT4(1.0, 1.0, 1.0, 1.0)
-    };
-	pixelConstantBuffer.UpdateWithData(core, &pixelCBData);
 
     D3DInputLayout<ModelLoaderVertexType> inputLayout(core, texturedProgram);
     D3DViewport viewport(D3DViewportData(core.GetWindow().GetSize()));

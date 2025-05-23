@@ -1,25 +1,37 @@
 #include "SimpleShaderCommonTypes.hlsl"
 
-cbuffer ConstantBuffer : register(b1)
+struct Light
 {
     float4 color;
+    float4 position;
+    
+    float ambientIntensity;
+    float diffuseIntensity;
+    float specularIntensity;
 };
 
-static const float3 DefaultLightPosition = float3(0.0f, 2.0f, 4.0f);
-static const float3 DefaultLightColor = float3(1.0f, 1.0f, 1.0f);
-
-float3 CalculateDiffuseLighting(PS_INPUT input, float3 lightPosition, float3 lightColor)
+cbuffer ConstantBuffer : register(b1)
 {
+    Light light;
+    float4 viewPosition;
+};
+
+float3 CalculateLighting(PS_INPUT input, float3 lightPosition, float3 lightColor)
+{   
     float3 norm = normalize(input.normal);
     float3 lightDir = normalize(lightPosition - input.fragPosition);
+    float3 viewDir = normalize(viewPosition.xyz - input.fragPosition);
+    float3 reflectDir = reflect(-lightDir, norm);
+ 
+    float ambient = light.ambientIntensity;
+    float diff = light.diffuseIntensity * max(dot(norm, lightDir), 0.0f);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+    float specular = light.specularIntensity * spec;
     
-    float diff = max(dot(norm, lightDir), 0.0f);
-    float3 diffuse = lightColor * diff;
-    
-    return diffuse;
+    return ((diff + ambient + specular) * light.color).xyz;
 }
 
-float3 CalculateDiffuseLighting(PS_INPUT input)
+float3 CalculateLighting(PS_INPUT input)
 {
-    return CalculateDiffuseLighting(input, DefaultLightPosition, DefaultLightColor);
+    return CalculateLighting(input, light.position.xyz, light.color.xyz);
 }
