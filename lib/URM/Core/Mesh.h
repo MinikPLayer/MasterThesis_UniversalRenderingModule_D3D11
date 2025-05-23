@@ -8,6 +8,7 @@
 #include "VertexConcept.h"
 #include "IMesh.h"
 #include "MaterialProperty.h"
+#include "D3DTexture2D.h"
 
 template<VertexTypeConcept VertexType>
 class Mesh : public IMesh {
@@ -16,6 +17,7 @@ class Mesh : public IMesh {
 
 	std::vector<VertexType> vertices;
 	std::vector<unsigned int> indices;
+	std::vector<D3DTexture2D> textures;
 
 	// TODO: Test
 	void UpdateBuffer(D3DCore& core);
@@ -53,18 +55,20 @@ public:
 	}
 
 	// TODO: Add index buffer support
-	Mesh(D3DCore& core, std::vector<VertexType> data)
+	Mesh(D3DCore& core, std::vector<VertexType> data, std::vector<D3DTexture2D> textures = {})
 		: vertexBuffer(D3DVertexBuffer<VertexType>::Create(core, data)) 
 	{
 		this->vertices = data;
+		this->textures = textures;
 	}
 
-	Mesh(D3DCore& core, std::vector<VertexType> data, std::vector<unsigned int> indices)
+	Mesh(D3DCore& core, std::vector<VertexType> data, std::vector<unsigned int> indices, std::vector<D3DTexture2D> textures = {})
 		: vertexBuffer(D3DVertexBuffer<VertexType>::Create(core, data)),
 		indexBuffer(D3DIndexBuffer::Create(core, indices))
 	{
 		this->vertices = data;
 		this->indices = indices;
+		this->textures = textures;
 	}
 	
 	void ResetVertices(D3DCore& core) override {
@@ -75,10 +79,6 @@ public:
 	void SetVertices(D3DCore& core, const std::vector<VertexType>& newVertices) {
 		vertices = newVertices;
 		UpdateBuffer(core);
-	}
-
-	const std::vector<VertexType> GetVerticesCopy() const {
-		return vertices;
 	}
 
 	void ResetIndices(D3DCore& core) {
@@ -95,8 +95,22 @@ public:
 		}
 	}
 
+	const std::vector<VertexType> GetVerticesCopy() const {
+		return vertices;
+	}
+
 	const std::vector<unsigned int> GetIndicesCopy() const {
 		return indices;
+	}
+
+	std::vector<D3DTexture2D> GetTexturesCopy() const {
+		return textures;
+	}
+
+	void BindTextures(D3DCore& core) {
+		for (size_t i = 0; i < textures.size(); i++) {
+			textures[i].Bind(core, i);
+		}
 	}
 };
 

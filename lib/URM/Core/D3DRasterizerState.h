@@ -33,8 +33,9 @@ class D3DRasterizerState {
 	ComPtr<ID3D11RasterizerState> state;
 	D3DRasterizerStateData data;
 
-public:
+	bool dataChanged = false;
 
+public:
 	void Bind(D3DCore& core);
 	void SetData(D3DRasterizerStateData data);
 	D3DRasterizerStateData GetData() {

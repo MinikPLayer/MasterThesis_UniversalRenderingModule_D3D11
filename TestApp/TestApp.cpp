@@ -116,6 +116,8 @@ void TestDrawNode(D3DCore& core, ModelLoaderNode& node, D3DConstantBuffer& cb, X
 
     for (auto& m : node.meshes) {
 		m.GetVertexBuffer().Bind(core);
+		m.BindTextures(core);
+
         if (m.ContainsIndices()) {
             m.GetIndexBuffer().Bind(core);
 
@@ -212,8 +214,9 @@ int actualMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ 
 
     D3DCore core(WindowCreationParams(1600, 1000, "UniversalRenderingModule", hInstance));
 
-	auto model = ModelLoader::LoadFromFile(core, "suzanne.glb");
-	auto model2 = ModelLoader::LoadFromFile(core, "cube_textured.glb");
+    std::vector<D3DTexture2D> texturePool;
+	auto model = ModelLoader::LoadFromFile(core, texturePool, "suzanne.glb");
+	auto model2 = ModelLoader::LoadFromFile(core, texturePool, "cube_textured.glb");
 
     ShaderProgram shader(core, L"SimpleVertexShader.cso", L"SimplePixelShader.cso");
 

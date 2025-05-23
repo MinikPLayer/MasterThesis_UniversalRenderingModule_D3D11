@@ -41,5 +41,13 @@ public:
 		std::use_facet<std::ctype<wchar_t>>(std::locale()).widen(data.data(), data.data() + data.size(), buf.data());
 		return std::wstring(buf.data(), buf.size());
 	}
+
+	static std::string GetDirectoryFromPath(std::string path) {
+		auto lastSlash = path.find_last_of("/\\");
+		if (lastSlash == std::string::npos) {
+			return "";
+		}
+		return path.substr(0, lastSlash);
+	}
 };
 

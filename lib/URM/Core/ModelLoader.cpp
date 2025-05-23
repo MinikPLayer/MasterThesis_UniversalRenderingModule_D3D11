@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "ModelLoader.h"
-#include "D3DTexture.h"
+#include "D3DTexture2D.h"
 #include "Mesh.h"
 #include "MaterialProperty.h"
 
@@ -14,96 +14,44 @@
 //		meshes_[i].Draw(devcon);
 //	}
 //}
+//
 
-//
-//std::vector<Texture> ModelLoader::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName, const aiScene* scene) {
-//	std::vector<Texture> textures;
-//	for (UINT i = 0; i < mat->GetTextureCount(type); i++) {
-//		aiString str;
-//		mat->GetTexture(type, i, &str);
-//		// Check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
-//		bool skip = false;
-//		for (UINT j = 0; j < textures_loaded_.size(); j++) {
-//			if (std::strcmp(textures_loaded_[j].path.c_str(), str.C_Str()) == 0) {
-//				textures.push_back(textures_loaded_[j]);
-//				skip = true; // A texture with the same filepath has already been loaded, continue to next one. (optimization)
-//				break;
-//			}
-//		}
-//		if (!skip) {   // If texture hasn't been loaded already, load it
-//			HRESULT hr;
-//			Texture texture;
-//
-//			const aiTexture* embeddedTexture = scene->GetEmbeddedTexture(str.C_Str());
-//			if (embeddedTexture != nullptr) {
-//				texture.texture = loadEmbeddedTexture(embeddedTexture);
-//			}
-//			else {
-//				std::string filename = std::string(str.C_Str());
-//				filename = directory_ + '/' + filename;
-//				std::wstring filenamews = std::wstring(filename.begin(), filename.end());
-//				DX::ThrowIfFailed(
-//					CreateWICTextureFromFile(dev_, devcon_, filenamews.c_str(), nullptr, &texture.texture),
-//					"WIC Texture creation failed."
-//				);
-//			}
-//			texture.type = typeName;
-//			texture.path = str.C_Str();
-//			textures.push_back(texture);
-//			this->textures_loaded_.push_back(texture);  // Store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
-//		}
-//	}
-//	return textures;
-//}
+D3DTexture2D LoadEmbeddedTexture(D3DCore& core, std::string path, std::string type, const aiTexture* embeddedTexture) {
+	auto width = embeddedTexture->mWidth;
+	auto height = embeddedTexture->mHeight;
+	auto pixelData = embeddedTexture->pcData;
 
-//ID3D11ShaderResourceView* ModelLoader::loadEmbeddedTexture(const aiTexture* embeddedTexture) {
-//	HRESULT hr;
-//	ID3D11ShaderResourceView* texture = nullptr;
-//
-//	if (embeddedTexture->mHeight != 0) {
-//		// Load an uncompressed ARGB8888 embedded texture
-//		D3D11_TEXTURE2D_DESC desc;
-//		desc.Width = embeddedTexture->mWidth;
-//		desc.Height = embeddedTexture->mHeight;
-//		desc.MipLevels = 1;
-//		desc.ArraySize = 1;
-//		desc.SampleDesc.Count = 1;
-//		desc.SampleDesc.Quality = 0;
-//		desc.Usage = D3D11_USAGE_DEFAULT;
-//		desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-//		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-//		desc.CPUAccessFlags = 0;
-//		desc.MiscFlags = 0;
-//
-//		D3D11_SUBRESOURCE_DATA subresourceData;
-//		subresourceData.pSysMem = embeddedTexture->pcData;
-//		subresourceData.SysMemPitch = embeddedTexture->mWidth * 4;
-//		subresourceData.SysMemSlicePitch = embeddedTexture->mWidth * embeddedTexture->mHeight * 4;
-//
-//		ID3D11Texture2D* texture2D = nullptr;
-//		DX::ThrowIfFailed(
-//			dev_->CreateTexture2D(&desc, &subresourceData, &texture2D),
-//			"Failed to create a Texture2D."
-//		);
-//
-//		DX::ThrowIfFailed(
-//			dev_->CreateShaderResourceView(texture2D, nullptr, &texture),
-//			"Failed to create a ShaderResourceView."
-//		);
-//
-//		return texture;
-//	}
-//
-//	// mHeight is 0, so try to load a compressed texture of mWidth bytes
-//	const size_t size = embeddedTexture->mWidth;
-//
-//	DX::ThrowIfFailed(
-//		CreateWICTextureFromMemory(dev_, devcon_, reinterpret_cast<const unsigned char*>(embeddedTexture->pcData), size, nullptr, &texture),
-//		"WIC Texture creation failed."
-//	);
-//
-//	return texture;
-//}
+	return D3DTexture2D(core, path, type, Size2i(width, height), reinterpret_cast<Texel2D*>(pixelData));
+}
+
+std::vector<D3DTexture2D> LoadMaterialTextures(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, std::string fileDirectory, aiMaterial* mat, aiTextureType type, std::string typeName, const aiScene* scene) {
+	std::vector<D3DTexture2D> textures;
+	for (UINT i = 0; i < mat->GetTextureCount(type); i++) {
+		aiString str;
+		mat->GetTexture(type, i, &str);
+		// Check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
+		bool skip = false;
+		for (UINT j = 0; j < loadedTexturesPool.size(); j++) {
+			if (std::strcmp(loadedTexturesPool[j].GetPath().c_str(), str.C_Str()) == 0) {
+				textures.push_back(loadedTexturesPool[j]);
+				skip = true; // A texture with the same filepath has already been loaded, continue to next one. (optimization)
+				break;
+			}
+		}
+		if (!skip) {   // If texture hasn't been loaded already, load it
+			const aiTexture* embeddedTexture = scene->GetEmbeddedTexture(str.C_Str());
+
+			D3DTexture2D texture = embeddedTexture == nullptr ? 
+				D3DTexture2D(core, fileDirectory + '/' + std::string(str.C_Str()), typeName) :
+				LoadEmbeddedTexture(core, std::string(str.C_Str()), typeName, embeddedTexture);
+
+			textures.push_back(texture);
+			loadedTexturesPool.push_back(texture);  // Store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
+		}
+	}
+	return textures;
+}
+
 
 float unpackFloat(const uint8_t* b) {
 	uint32_t temp = 0;
@@ -176,7 +124,7 @@ MaterialProperty GetPropertyFromAssimpProperty(aiMaterialProperty* prop) {
 	}
 }
 
-Mesh<LoaderVertexType> processMesh(D3DCore& core, aiMesh* mesh, const aiScene* scene) {
+Mesh<LoaderVertexType> processMesh(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, std::string fileDirectory, aiMesh* mesh, const aiScene* scene) {
 	// Data to fill
 	std::vector<LoaderVertexType> vertices;
 	std::vector<UINT> indices;
@@ -205,33 +153,33 @@ Mesh<LoaderVertexType> processMesh(D3DCore& core, aiMesh* mesh, const aiScene* s
 	}
 
 	// TODO: Add support for normals and tangents
-	//if (mesh->mMaterialIndex >= 0) {
-	//	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
-	//	std::vector<Texture> diffuseMaps = this->loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse", scene);
-	//	textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-	//}
-
-	auto newMesh = Mesh<LoaderVertexType>(core, vertices, indices);
-
+	std::vector<MaterialProperty> materialProperties;
+	std::vector<D3DTexture2D> textures;
 	if (scene->mNumMaterials > 0) {
 		auto mat = scene->mMaterials[mesh->mMaterialIndex];
 
-		for (auto i = 0; i < mat->mNumProperties; i++) {
+		for (size_t i = 0; i < mat->mNumProperties; i++) {
 			auto prop = mat->mProperties[i];
-			newMesh.materialProperties.push_back(GetPropertyFromAssimpProperty(prop));
+			materialProperties.push_back(GetPropertyFromAssimpProperty(prop));
 		}
+
+		std::vector<D3DTexture2D> diffuseMaps = LoadMaterialTextures(core, loadedTexturesPool, fileDirectory, mat, aiTextureType_DIFFUSE, "texture_diffuse", scene);
+		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 	}
 
-	// Test
-	for (auto prop : newMesh.materialProperties) {
-		OutputDebugString(StringUtils::StringToWString(prop.name + ": " + prop.GetValueAsString() + "\n").c_str());
-	}
+	//// Test
+	//for (auto prop : newMesh.materialProperties) {
+	//	OutputDebugString(StringUtils::StringToWString(prop.name + ": " + prop.GetValueAsString() + "\n").c_str());
+	//}
+
+	auto newMesh = Mesh<LoaderVertexType>(core, vertices, indices, textures);
+	newMesh.materialProperties = materialProperties;
 
 	return newMesh;
 }
 
-ModelLoaderNode processNode(D3DCore& core, aiNode* node, const aiScene* scene) {
+ModelLoaderNode processNode(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, std::string fileDirectory, aiNode* node, const aiScene* scene) {
 	ModelLoaderNode newNode;
 	if (node->mTransformation.IsIdentity()) {
 		newNode.transform = DirectX::XMMatrixIdentity();
@@ -243,18 +191,18 @@ ModelLoaderNode processNode(D3DCore& core, aiNode* node, const aiScene* scene) {
 
 	for (UINT i = 0; i < node->mNumMeshes; i++) {
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		newNode.meshes.push_back(processMesh(core, mesh, scene));
+		newNode.meshes.push_back(processMesh(core, loadedTexturesPool, fileDirectory, mesh, scene));
 	}
 
 	for (UINT i = 0; i < node->mNumChildren; i++) {
-		auto newChild = processNode(core, node->mChildren[i], scene);
+		auto newChild = processNode(core, loadedTexturesPool, fileDirectory, node->mChildren[i], scene);
 		newNode.children.push_back(newChild);
 	}
 
 	return newNode;
 }
 
-std::optional<ModelLoaderNode> Load(D3DCore& core, std::string filePath) {
+std::optional<ModelLoaderNode> Load(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, std::string filePath) {
 	Assimp::Importer importer;
 
 	const aiScene* pScene = importer.ReadFile(filePath,
@@ -264,11 +212,12 @@ std::optional<ModelLoaderNode> Load(D3DCore& core, std::string filePath) {
 	if (pScene == nullptr)
 		return std::nullopt;
 
-	return processNode(core, pScene->mRootNode, pScene);
+	auto dir = StringUtils::GetDirectoryFromPath(filePath);
+	return processNode(core, loadedTexturesPool, dir, pScene->mRootNode, pScene);
 }
 
-ModelLoaderNode ModelLoader::LoadFromFile(D3DCore& core, std::string path) {
-	auto mesh = Load(core, path);
+ModelLoaderNode ModelLoader::LoadFromFile(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, std::string path) {
+	auto mesh = Load(core, loadedTexturesPool, path);
 	if (mesh.has_value())
 		return mesh.value();
 	else

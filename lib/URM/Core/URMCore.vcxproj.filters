@@ -22,11 +22,12 @@
     <ClInclude Include="Utils.h" />
     <ClInclude Include="VertexConcept.h" />
     <ClInclude Include="StandardVertexTypes.h" />
-    <ClInclude Include="D3DTexture.h" />
+    <ClInclude Include="D3DTexture2D.h" />
     <ClInclude Include="D3DIndexBuffer.h" />
     <ClInclude Include="IMesh.h" />
     <ClInclude Include="ModelLoader.h" />
     <ClInclude Include="MaterialProperty.h" />
+    <ClInclude Include="D3DSampler.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -40,6 +41,8 @@
     <ClCompile Include="Window.cpp" />
     <ClCompile Include="ModelLoader.cpp" />
     <ClCompile Include="MaterialProperty.cpp" />
+    <ClCompile Include="D3DTexture2D.cpp" />
+    <ClCompile Include="D3DSampler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

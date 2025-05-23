@@ -32,6 +32,9 @@
     <FxCompile Include="SimpleVertexShader.hlsl">
       <Filter>Assets\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="TexturedPixelShader.hlsl">
+      <Filter>Assets\Shaders</Filter>
+    </FxCompile>
     <FxCompile Include="SimplePixelShader.hlsl">
       <Filter>Assets\Shaders</Filter>
     </FxCompile>
@@ -55,6 +58,9 @@
       <Filter>Assets\Models</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="suzanne.glb">
+      <Filter>Assets\Models</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="cube_textured_external.glb">
       <Filter>Assets\Models</Filter>
     </CopyFileToFolders>
   </ItemGroup>

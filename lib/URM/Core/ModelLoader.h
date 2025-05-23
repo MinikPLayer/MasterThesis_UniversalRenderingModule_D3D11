@@ -3,6 +3,7 @@
 #include "Mesh.h"
 #include "StandardVertexTypes.h"
 #include "D3DCore.h"
+#include "D3DTexture2D.h"
 
 using LoaderVertexType = VertexPositionTexture;
 
@@ -19,5 +20,5 @@ class ModelLoader {
 
 public:
 
-	static ModelLoaderNode LoadFromFile(D3DCore& core, std::string path);
+	static ModelLoaderNode LoadFromFile(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, std::string path);
 };

@@ -14,6 +14,20 @@ MaterialProperty::MaterialProperty(std::string name, std::string data) {
 	new(&this->stringData) std::string(data);
 }
 
+void MaterialProperty::CopyFrom(const MaterialProperty& other) {
+	this->name = other.name;
+	this->type = other.type;
+	this->dataLength = other.dataLength;
+	this->bufferSize = other.bufferSize;
+	if (type == Types::STRING) {
+		new(&this->stringData) std::string(other.stringData);
+	}
+	else {
+		rawData = new BYTE[other.bufferSize];
+		memcpy(rawData, other.rawData, other.bufferSize);
+	}
+}
+
 MaterialProperty::MaterialProperty(std::string name, Types type, BYTE* data, size_t bufferSize, size_t dataLength) {
 	this->name = name;
 	this->type = type;
@@ -28,17 +42,12 @@ MaterialProperty::MaterialProperty(std::string name, Types type, BYTE* data, siz
 }
 
 MaterialProperty::MaterialProperty(const MaterialProperty& other) {
-	this->name = other.name;
-	this->type = other.type;
-	this->dataLength = other.dataLength;
-	this->bufferSize = other.bufferSize;
-	if (type == Types::STRING) {
-		new(&this->stringData) std::string(other.stringData);
-	}
-	else {
-		rawData = new BYTE[other.bufferSize];
-		memcpy(rawData, other.rawData, other.bufferSize);
-	}
+	this->CopyFrom(other);
+}
+
+MaterialProperty MaterialProperty::operator=(const MaterialProperty& other) {
+	auto prop = MaterialProperty(other.name, other.type, other.rawData, other.bufferSize, other.dataLength);
+	return prop;
 }
 
 MaterialProperty::~MaterialProperty() {

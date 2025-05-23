@@ -5,7 +5,7 @@
 
 class MaterialProperty {
 	union {
-		void* rawData = nullptr;
+		BYTE* rawData = nullptr;
 		std::string stringData;
 	};
 
@@ -37,8 +37,11 @@ private:
 	MaterialProperty(std::string name, Types type, BYTE* data, size_t bufferSize, size_t dataLength);
 	MaterialProperty(std::string name, std::string data);
 
+	void CopyFrom(const MaterialProperty& other);
+
 public:
 	MaterialProperty(const MaterialProperty& other);
+	MaterialProperty operator=(const MaterialProperty& other);
 	~MaterialProperty();
 
 	PropertyValue<float> GetFloatArray();

@@ -1,6 +1,7 @@
 {
     "dependencies": [
         "spdlog",
-        "assimp"
+        "assimp",
+        "directxtk"
     ]
 }

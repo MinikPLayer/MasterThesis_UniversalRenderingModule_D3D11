@@ -184,7 +184,8 @@
   <ItemGroup>
     <ClInclude Include="D3DIndexBuffer.h" />
     <ClInclude Include="D3DRasterizerState.h" />
-    <ClInclude Include="D3DTexture.h" />
+    <ClInclude Include="D3DSampler.h" />
+    <ClInclude Include="D3DTexture2D.h" />
     <ClInclude Include="D3DVertexBuffer.h" />
     <ClInclude Include="ID3DBuffer.h" />
     <ClInclude Include="D3DConstantBuffer.h" />
@@ -205,6 +206,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="D3DRasterizerState.cpp" />
+    <ClCompile Include="D3DSampler.cpp" />
+    <ClCompile Include="D3DTexture2D.cpp" />
     <ClCompile Include="ID3DBuffer.cpp" />
     <ClCompile Include="D3DCore.cpp" />
     <ClCompile Include="D3DViewport.cpp" />
