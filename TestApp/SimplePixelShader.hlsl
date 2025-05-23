@@ -1,8 +1,4 @@
-struct PS_INPUT
-{
-    float4 pos : SV_POSITION;
-    float2 textureUV : TEXCOORD;
-};
+#include "PixelShaderCommon.hlsl"
 
 Texture2D diffuseTexture : register(t0);
 SamplerState sampleType : register(s0);
