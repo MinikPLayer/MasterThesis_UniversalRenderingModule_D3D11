@@ -47,6 +47,8 @@ public:
 	std::string GetString();
 	PropertyValue<void> GetBuffer();
 
+	std::string GetValueAsString();
+
 	static MaterialProperty CreateFloat(std::string name, std::vector<float> values);
 	static MaterialProperty CreateDouble(std::string name, std::vector<double> values);
 	static MaterialProperty CreateInteger(std::string name, std::vector<int> values);

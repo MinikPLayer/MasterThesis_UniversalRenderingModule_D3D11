@@ -80,6 +80,50 @@ MaterialProperty::PropertyValue<void> MaterialProperty::GetBuffer()
 	return PropertyValue<void>(rawData, dataLength);
 }
 
+template<typename T>
+std::string ValueArrayToString(MaterialProperty::PropertyValue<T> values) {
+	std::string result = "[";
+	for (size_t i = 0; i < values.length; i++) {
+		result += std::to_string(values.data[i]);
+		if (i < values.length - 1) {
+			result += ", ";
+		}
+	}
+	return result + "]";
+}
+
+std::string MaterialProperty::GetValueAsString()
+{
+	switch (type) {
+	case Types::STRING:
+		return stringData;
+
+	case Types::FLOAT:
+		return ValueArrayToString(GetFloatArray());
+
+	case Types::DOUBLE:
+		return ValueArrayToString(GetDoubleArray());
+
+	case Types::INTEGER:
+		return ValueArrayToString(GetIntegerArray());
+
+	case Types::BUFFER:
+	{
+		std::string result = "{";
+		for (size_t i = 0; i < dataLength; i++) {
+			result += std::to_string(((BYTE*)rawData)[i]);
+			if (i < dataLength - 1) {
+				result += ", ";
+			}
+		}
+		return result + "}";
+	}
+
+	default:
+		throw std::runtime_error("Unsupported type for string conversion");
+	}
+}
+
 MaterialProperty MaterialProperty::CreateFloat(std::string name, std::vector<float> values) {
 	return MaterialProperty(name, Types::FLOAT, (BYTE*)values.data(), values.size() * 4, values.size());
 }

@@ -107,31 +107,31 @@
 
 float unpackFloat(const uint8_t* b) {
 	uint32_t temp = 0;
-	temp = ((b[3] << 24) |
-		(b[2] << 16) |
-		(b[1] << 8) |
-		b[0]);
+	temp = (((uint32_t)b[3] << 24) |
+		((uint32_t)b[2] << 16) |
+		((uint32_t)b[1] << 8) |
+		(uint32_t)b[0]);
 	return *((float*)&temp);
 }
 
 double unpackDouble(const uint8_t* b) {
 	uint64_t temp = 0;
-	temp = (b[0] << 56) |
-		(b[1] << 48) |
-		(b[2] << 40) |
-		(b[3] << 32) |
-		(b[4] << 24) |
-		(b[5] << 16) |
-		(b[6] << 8) |
-		b[7];
+	temp = ((uint64_t)b[7] << 56) |
+		((uint64_t)b[6] << 48) |
+		((uint64_t)b[5] << 40) |
+		((uint64_t)b[4] << 32) |
+		((uint64_t)b[3] << 24) |
+		((uint64_t)b[2] << 16) |
+		((uint64_t)b[1] << 8) |
+		b[0];
 	return *((double*)&temp);
 }
 
 int unpackInteger(const uint8_t* b) {
-	int temp = ((b[0] << 24) |
-		(b[1] << 16) |
-		(b[2] << 8) |
-		b[3]);
+	int temp = ((b[3] << 24) |
+		(b[2] << 16) |
+		(b[1] << 8) |
+		b[0]);
 	return temp;
 }
 
@@ -151,7 +151,9 @@ MaterialProperty GetPropertyFromAssimpProperty(aiMaterialProperty* prop) {
 
 	switch (prop->mType) {
 	case aiPTI_String:
-		return MaterialProperty::CreateString(nameString, prop->mData, prop->mDataLength);
+		// Skip first 4 bytes, which are the length of the string + 1 byte for the null terminator
+		// TODO: Verify prop->mDataLength vs first 4 bytes
+		return MaterialProperty::CreateString(nameString, prop->mData + 4, prop->mDataLength - 4 - 1);
 
 	case aiPTI_Float:
 		return MaterialProperty::CreateFloat(nameString, unpackPropertyData<float, 4>((const unsigned char*)prop->mData, prop->mDataLength, unpackFloat));
@@ -223,7 +225,7 @@ Mesh<LoaderVertexType> processMesh(D3DCore& core, aiMesh* mesh, const aiScene* s
 
 	// Test
 	for (auto prop : newMesh.materialProperties) {
-		OutputDebugString(StringUtils::StringToWString(prop.name + "\n").c_str());
+		OutputDebugString(StringUtils::StringToWString(prop.name + ": " + prop.GetValueAsString() + "\n").c_str());
 	}
 
 	return newMesh;
