@@ -39,7 +39,6 @@ void Clear(D3DCore& core) {
 
     auto elapsedTime = std::chrono::duration_cast<std::chrono::microseconds>(now - programStartTime).count() / 1000000.0f;
 
-    //core.Clear(DirectX::XMVECTORF32{ sin(elapsedTime / 2.0f) / 2.0f + 0.5f, cos(elapsedTime / 3.f) / 2.0f + 0.5f, 0.0f, 1.0f });
     core.Clear(DirectX::Colors::Black);
 }
 
@@ -47,9 +46,6 @@ void Clear(D3DCore& core) {
 
 struct VertexConstantBuffer
 {
-    //DirectX::XMMATRIX Projection;
-    //DirectX::XMMATRIX View;
-    //DirectX::XMMATRIX World;
     DirectX::XMMATRIX WVP;
 	DirectX::XMMATRIX worldMatrix;
 	DirectX::XMMATRIX inverseWorldMatrix;
@@ -63,17 +59,17 @@ struct PixelConstantBuffer {
 };
 
 struct WVPMatrix {
-    DirectX::XMMATRIX Projection;
-	DirectX::XMMATRIX View;
-	DirectX::XMMATRIX World;
+    DirectX::XMMATRIX WVP;
+    DirectX::XMMATRIX World;
 
-    // TODO: Cache?
-    DirectX::XMMATRIX GetWVP() {
-        return World * View * Projection;
+    void Apply(VertexConstantBuffer& buffer) {
+        buffer.WVP = DirectX::XMMatrixTranspose(WVP);
+		buffer.worldMatrix = DirectX::XMMatrixTranspose(World);
+		buffer.inverseWorldMatrix = DirectX::XMMatrixInverse(nullptr, World);
     }
 
-	WVPMatrix(DirectX::XMMATRIX projection, DirectX::XMMATRIX view, DirectX::XMMATRIX world)
-		: Projection(projection), View(view), World(world) {
+	WVPMatrix(DirectX::XMMATRIX projection, DirectX::XMMATRIX view, DirectX::XMMATRIX world) : World(world) {
+		WVP = world * view * projection;
 	}
 };
 
@@ -114,9 +110,6 @@ WVPMatrix CreateTransformationMatrix(
         farPlane
     );
 
-    // 4. Combine: World * View * Projection
-    //DirectX::XMMATRIX matWVP = matWorld * matView * matProjection;
-
     return WVPMatrix(matProjection, matView, matWorld);
 }
 
@@ -131,37 +124,17 @@ struct TestDrawData {
     D3DInputLayout<ModelLoaderVertexType>& iLayout;
     ModelLoaderNode& mesh;
     ModelLoaderNode& secondMesh;
-
-    //TestDrawData(D3DCore& core, D3DConstantBuffer& vertexConstantBuffer, D3DConstantBuffer& pixelConstantBuffer, D3DViewport& viewport, D3DRasterizerState& rState, ShaderProgram& texturedProgram, ShaderProgram& nonTexturedProgram, D3DInputLayout<VertexPositionTexture>& iLayout, ModelLoaderNode& mesh, ModelLoaderNode& secondMesh)
-    //    : core(core), vertexConstantBuffer(vertexConstantBuffer), pixelConstantBuffer(pixelConstantBuffer), viewport(viewport), rState(rState), texturedProgram(texturedProgram), nonTexturedProgram(nonTexturedProgram), iLayout(iLayout), mesh(mesh), secondMesh(secondMesh) {
-    //}
 };
 
 void TestDrawNode(TestDrawData& data, ModelLoaderNode& node, WVPMatrix transformMatrix) {
-    //auto newTransform = node.transform * transformMatrix.worldViewProjection;
-	auto newWorld = node.transform * transformMatrix.World;
-	auto newTransform = WVPMatrix(
-		transformMatrix.Projection,
-		transformMatrix.View,
-        newWorld
-	);
+	transformMatrix.World = node.transform * transformMatrix.World;
+	transformMatrix.WVP = node.transform * transformMatrix.WVP;
 
-    VertexConstantBuffer newCb{};
-	//newCb.Projection = DirectX::XMMatrixTranspose(transformMatrix.Projection);
-	//newCb.View = DirectX::XMMatrixTranspose(transformMatrix.View);
-	//newCb.World = DirectX::XMMatrixTranspose(newWorld);
-	newCb.WVP = DirectX::XMMatrixTranspose(newTransform.GetWVP());
-
-    //newCb.worldMatrix = transformMatrix.World;
-    //newCb.Projection = transformMatrix.Projection;
-    //newCb.View = transformMatrix.View;
-
-	newCb.worldMatrix = DirectX::XMMatrixTranspose(newTransform.World);
-	newCb.inverseWorldMatrix = DirectX::XMMatrixInverse(nullptr, newTransform.World);
-	//newCb.Projection = DirectX::XMMatrixTranspose(transformMatrix.Projection);
-	//newCb.View = DirectX::XMMatrixTranspose(transformMatrix.View);
-
-	data.vertexConstantBuffer.UpdateWithData(data.core, &newCb);
+    if (!node.meshes.empty()) {
+        VertexConstantBuffer cBufferData;
+        transformMatrix.Apply(cBufferData);
+        data.vertexConstantBuffer.UpdateWithData(data.core, &cBufferData);
+    }
 
     for (auto& m : node.meshes) {
 		m.GetVertexBuffer().Bind(data.core, 0);
@@ -186,7 +159,7 @@ void TestDrawNode(TestDrawData& data, ModelLoaderNode& node, WVPMatrix transform
     }
 
 	for (auto& child : node.children) {
-		TestDrawNode(data, child, newTransform);
+		TestDrawNode(data, child, transformMatrix);
 	}
 }
 
@@ -195,7 +168,6 @@ WVPMatrix TestDrawCreateWVP(XMFLOAT3 positionOffset, Size2i windowSize, float ro
     DirectX::XMFLOAT3 modelPos = positionOffset;
     DirectX::XMFLOAT3 modelRot = { 0.0f, rotation, 0.0f };
     DirectX::XMFLOAT3 modelScl = { 1.0f, 1.0f, 1.0f };
-    //DirectX::XMFLOAT3 camPos = { sin(rotation / 180.0f) * 8.0f, 4.0f, cos(rotation / 180.0f) * 8.0f };
     DirectX::XMFLOAT3 camPos = { 0.0f, 4.0f, 8.0f };
     DirectX::XMFLOAT3 camTarget = { 0.0f, 0.0f, 0.0f };
     DirectX::XMFLOAT3 camUp = { 0.0f, 1.0f, 0.0f };
@@ -243,14 +215,9 @@ void TestDraw(TestDrawData data) {
 	auto windowSize = data.core.GetWindow().GetSize();
 	auto rotation = elapsedTime * 90.0f;
     auto WVP = TestDrawCreateWVP({ -2.0f, 0.0f, 0.0f }, windowSize, rotation);
-    //VertexConstantBuffer cb{};
-    //cb.worldViewProjection = DirectX::XMMatrixTranspose(WVP.worldViewProjection);
-    //data.vertexConstantBuffer.UpdateWithData(data.core, &cb);
 	TestDrawNode(data, data.mesh, WVP);
 
-    WVP = TestDrawCreateWVP({ 2.0f, 0.0f, 0.0f }, windowSize, rotation);
-    //cb.worldViewProjection = DirectX::XMMatrixTranspose(WVP.worldViewProjection);
-    //data.vertexConstantBuffer.UpdateWithData(data.core, &cb);
+    WVP = TestDrawCreateWVP({ 2.0f, 0.0f, 0.0f }, windowSize, -rotation / 2.0f);
     TestDrawNode(data, data.secondMesh, WVP);
 
     data.core.Present(0);
@@ -293,16 +260,6 @@ int actualMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ 
     auto rStateData = D3DRasterizerStateData();
     rStateData.cullMode = CullModes::BACK;
     auto rState = D3DRasterizerState(rStateData);
-
-    /*auto vertices = {
-        VertexPositionTexture(0.0f, 0.5f, 0.0f, 1.0f, 0.0f),
-        VertexPositionTexture(0.5f, -0.5f, 0.0f, 0.0f, 1.0f),
-        VertexPositionTexture(-0.5f, -0.5f, 0.0f, 0.0f, 0.0f)
-    };
-    IMesh* vertexOnlyMesh = new Mesh<VertexPositionTexture>(core, vertices);
-    auto vertexOnlyMeshImpl = vertexOnlyMesh->GetImplementation<VertexPositionTexture>();
-    auto vertexOnlyModelNode = ModelLoaderNode();
-	vertexOnlyModelNode.meshes.push_back(*vertexOnlyMeshImpl);*/
 
     auto testDrawData = TestDrawData {
         core,
