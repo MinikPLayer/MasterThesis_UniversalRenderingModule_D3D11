@@ -165,8 +165,8 @@
     <ClCompile Include="TestApp.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\lib\URM\Core\URMCore.vcxproj">
-      <Project>{783e08b1-4ccc-4b36-9531-184647fb23f4}</Project>
+    <ProjectReference Include="..\lib\URM\Scene\URMScene.vcxproj">
+      <Project>{f85a09df-7e5b-4a01-b9a0-312d13b69280}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
