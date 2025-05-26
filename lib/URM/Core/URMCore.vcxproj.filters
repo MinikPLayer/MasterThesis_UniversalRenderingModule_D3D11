@@ -30,6 +30,7 @@
     <ClInclude Include="D3DSampler.h" />
     <ClInclude Include="Vector3.h" />
     <ClInclude Include="Vector2.h" />
+    <ClInclude Include="Quaternion.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -44,6 +45,8 @@
     <ClCompile Include="MaterialProperty.cpp" />
     <ClCompile Include="D3DTexture2D.cpp" />
     <ClCompile Include="D3DSampler.cpp" />
+    <ClCompile Include="Quaternion.cpp" />
+    <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

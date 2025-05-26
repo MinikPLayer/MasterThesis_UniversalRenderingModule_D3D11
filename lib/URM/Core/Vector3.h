@@ -23,18 +23,23 @@ public:
 		z = v.z;
 	}
 
-	bool is_equal_exact(Vector3<T> const& v) const {
+	bool IsEqualExact(Vector3<T> const& v) const {
 		return x == v.x && y == v.y && z == v.z;
 	}
 
-	bool is_equal_approximate(Vector3<T> const& v, float epsilon = 0.00001f) const {
+	bool IsEqualApproximate(Vector3<T> const& v, float epsilon = 0.00001f) const {
 		return FloatUtils::IsEqualApproximate((float)x, (float)v.x, epsilon) &&
 			FloatUtils::IsEqualApproximate((float)y, (float)v.y, epsilon) &&
 			FloatUtils::IsEqualApproximate((float)z, (float)v.z, epsilon);
 	}
 
-	DirectX::XMFLOAT3 to_xmath() {
+	DirectX::XMFLOAT3 ToXMFloat3() {
 		return DirectX::XMFLOAT3(x, y, z);
+	}
+
+	DirectX::XMVECTOR ToXMVector() {
+		auto xfloat3 = ToXMFloat3();
+		return DirectX::XMLoadFloat3(&xfloat3);
 	}
 
 	Vector3<T> operator+(Vector3<T> const& v) {
@@ -50,11 +55,19 @@ public:
 		return Vector3<T>(x / f, y / f, z / f);
 	}
 
-	float dot(Vector3<T> const& v) {
+	friend Vector3<T> operator*(float const& f, Vector3<T> const& v) {
+		return Vector3<T>(v.x * f, v.y * f, v.z * f);
+	}
+
+	friend Vector3<T> operator+(float const& f, Vector3<T> const& v) {
+		return Vector3<T>(f + v.x, f + v.y, f + v.z);
+	}
+
+	float Dot(Vector3<T> const& v) {
 		return (float)(v.x * x + v.y * y + v.z * z);
 	}
 
-	Vector3<T> cross(Vector3<T> const& v) {
+	Vector3<T> Cross(Vector3<T> const& v) {
 		return Vector3<T>(
 			y * v.z - z * v.y,
 			z * v.x - x * v.z,
@@ -62,19 +75,19 @@ public:
 		);
 	}
 
-	T sqr_magnitude() {
+	T SqrMagnitude() {
 		return x * x + y * y + z * z;
 	}
 
-	double magnitude() {
-		return sqrt(sqr_magnitude());
+	double Magnitude() {
+		return sqrt(SqrMagnitude());
 	}
 
-	Vector3<T> normalized() {
-		return *this / magnitude();
+	Vector3<T> Normalized() {
+		return *this / Magnitude();
 	}
 
-	std::string to_string() const {
+	std::string ToString() const {
 		std::stringstream ss;
 		ss << "(" << x << ", " << y << ", " << z << ")";
 		return ss.str();

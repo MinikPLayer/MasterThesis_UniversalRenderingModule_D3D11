@@ -93,7 +93,7 @@ template<typename T>
 std::string ValueArrayToString(MaterialProperty::PropertyValue<T> values) {
 	std::string result = "[";
 	for (size_t i = 0; i < values.length; i++) {
-		result += std::to_string(values.data[i]);
+		result += std::ToString(values.data[i]);
 		if (i < values.length - 1) {
 			result += ", ";
 		}
@@ -120,7 +120,7 @@ std::string MaterialProperty::GetValueAsString()
 	{
 		std::string result = "{";
 		for (size_t i = 0; i < dataLength; i++) {
-			result += std::to_string(((BYTE*)rawData)[i]);
+			result += std::ToString(((BYTE*)rawData)[i]);
 			if (i < dataLength - 1) {
 				result += ", ";
 			}

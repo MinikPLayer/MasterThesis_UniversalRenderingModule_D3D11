@@ -1,5 +1,24 @@
 #pragma once
 #include <math.h>
+#include <DirectXMath.h>
+
+class DecomposedMatrix {
+public:
+	DirectX::XMFLOAT3 translation;
+	DirectX::XMVECTOR rotation;
+	DirectX::XMFLOAT3 scale;
+
+	DecomposedMatrix(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 scale, DirectX::XMVECTOR rotation) {
+		this->translation = pos;
+		this->scale = scale;
+		this->rotation = rotation;
+	}
+};
+
+class MatrixUtils {
+public:
+	static DecomposedMatrix DecomposeMatrix(DirectX::XMMATRIX matrix);
+};
 
 class FloatUtils {
 public:

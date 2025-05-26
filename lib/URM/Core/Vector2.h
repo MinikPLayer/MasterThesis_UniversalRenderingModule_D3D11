@@ -61,7 +61,7 @@ public:
 		return *this / magnitude();
 	}
 
-	std::string to_string() const {
+	std::string ToString() const {
 		std::stringstream ss;
 		ss << "(" << x << ", " << y << ")";
 		return ss.str();
