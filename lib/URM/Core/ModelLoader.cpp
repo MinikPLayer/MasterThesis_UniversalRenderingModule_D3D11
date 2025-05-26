@@ -3,6 +3,7 @@
 #include "D3DTexture2D.h"
 #include "Mesh.h"
 #include "MaterialProperty.h"
+#include "Vector2.h"
 
 #include <assimp/mesh.h>
 #include <assimp/scene.h>
@@ -21,7 +22,7 @@ D3DTexture2D LoadEmbeddedTexture(D3DCore& core, std::string path, std::string ty
 	auto height = embeddedTexture->mHeight;
 	auto pixelData = embeddedTexture->pcData;
 
-	return D3DTexture2D(core, path, type, Size2i(width, height), reinterpret_cast<Texel2D*>(pixelData));
+	return D3DTexture2D(core, path, type, Vector2i(width, height), reinterpret_cast<Texel2D*>(pixelData));
 }
 
 std::vector<D3DTexture2D> LoadMaterialTextures(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, std::string fileDirectory, aiMaterial* mat, aiTextureType type, std::string typeName, const aiScene* scene) {

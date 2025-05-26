@@ -102,7 +102,7 @@ LRESULT Window::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
 
     case WM_SIZE:
     {
-        this->oldSize = Size2i(this->width, this->height);
+        this->oldSize = Vector2i(this->width, this->height);
         if (wParam == SIZE_MINIMIZED)
         {
             if (!this->width && !this->height)
@@ -118,20 +118,20 @@ LRESULT Window::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
         }
 
         if (this->OnResize)
-            this->OnResize(*this, this->oldSize, Size2i(this->width, this->height));
+            this->OnResize(*this, this->oldSize, Vector2i(this->width, this->height));
 
         break;
     }
 
     case WM_ENTERSIZEMOVE:
         this->isResizing = true;
-		this->oldSize = Size2i(this->width, this->height);
+		this->oldSize = Vector2i(this->width, this->height);
 		break;
 
     case WM_EXITSIZEMOVE:
         this->isResizing = false;
         if (this->OnResize)
-            this->OnResize(*this, this->oldSize, Size2i(this->width, this->height));
+            this->OnResize(*this, this->oldSize, Vector2i(this->width, this->height));
         break;
 
     case WM_ACTIVATEAPP:

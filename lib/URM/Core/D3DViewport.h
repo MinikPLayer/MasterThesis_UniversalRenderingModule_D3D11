@@ -4,12 +4,12 @@
 #include <d3d11.h>
 
 struct D3DViewportData {
-	Size2i size;
+	Vector2i size;
 	float minDepth;
 	float maxDepth;
-	Pos2f topLeft;
+	Vector2f topLeft;
 
-	D3DViewportData(Size2i size, float minDepth = 0.0f, float maxDepth = 1.0f, Pos2f topLeft = Pos2f::ZERO)
+	D3DViewportData(Vector2i size, float minDepth = 0.0f, float maxDepth = 1.0f, Vector2f topLeft = Vector2f(0, 0))
 		: size(size), minDepth(minDepth), maxDepth(maxDepth), topLeft(topLeft) { 
 	}
 };

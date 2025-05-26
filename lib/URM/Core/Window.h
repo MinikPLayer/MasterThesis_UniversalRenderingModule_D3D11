@@ -2,6 +2,7 @@
 #include <Windows.h>
 #include "Utils.h"
 #include <functional>
+#include "Vector2.h"
 
 struct WindowCreationParams {
 	int width;
@@ -25,7 +26,7 @@ class Window {
 
 	HWND handle = NULL;
 
-	Size2i oldSize = { -1, -1 };
+	Vector2i oldSize = { -1, -1 };
 	bool isResizing = false;
 
 	int width = -1;
@@ -34,7 +35,7 @@ class Window {
 	bool isDestroyed = false;
 
 	std::function<void(Window&)> OnPaint = {};
-	std::function<void(Window& window, Size2i oldSize, Size2i newSize)> OnResize = {};
+	std::function<void(Window& window, Vector2i oldSize, Vector2i newSize)> OnResize = {};
 
 	std::function<void(Window& window, bool isFocused)> OnFocusChange = {};
 
@@ -60,8 +61,8 @@ public:
 	void Hide();
 	void Close(bool ignoreOnCloseRequested = false);
 
-	Size2i GetSize() {
-		return Size2i(this->width, this->height);
+	Vector2i GetSize() {
+		return Vector2i(this->width, this->height);
 	}
 
 	Window(WindowCreationParams params, bool show = true);

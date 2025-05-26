@@ -28,6 +28,8 @@
     <ClInclude Include="ModelLoader.h" />
     <ClInclude Include="MaterialProperty.h" />
     <ClInclude Include="D3DSampler.h" />
+    <ClInclude Include="Vector3.h" />
+    <ClInclude Include="Vector2.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -37,7 +39,6 @@
     <ClCompile Include="ID3DBuffer.cpp" />
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
-    <ClCompile Include="Utils.cpp" />
     <ClCompile Include="Window.cpp" />
     <ClCompile Include="ModelLoader.cpp" />
     <ClCompile Include="MaterialProperty.cpp" />

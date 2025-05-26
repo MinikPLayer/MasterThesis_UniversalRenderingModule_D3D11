@@ -51,6 +51,9 @@
 
 #include <spdlog/spdlog.h>
 
+#include "Vector2.h"
+#include "Vector3.h"
+
 namespace DX
 {
     inline void ThrowIfFailed(HRESULT hr, std::string message = "WinAPI call failed")

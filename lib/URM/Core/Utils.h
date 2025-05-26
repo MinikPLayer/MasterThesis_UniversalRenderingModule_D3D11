@@ -1,28 +1,16 @@
 #pragma once
+#include <math.h>
 
-struct Size2i {
-	int width;
-	int height;
+class FloatUtils {
+public:
+	template <typename T>
+	static int Sign(T val) {
+		return (T(0) < val) - (val < T(0));
+	}
 
-	Size2i(int width, int height) : width(width), height(height) {}
-
-	const static Size2i ZERO;
-};
-
-struct Pos2i {
-	int x, y;
-
-	Pos2i(int x, int y) : x(x), y(y) {}
-
-	const static Pos2i ZERO;
-};
-
-struct Pos2f {
-	float x, y;
-
-	Pos2f(float x, float y) : x(x), y(y) {}
-
-	const static Pos2f ZERO;
+	bool static inline IsEqualApproximate(float a, float b, float epsilon = 0.00001f) {
+		return fabs(a - b) <= ((fabs(a) > fabs(b) ? fabs(b) : fabs(a)) * epsilon);
+	}
 };
 
 class StringUtils {

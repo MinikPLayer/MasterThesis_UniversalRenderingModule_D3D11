@@ -100,7 +100,7 @@ WVPMatrix CreateTransformationMatrix(
     float fov, // Degrees
     float nearPlane,
     float farPlane,
-    Size2i windowSize
+    Vector2i windowSize
 )
 {
     // 1. World Matrix
@@ -122,7 +122,7 @@ WVPMatrix CreateTransformationMatrix(
     // 3. Projection Matrix (Orthographic)
     DirectX::XMMATRIX matProjection = DirectX::XMMatrixPerspectiveFovLH(
         DirectX::XMConvertToRadians(fov),
-        windowSize.width / (float)windowSize.height,
+        windowSize.x / (float)windowSize.y,
         nearPlane,
         farPlane
     );
@@ -184,7 +184,7 @@ static int cbCounter = 0;
 static const DirectX::XMFLOAT3 camPos = { 0.0f, 4.0f, -8.0f };
 static const DirectX::XMFLOAT3 camTarget = { 0.0f, 0.0f, 0.0f };
 static const DirectX::XMFLOAT3 camUp = { 0.0f, 1.0f, 0.0f };
-WVPMatrix TestDrawCreateWVP(XMFLOAT3 positionOffset, Size2i windowSize, float rotation, float scale = 1.0f) {
+WVPMatrix TestDrawCreateWVP(XMFLOAT3 positionOffset, Vector2i windowSize, float rotation, float scale = 1.0f) {
     DirectX::XMFLOAT3 modelPos = positionOffset;
     DirectX::XMFLOAT3 modelRot = { 0.0f, rotation, 0.0f };
     DirectX::XMFLOAT3 modelScl = { scale, scale, scale };
