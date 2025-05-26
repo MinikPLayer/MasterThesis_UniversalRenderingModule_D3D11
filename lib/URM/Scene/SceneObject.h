@@ -1,36 +1,112 @@
 #pragma once
-
-#include <Core/pch.h>
-#include <string>
 #include "Transform.h"
+#include <vector>
+#include <memory>
+#include <functional>
 
 class Scene;
 class SceneObject {
-	Scene& scene;
+	friend class Scene;
+
+	std::weak_ptr<Scene> scene;
+
+	std::vector<std::shared_ptr<SceneObject>> children;
+	std::weak_ptr<SceneObject> parent;
+	bool _hasParent = false;
+
+	// TODO: This should be initialized before add component
+	std::weak_ptr<SceneObject> self;
+	size_t hash = -1;
 
 	Transform transform;
 
-	std::string name;
+	bool isStarted = false;
+	bool isLateStarted = false;
+	bool isDestroyed = false;
 
-	std::weak_ptr<SceneObject> parent;
-	std::vector<std::shared_ptr<SceneObject>> children;
+	void __AddChild__(std::weak_ptr<SceneObject> object);
+	void __PrintHierarchy__(int level);
 
-protected:
-	Scene& GetScene();
+	template<typename T>
+	static std::shared_ptr<T> Instantiate(std::weak_ptr<Scene> scene, std::shared_ptr<T> object, std::shared_ptr<SceneObject> parent) {
+		static_assert(std::is_base_of<SceneObject, T>::value, "T must derive from GameObject");
 
+		object->self = object;
+		object->hash = typeid(T).hash_code();
+		object->scene = scene;
+		parent->__AddChild__(object);
+
+		return object;
+	}
+
+	template<typename T>
+	static std::shared_ptr<T> Instantiate(std::weak_ptr<Scene> scene, T* object, std::shared_ptr<SceneObject> parent) {
+		static_assert(std::is_base_of<SceneObject, T>::value, "T must derive from GameObject");
+
+		auto objPtr = std::shared_ptr<T>(object);
+		return Instantiate<T>(scene, objPtr, parent);
+	}
 public:
-	Transform& GetTransform();
-	bool HasParent();
 
-	std::weak_ptr<SceneObject> GetParent() const;
-	void SetParent(std::weak_ptr<SceneObject> parent);
+	static void Destroy(std::shared_ptr<SceneObject> object);
 
-	void RemoveChild(std::shared_ptr<SceneObject> child);
-	void AddChild(std::shared_ptr<SceneObject> child);
-	std::vector<std::shared_ptr<SceneObject>>& GetChildren() const;
+	template<typename T>
+	bool IsType() {
+		return hash == typeid(T).hash_code();
+	}
 
-	std::string GetName() const;
-	void SetName(const std::string& name);
+	std::weak_ptr<SceneObject> GetSelfPtr();
 
-	SceneObject(Scene& scene, std::string name);
+	void RemoveParent();
+	void SetParent(std::shared_ptr<SceneObject> parent);
+
+	bool HasParent() {
+		return this->_hasParent;
+	}
+
+	std::weak_ptr<Scene> GetScene() {
+		return this->scene;
+	}
+
+	Transform& GetTransform() {
+		return this->transform;
+	}
+
+	std::weak_ptr<SceneObject> GetParent() {
+		return this->parent;
+	}
+
+	std::vector<std::shared_ptr<SceneObject>> GetChildren() {
+		return this->children;
+	}
+
+	const char* GetTypeName() {
+		return typeid(*this).name();
+	}
+
+	template<typename T>
+	std::shared_ptr<T> AddChild(std::shared_ptr<T> child) {
+		if (self.lock() == nullptr) {
+			spdlog::warn("Trying to add component to uninitialized object");
+		}
+
+		return Instantiate<T>(this->scene, child, this->self.lock());
+	}
+
+	template<typename T>
+	std::shared_ptr<T> AddChild(T* child) {
+		return Instantiate<T>(child, this->self.lock());
+	}
+
+	void RemoveChild(std::weak_ptr<SceneObject> child);
+
+	// Disable copy constructor and assignment operator
+	SceneObject(const SceneObject&) = delete;
+	SceneObject& operator=(const SceneObject&) = delete;
+
+	SceneObject(SceneObject&&) = default;
+	SceneObject& operator=(SceneObject&&) = default;
+
+	SceneObject() : transform(*this) {}
+	~SceneObject();
 };

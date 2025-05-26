@@ -164,6 +164,7 @@
     <ClInclude Include="Transform.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneMesh.cpp" />
     <ClCompile Include="SceneModel.cpp" />
     <ClCompile Include="pch.cpp">

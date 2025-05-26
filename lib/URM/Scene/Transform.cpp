@@ -90,8 +90,8 @@ void Transform::SetPosition(Vector3 position) {
 
 // TODO: Fix incorrect behaviour
 //void Transform::set_scale(Vector3<float> scale) {
-//	if (gameObject.has_parent()) {
-//		auto parentMatrix = gameObject.get_parent().lock()->get_transform().GetWorldSpaceMatrix();
+//	if (gameObject.HasParent()) {
+//		auto parentMatrix = gameObject.GetParent().lock()->GetTransform().GetWorldSpaceMatrix();
 //		auto parentInverse = glm::inverse(parentMatrix);
 //		auto localScale = glm::scale(glm::mat4(1.0f), scale.to_glm());
 //		auto relativeScale = parentInverse * localScale;

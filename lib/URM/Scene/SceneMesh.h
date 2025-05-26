@@ -8,5 +8,5 @@ class SceneMesh : public SceneObject {
 
 public:
 
-	SceneMesh(Scene& scene, Mesh<ModelLoaderVertexType> mesh, std::string name);
+	SceneMesh(Mesh<ModelLoaderVertexType> mesh);
 };

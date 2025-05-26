@@ -1,62 +1,93 @@
 #include "pch.h"
 #include "SceneObject.h"
-#include "Scene.h"
 
-Scene& SceneObject::GetScene() {
-	return scene;
-}
-
-Transform& SceneObject::GetTransform() {
-	return transform;
-}
-
-bool SceneObject::HasParent() {
-	return !parent.expired();
-}
-
-std::weak_ptr<SceneObject> SceneObject::GetParent() const {
-	return this->parent;
-}
-
-void SceneObject::SetParent(std::weak_ptr<SceneObject> parent) {
-	this->parent = parent;
-
-	this->transform.UpdateMatrix();
-}
-
-void SceneObject::RemoveChild(std::shared_ptr<SceneObject> child) {
-	auto it = std::find(this->children.begin(), this->children.end(), child);
-	if (it != this->children.end()) {
-		this->children.erase(it);
-		child->SetParent(std::weak_ptr<SceneObject>()); // Clear the parent of the child
+void SceneObject::Destroy(std::shared_ptr<SceneObject> object) {
+#if !NDEBUG
+	if (object->isDestroyed) {
+		spdlog::error("Object destoyed twice");
 	}
-	else {
-		spdlog::warn("Child object {} not found in parent {}'s children.", child->GetName(), this->GetName());
+#endif
+
+	if (!object->parent.expired()) {
+		object->parent.lock()->RemoveChild(object);
+	}
+
+	object->isDestroyed = true;
+	for (auto child : object->children) {
+		Destroy(child);
 	}
 }
 
-void SceneObject::AddChild(std::shared_ptr<SceneObject> child) {
-	if (child->HasParent()) {
-		spdlog::warn("Child object {} already has a parent, removing it from the old parent.", child->GetName());
-		child->GetParent().lock()->RemoveChild(child);
+
+std::weak_ptr<SceneObject> SceneObject::GetSelfPtr() {
+#if SC_FATAL_ON
+	if (self.lock() == nullptr) {
+		ELOG_FATAL("Self pointer invalid. This could happen if get_self_ptr is called from the constructor. If that's the case, try calling it from the start() method");
 	}
-	child->SetParent(shared_from_this());
-	this->children.push_back(child);
+#endif
+
+	return self;
 }
 
-std::vector<std::shared_ptr<SceneObject>> SceneObject::GetChildren() const {
-	return this->children;
+void SceneObject::RemoveParent() {
+	if (HasParent()) {
+		parent.lock()->RemoveChild(self);
+	}
+
+	_hasParent = false;
+	parent.reset();
 }
 
-std::string SceneObject::GetName() const {
-	return this->name;
+void SceneObject::SetParent(std::shared_ptr<SceneObject> _parent) {
+	_parent->__AddChild__(this->self);
 }
 
-void SceneObject::SetName(const std::string& name) {
-	this->name = name;
+void SceneObject::__AddChild__(std::weak_ptr<SceneObject> child) {
+	auto c = child.lock();
+	children.push_back(c);
+
+	c->RemoveParent();
+
+	if (c->self.lock() == nullptr) {
+		c->self = child;
+	}
+
+	c->parent = self;
+	c->_hasParent = true;
+
+	c->transform.UpdateMatrix();
 }
 
-SceneObject::SceneObject(Scene& scene, std::string name) : transform(*this), scene(scene) {
-	this->name = name;
+void SceneObject::__PrintHierarchy__(int level) {
+	std::stringstream ss;
+	for (int i = 0; i < level; i++) {
+		ss << "\t";
+	}
+	ss << typeid(*this).name();
+	spdlog::info(ss.str());
+
+	for (auto child : children) {
+		child->__PrintHierarchy__(level + 1);
+	}
 }
 
+void SceneObject::RemoveChild(std::weak_ptr<SceneObject> child) {
+	child.lock().get()->parent = std::weak_ptr<SceneObject>();
+	for (auto it = children.begin(); it != children.end(); ++it) {
+		if (*it == child.lock()) {
+			children.erase(it);
+			break;
+		}
+	}
+}
+
+SceneObject::~SceneObject() {
+	for (auto it = children.begin(); it != children.end(); ++it) {
+		(*it)->parent = std::weak_ptr<SceneObject>();
+	}
+
+	if (!isDestroyed) {
+		isDestroyed = true;
+	}
+
+}

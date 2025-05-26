@@ -13,6 +13,8 @@ class Scene {
 	D3DCore& core;
 
 public:
+	void PrintObjectsHierarchy();
+
 	AssetManager& GetAssetManager() {
 		return this->assetManager;
 	}
