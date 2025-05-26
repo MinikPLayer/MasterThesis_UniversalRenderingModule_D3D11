@@ -14,6 +14,10 @@
 #include <URM/Core/D3DConstantBuffer.h>
 #include <URM/Core/D3DRasterizerState.h>
 #include <URM/Core/ModelLoader.h>
+#include <URM/Scene/Scene.h>
+
+#include <URM/Scene/SceneModel.h>
+#include <URM/Scene/SceneMesh.h>
 
 using namespace DirectX;
 
@@ -139,45 +143,73 @@ struct TestDrawData {
     ShaderProgram& texturedProgram;
     ShaderProgram& nonTexturedProgram;
     D3DInputLayout<ModelLoaderVertexType>& iLayout;
-    ModelLoaderNode& mesh;
-    ModelLoaderNode& secondMesh;
+    Scene& scene;
 };
 
-void TestDrawNode(TestDrawData& data, ModelLoaderNode& node, WVPMatrix transformMatrix) {
-	transformMatrix.World = node.transform * transformMatrix.World;
-	transformMatrix.WVP = node.transform * transformMatrix.WVP;
-
-    if (!node.meshes.empty()) {
-        VertexConstantBuffer cBufferData;
-        transformMatrix.Apply(cBufferData);
-        data.vertexConstantBuffer.UpdateWithData(data.core, &cBufferData);
+//void TestDrawNode(TestDrawData& data, ModelLoaderNode& node, WVPMatrix transformMatrix) {
+//	transformMatrix.World = node.transform * transformMatrix.World;
+//	transformMatrix.WVP = node.transform * transformMatrix.WVP;
+//
+//    if (!node.meshes.empty()) {
+//        VertexConstantBuffer cBufferData;
+//        transformMatrix.Apply(cBufferData);
+//        data.vertexConstantBuffer.UpdateWithData(data.core, &cBufferData);
+//    }
+//
+//    for (auto& m : node.meshes) {
+//		m.GetVertexBuffer().Bind(data.core, 0);
+//		m.BindTextures(data.core);
+//
+//        if (m.ContainsTextures()) {
+//			data.texturedProgram.Bind(data.core);
+//        }
+//        else {
+//			data.nonTexturedProgram.Bind(data.core);
+//        }
+//
+//        if (m.ContainsIndices()) {
+//            m.GetIndexBuffer().Bind(data.core, 0);
+//
+//            data.core.GetContext()->DrawIndexed(m.GetIndicesCount(), 0, 0);
+//        }
+//        else {
+//			m.GetVertexBuffer().Bind(data.core, 0);
+//            data.core.GetContext()->Draw(m.GetVerticesCount(), 0);
+//        }
+//    }
+//
+//	for (auto& child : node.children) {
+//		TestDrawNode(data, child, transformMatrix);
+//	}
+//}
+void TestDrawMesh(TestDrawData& data, std::weak_ptr<SceneMesh> mesh, WVPMatrix transformMatrix) {
+    auto nodeWorldMatrix = mesh.lock()->GetTransform().GetWorldSpaceMatrix();
+    VertexConstantBuffer cBufferData;
+	transformMatrix.World = nodeWorldMatrix * transformMatrix.World;
+	transformMatrix.WVP = nodeWorldMatrix * transformMatrix.WVP;
+    transformMatrix.Apply(cBufferData);
+    data.vertexConstantBuffer.UpdateWithData(data.core, &cBufferData);
+    
+    auto m = mesh.lock()->GetMesh();
+    m.GetVertexBuffer().Bind(data.core, 0);
+    m.BindTextures(data.core);
+    
+    if (m.ContainsTextures()) {
+    	data.texturedProgram.Bind(data.core);
     }
-
-    for (auto& m : node.meshes) {
-		m.GetVertexBuffer().Bind(data.core, 0);
-		m.BindTextures(data.core);
-
-        if (m.ContainsTextures()) {
-			data.texturedProgram.Bind(data.core);
-        }
-        else {
-			data.nonTexturedProgram.Bind(data.core);
-        }
-
-        if (m.ContainsIndices()) {
-            m.GetIndexBuffer().Bind(data.core, 0);
-
-            data.core.GetContext()->DrawIndexed(m.GetIndicesCount(), 0, 0);
-        }
-        else {
-			m.GetVertexBuffer().Bind(data.core, 0);
-            data.core.GetContext()->Draw(m.GetVerticesCount(), 0);
-        }
+    else {
+    	data.nonTexturedProgram.Bind(data.core);
     }
-
-	for (auto& child : node.children) {
-		TestDrawNode(data, child, transformMatrix);
-	}
+    
+    if (m.ContainsIndices()) {
+        m.GetIndexBuffer().Bind(data.core, 0);
+    
+        data.core.GetContext()->DrawIndexed(m.GetIndicesCount(), 0, 0);
+    }
+    else {
+    	m.GetVertexBuffer().Bind(data.core, 0);
+        data.core.GetContext()->Draw(m.GetVerticesCount(), 0);
+    }
 }
 
 static int cbCounter = 0;
@@ -250,15 +282,20 @@ void TestDraw(TestDrawData data) {
 	data.pixelConstantBuffer.UpdateWithData(data.core, &pixelBufferValue);
 
 	// TODO: Calc proj * view once. 
-    auto WVP = TestDrawCreateWVP({ -2.0f, 0.0f, 0.0f }, windowSize, 0);
-	TestDrawNode(data, data.mesh, WVP);
+ //   auto WVP = TestDrawCreateWVP({ -2.0f, 0.0f, 0.0f }, windowSize, 0);
+	//TestDrawNode(data, data.mesh, WVP);
 
-    WVP = TestDrawCreateWVP({ 2.0f, 0.0f, 0.0f }, windowSize, 0);
-    TestDrawNode(data, data.secondMesh, WVP);
+ //   WVP = TestDrawCreateWVP({ 2.0f, 0.0f, 0.0f }, windowSize, 0);
+ //   TestDrawNode(data, data.secondMesh, WVP);
 
-    // Light indicator
-    WVP = TestDrawCreateWVP(lightPosition, windowSize, 0, 0.1f);
-    TestDrawNode(data, data.secondMesh, WVP);
+ //   // Light indicator
+ //   WVP = TestDrawCreateWVP(lightPosition, windowSize, 0, 0.1f);
+ //   TestDrawNode(data, data.secondMesh, WVP);
+
+    auto WVP = TestDrawCreateWVP({ 0.0f, 0.0f, 0.0f }, windowSize, 0);
+    for (auto& mesh : data.scene.GetMeshes()) {
+		TestDrawMesh(data, mesh, WVP);
+    }
 
     data.core.Present(0);
 }
@@ -279,9 +316,12 @@ int actualMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ 
 
     D3DCore core(WindowCreationParams(1600, 1000, "UniversalRenderingModule", hInstance));
 
-    std::vector<D3DTexture2D> texturePool;
-	auto model = ModelLoader::LoadFromFile(core, texturePool, "suzanne.glb");
-	auto model2 = ModelLoader::LoadFromFile(core, texturePool, "cube_textured.glb");
+    Scene scene(core);
+	auto suzanne = new SceneModel("suzanne.glb");
+	scene.GetRoot().lock()->AddChild(suzanne)->GetTransform().SetLocalPosition({ -2.0f, 0.0f, 0.0f });
+
+    auto cube = new SceneModel("cube_textured.glb");
+    scene.GetRoot().lock()->AddChild(cube)->GetTransform().SetLocalPosition({ 2.0f, 0.0f, 0.0f });
 
     ShaderProgram nonTexturedProgram(core, L"SimpleVertexShader.cso", L"SimplePixelShader.cso");
     ShaderProgram texturedProgram(core, L"SimpleVertexShader.cso", L"TexturedPixelShader.cso");
@@ -305,8 +345,7 @@ int actualMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ 
         texturedProgram,
         nonTexturedProgram,
         inputLayout,
-        model,
-        model2
+        scene
     };
 
     core.OnWindowPaint = [&](D3DCore& core) {

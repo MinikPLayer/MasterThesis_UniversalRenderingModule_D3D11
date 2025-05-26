@@ -5,15 +5,29 @@
 #include "SceneMesh.h"
 #include "Scene.h"
 
-void Model::AddMeshRecursive(ModelLoaderNode& node) {
+void AddMeshRecursive(ModelLoaderNode& node, std::weak_ptr<SceneObject> parent) {
+	auto newObject = std::make_shared<SceneObject>();
+	newObject->GetTransform().SetWorldSpaceMatrix(node.transform);
+	parent.lock()->AddChild(newObject);
+
 	for (auto& mesh : node.meshes) {
 		auto meshObject = std::make_shared<SceneMesh>(mesh);
-		this->AddChild(meshObject);
+		newObject->AddChild(meshObject);
+	}
+
+	for (auto& child : node.children) {
+		AddMeshRecursive(child, newObject);
 	}
 }
 
+void SceneModel::OnAdded() {
+	auto& scene = GetScene();
+	auto model = ModelLoader::LoadFromFile(scene.GetCore(), scene.GetAssetManager().texturePool, this->path);
+
+	AddMeshRecursive(model, this->GetSelfPtr());
+}
+
 // TODO: Async loading
-Model::Model(Scene& scene, std::string path) {
-	auto model = ModelLoader::LoadFromFile(scene.GetCore(), scene.GetAssetManager().texturePool, path);
-	this->AddMeshRecursive(model);
+SceneModel::SceneModel(std::string path) {
+	this->path = path;
 }

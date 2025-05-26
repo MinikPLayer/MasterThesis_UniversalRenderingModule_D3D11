@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/D3DTexture2D.h>
+#include <URM/Core/D3DTexture2D.h>
 
 class AssetManager {
 public:

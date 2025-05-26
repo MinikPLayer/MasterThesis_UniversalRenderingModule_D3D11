@@ -1,12 +1,14 @@
 #pragma once
 
 #include "SceneObject.h"
-#include <Core/ModelLoader.h>
+#include <URM/Core/ModelLoader.h>
 #include <string>
 
-class Model : public SceneObject {
-	void AddMeshRecursive(ModelLoaderNode& node);
+class SceneModel : public SceneObject {
+	std::string path;
 
 public:
-	Model(Scene& scene, std::string path);
+	void OnAdded() override;
+
+	SceneModel(std::string path);
 };

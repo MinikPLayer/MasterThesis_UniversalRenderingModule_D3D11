@@ -3,12 +3,19 @@
 #include <vector>
 #include <memory>
 #include <functional>
+#include <optional>
+#include "Scene.h"
 
-class Scene;
 class SceneObject {
 	friend class Scene;
 
-	std::weak_ptr<Scene> scene;
+public:
+	virtual void OnAdded() {}
+	virtual void OnDestroyed() {}
+
+private:
+
+	std::optional<std::reference_wrapper<Scene>> scene;
 
 	std::vector<std::shared_ptr<SceneObject>> children;
 	std::weak_ptr<SceneObject> parent;
@@ -28,7 +35,7 @@ class SceneObject {
 	void __PrintHierarchy__(int level);
 
 	template<typename T>
-	static std::shared_ptr<T> Instantiate(std::weak_ptr<Scene> scene, std::shared_ptr<T> object, std::shared_ptr<SceneObject> parent) {
+	static std::shared_ptr<T> Instantiate(std::reference_wrapper<Scene> scene, std::shared_ptr<T> object, std::shared_ptr<SceneObject> parent) {
 		static_assert(std::is_base_of<SceneObject, T>::value, "T must derive from GameObject");
 
 		object->self = object;
@@ -36,16 +43,19 @@ class SceneObject {
 		object->scene = scene;
 		parent->__AddChild__(object);
 
+		object->OnAdded();
+
 		return object;
 	}
 
 	template<typename T>
-	static std::shared_ptr<T> Instantiate(std::weak_ptr<Scene> scene, T* object, std::shared_ptr<SceneObject> parent) {
+	static std::shared_ptr<T> Instantiate(std::reference_wrapper<Scene> scene, T* object, std::shared_ptr<SceneObject> parent) {
 		static_assert(std::is_base_of<SceneObject, T>::value, "T must derive from GameObject");
 
 		auto objPtr = std::shared_ptr<T>(object);
 		return Instantiate<T>(scene, objPtr, parent);
 	}
+
 public:
 
 	static void Destroy(std::shared_ptr<SceneObject> object);
@@ -64,8 +74,12 @@ public:
 		return this->_hasParent;
 	}
 
-	std::weak_ptr<Scene> GetScene() {
-		return this->scene;
+	Scene& GetScene() {
+		if (!this->scene.has_value()) {
+			throw std::runtime_error("SceneObject is not attached to a scene");
+		}
+
+		return this->scene.value().get();
 	}
 
 	Transform& GetTransform() {
@@ -90,12 +104,24 @@ public:
 			spdlog::warn("Trying to add component to uninitialized object");
 		}
 
-		return Instantiate<T>(this->scene, child, this->self.lock());
+		if (!this->scene.has_value()) {
+			throw std::runtime_error("SceneObject is not attached to a scene");
+		}
+
+		return Instantiate<T>(this->scene.value(), child, this->self.lock());
 	}
 
 	template<typename T>
 	std::shared_ptr<T> AddChild(T* child) {
-		return Instantiate<T>(child, this->self.lock());
+		if (self.lock() == nullptr) {
+			spdlog::warn("Trying to add component to uninitialized object");
+		}
+
+		if (!this->scene.has_value()) {
+			throw std::runtime_error("SceneObject is not attached to a scene");
+		}
+
+		return Instantiate<T>(this->scene.value(), child, this->self.lock());
 	}
 
 	void RemoveChild(std::weak_ptr<SceneObject> child);
