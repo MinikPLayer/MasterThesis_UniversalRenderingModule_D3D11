@@ -1,23 +1,16 @@
 #pragma once
 #include <math.h>
-#include <DirectXMath.h>
+#include <string>
+#include <vector>
+#include <locale>
 
-class DecomposedMatrix {
-public:
-	DirectX::XMFLOAT3 translation;
-	DirectX::XMVECTOR rotation;
-	DirectX::XMFLOAT3 scale;
+struct Size2i {
+	int width;
+	int height;
 
-	DecomposedMatrix(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 scale, DirectX::XMVECTOR rotation) {
-		this->translation = pos;
-		this->scale = scale;
-		this->rotation = rotation;
-	}
-};
+	Size2i(int width, int height) : width(width), height(height) {}
 
-class MatrixUtils {
-public:
-	static DecomposedMatrix DecomposeMatrix(DirectX::XMMATRIX matrix);
+	const static Size2i ZERO;
 };
 
 class FloatUtils {

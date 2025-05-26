@@ -51,8 +51,9 @@
 
 #include <spdlog/spdlog.h>
 
-#include "Vector2.h"
-#include "Vector3.h"
+#include <directxtk/SimpleMath.h>
+// Use namespace to include SimpleMath as a part of the module.
+using namespace DirectX::SimpleMath;
 
 namespace DX
 {

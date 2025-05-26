@@ -11,13 +11,13 @@ void D3DTexture2D::Bind(D3DCore& core, UINT slot) {
 	core.GetContext()->PSSetShaderResources(slot, 1, this->textureView.GetAddressOf());
 }
 
-D3DTexture2D::D3DTexture2D(D3DCore& core, std::string name, std::string type, Vector2i size, Texel2D* pixelData, D3DTexture2DCreationParams params) : sampler(params.samplerData) {
+D3DTexture2D::D3DTexture2D(D3DCore& core, std::string name, std::string type, Size2i size, Texel2D* pixelData, D3DTexture2DCreationParams params) : sampler(params.samplerData) {
 	this->path = name;
 	this->type = type;
 
 	// mHeight is 0, so try to load a compressed texture of mWidth bytes
-	if (size.y == 0) {
-		const size_t bufferLength = size.x;
+	if (size.height == 0) {
+		const size_t bufferLength = size.width;
 
 		DX::ThrowIfFailed(
 			DirectX::CreateWICTextureFromMemory(core.GetDevice(), core.GetContext(), reinterpret_cast<const unsigned char*>(pixelData), bufferLength, nullptr, this->textureView.GetAddressOf()),
@@ -27,8 +27,8 @@ D3DTexture2D::D3DTexture2D(D3DCore& core, std::string name, std::string type, Ve
 	// Load an uncompressed ARGB8888 embedded texture
 	else {
 		D3D11_TEXTURE2D_DESC desc;
-		desc.Width = size.x;
-		desc.Height = size.y;
+		desc.Width = size.width;
+		desc.Height = size.height;
 		desc.MipLevels = params.mipLevels;
 		desc.ArraySize = params.arraySize;
 		desc.SampleDesc.Count = params.samplesCount;
@@ -41,8 +41,8 @@ D3DTexture2D::D3DTexture2D(D3DCore& core, std::string name, std::string type, Ve
 
 		D3D11_SUBRESOURCE_DATA subresourceData;
 		subresourceData.pSysMem = pixelData;
-		subresourceData.SysMemPitch = size.x * 4;
-		subresourceData.SysMemSlicePitch = size.x * size.y * 4;
+		subresourceData.SysMemPitch = size.width * 4;
+		subresourceData.SysMemSlicePitch = size.width * size.height * 4;
 
 		ID3D11Texture2D* texture2D;
 		DX::ThrowIfFailed(

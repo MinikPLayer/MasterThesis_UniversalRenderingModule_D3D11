@@ -2,7 +2,7 @@
 
 #include <d3d11.h>
 #include "Window.h"
-#include "Vector2.h"
+#include "Utils.h"
 #include <functional>
 
 using Microsoft::WRL::ComPtr;
@@ -40,12 +40,12 @@ class D3DCore {
 	void OnDeviceLost();
 	void FreeResources();
 
-	void WindowResized(Window& window, Vector2i oldSize, Vector2i newSize);
+	void WindowResized(Window& window, Size2i oldSize, Size2i newSize);
 	void WindowFocusChanged(Window& window, bool isFocused);
 	bool WindowCloseRequested(Window& window);
 	void WindowPaint(Window& window);
 public:
-	std::function<void(D3DCore& core, Vector2i oldSize, Vector2i newSize)> OnWindowResized = {};
+	std::function<void(D3DCore& core, Size2i oldSize, Size2i newSize)> OnWindowResized = {};
 	std::function<void(D3DCore& core, bool isFocused)> OnWindowFocusChanged = {};
 	std::function<void(D3DCore& core)> OnWindowPaint = {};
 

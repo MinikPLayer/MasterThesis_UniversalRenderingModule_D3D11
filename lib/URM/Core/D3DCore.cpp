@@ -69,8 +69,8 @@ void D3DCore::CreateResources() {
 
 	auto windowSize = this->window->GetSize();
 
-    const UINT backBufferWidth = static_cast<UINT>(windowSize.x);
-    const UINT backBufferHeight = static_cast<UINT>(windowSize.y);
+    const UINT backBufferWidth = static_cast<UINT>(windowSize.width);
+    const UINT backBufferHeight = static_cast<UINT>(windowSize.height);
     const DXGI_FORMAT backBufferFormat = DXGI_FORMAT_B8G8R8A8_UNORM;
     const DXGI_FORMAT depthBufferFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
     constexpr UINT backBufferCount = 2;
@@ -170,9 +170,9 @@ void D3DCore::FreeResources() {
     this->device.Reset();
 }
 
-void D3DCore::WindowResized(Window& win, Vector2i oldSize, Vector2i newSize) {
+void D3DCore::WindowResized(Window& win, Size2i oldSize, Size2i newSize) {
     auto windowSize = win.GetSize();
-	spdlog::info("Window resized from {}x{} to {}x{} [{}x{}]", oldSize.x, oldSize.y, newSize.x, newSize.y, windowSize.x, windowSize.y);
+	spdlog::info("Window resized from {}x{} to {}x{} [{}x{}]", oldSize.width, oldSize.height, newSize.width, newSize.height, windowSize.width, windowSize.height);
 
     CreateResources();
 
@@ -212,7 +212,7 @@ void D3DCore::Clear(XMVECTORF32 color) {
 
     // Set the viewport.
     auto size = GetWindow().GetSize();
-    D3D11_VIEWPORT viewport = { 0.0f, 0.0f, (float)size.x, (float)size.y, 0.f, 1.f };
+    D3D11_VIEWPORT viewport = { 0.0f, 0.0f, (float)size.width, (float)size.height, 0.f, 1.f };
     context->RSSetViewports(1, &viewport);
 }
 

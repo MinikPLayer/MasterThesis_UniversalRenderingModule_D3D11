@@ -1,51 +1,47 @@
 #pragma once
 
-#include <Core/Vector3.h>
 #include <memory>
-
-#include <Core/Quaternion.h>
-#include <DirectXMath.h>
-
+#include <Core/pch.h>
 
 class SceneObject;
 class Transform {
-	DirectX::XMMATRIX worldSpaceModelMatrix = DirectX::XMMatrixIdentity();
+	Matrix worldSpaceModelMatrix = Matrix::Identity;
 	SceneObject& sceneObject;
 
-	Vector3<float> localPosition = Vector3<float>(0.0f, 0.0f, 0.0f);
-	Quaternion localRotation = Quaternion::identity();
-	Vector3<float> localScale = Vector3<float>(1.0f, 1.0f, 1.0f);
+	Vector3 localPosition = Vector3(0.0f, 0.0f, 0.0f);
+	Quaternion localRotation = Quaternion::Identity;
+	Vector3 localScale = Vector3::One;
 
-	Vector3<float> globalPosition;
+	Vector3 globalPosition;
 	Quaternion globalRotation;
-	Vector3<float> globalScale;
+	Vector3 globalScale;
 
-	DirectX::XMMATRIX CalculateLocalModelMatrix();
+	Matrix CalculateLocalModelMatrix();
 
 public:
 	void UpdateMatrix();
-	void UpdateMatrix(DirectX::XMMATRIX localMatrix, bool updateLocalValues = true);
+	void UpdateMatrix(Matrix localMatrix, bool updateLocalValues = true);
 
-	void SetWorldSpaceMatrix(DirectX::XMMATRIX matrix);
-	DirectX::XMMATRIX GetWorldSpaceMatrix();
+	void SetWorldSpaceMatrix(Matrix matrix);
+	Matrix GetWorldSpaceMatrix();
 
-	void SetPosition(Vector3<float> position);
+	void SetPosition(Vector3 position);
 	void SetRotation(Quaternion quat);
 
-	void SetLocalPosition(Vector3<float> position);
-	void SetLocalScale(Vector3<float> scale);
+	void SetLocalPosition(Vector3 position);
+	void SetLocalScale(Vector3 scale);
 	void SetLocalRotation(Quaternion quat);
 
-	Vector3<float> GetForwardVector();
-	Vector3<float> GetUpVector();
-	Vector3<float> GetRightVector();
+	Vector3 GetForwardVector();
+	Vector3 GetUpVector();
+	Vector3 GetRightVector();
 
-	Vector3<float> GetPosition();
-	Vector3<float> GetScale();
+	Vector3 GetPosition();
+	Vector3 GetScale();
 	Quaternion GetRotation();
 
-	Vector3<float> GetLocalPosition();
-	Vector3<float> GetLocalScale();
+	Vector3 GetLocalPosition();
+	Vector3 GetLocalScale();
 	Quaternion GetLocalRotation();
 
 	SceneObject& GetSceneObject();

@@ -3,8 +3,8 @@
 
 void D3DViewport::Bind(D3DCore& core) {
     D3D11_VIEWPORT viewport;
-    viewport.Width = static_cast<FLOAT>(this->data.size.x);
-    viewport.Height = static_cast<FLOAT>(this->data.size.y);
+    viewport.Width = static_cast<FLOAT>(this->data.size.width);
+    viewport.Height = static_cast<FLOAT>(this->data.size.height);
     viewport.MinDepth = this->data.minDepth;
     viewport.MaxDepth = this->data.maxDepth;
     viewport.TopLeftX = this->data.topLeft.x;
