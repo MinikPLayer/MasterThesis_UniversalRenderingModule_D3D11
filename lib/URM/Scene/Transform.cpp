@@ -7,6 +7,16 @@
 
 using namespace DirectX;
 
+// Fix weird linker issues.
+const Matrix DirectX::SimpleMath::Matrix::Identity = DirectX::SimpleMath::Matrix(DirectX::XMMatrixIdentity());
+const Quaternion DirectX::SimpleMath::Quaternion::Identity = DirectX::SimpleMath::Quaternion(DirectX::XMQuaternionIdentity());
+const Vector2 DirectX::SimpleMath::Vector2::Zero = DirectX::SimpleMath::Vector2(0, 0);
+const Vector3 DirectX::SimpleMath::Vector3::Zero = DirectX::SimpleMath::Vector3(0, 0, 0);
+const Vector3 DirectX::SimpleMath::Vector3::One = DirectX::SimpleMath::Vector3(1, 1, 1);
+const Vector3 DirectX::SimpleMath::Vector3::Up = DirectX::SimpleMath::Vector3(0, 1, 0);
+const Vector3 DirectX::SimpleMath::Vector3::Right = DirectX::SimpleMath::Vector3(1, 0, 0);
+const Vector3 DirectX::SimpleMath::Vector3::Forward = DirectX::SimpleMath::Vector3(0, 0, 1);
+
 Matrix Transform::CalculateLocalModelMatrix() {
 	auto matTranslation = Matrix::CreateTranslation(this->localPosition);
 	auto matRotation = Matrix::CreateFromQuaternion(this->localRotation);
