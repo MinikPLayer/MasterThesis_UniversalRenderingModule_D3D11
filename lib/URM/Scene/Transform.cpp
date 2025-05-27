@@ -3,7 +3,7 @@
 #include "SceneObject.h"
 #include <URM/Core/Utils.h>
 #include <sstream>
-#include <DirectXMath.h>
+#include <directxtk/SimpleMath.h>
 
 using namespace DirectX;
 
