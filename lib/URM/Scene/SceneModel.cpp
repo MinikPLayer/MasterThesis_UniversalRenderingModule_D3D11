@@ -39,6 +39,12 @@ namespace URM::Scene {
 		AddMeshRecursive(model, this->GetSelfPtr());
 	}
 
+	SceneModel::SceneModel(std::string path, std::shared_ptr<URM::Core::ShaderProgram> shader, std::shared_ptr<URM::Core::ModelLoaderLayout> layout) {
+		this->path = path;
+		this->shader = shader;
+		this->inputLayout = layout;
+	}
+
 	// TODO: Async loading
 	SceneModel::SceneModel(std::string path) {
 		this->path = path;

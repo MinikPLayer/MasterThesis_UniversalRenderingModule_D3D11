@@ -8,6 +8,9 @@
 #include <string>
 
 namespace URM::Scene {
+
+	// PLAN: Try adding support for custom shaders with different vertex types.
+	// TODO: Add support for custom PixelConstantBuffer types.
 	class SceneModel : public SceneObject {
 		static std::shared_ptr<URM::Core::ShaderProgram> DefaultShaderProgram;
 		static std::shared_ptr<URM::Core::ModelLoaderLayout> DefaultInputLayout;
@@ -38,16 +41,7 @@ namespace URM::Scene {
 
 		void OnAdded() override;
 
-		template<URM::Core::VertexTypeConcept T>
 		SceneModel(std::string path, std::shared_ptr<URM::Core::ShaderProgram> shader, std::shared_ptr<URM::Core::ModelLoaderLayout> layout);
-
 		SceneModel(std::string path);
 	};
-
-	template<URM::Core::VertexTypeConcept T>
-	inline SceneModel::SceneModel(std::string path, std::shared_ptr<URM::Core::ShaderProgram> program, std::shared_ptr<URM::Core::ModelLoaderLayout> layout) {
-		this->path = path;
-		this->shader = program;
-		this->inputLayout = layout;
-	}
 }

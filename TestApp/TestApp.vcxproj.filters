@@ -29,13 +29,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="SimpleVertexShader.hlsl">
-      <Filter>Assets\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="TexturedPixelShader.hlsl">
-      <Filter>Assets\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="SimplePixelShader.hlsl">
+    <FxCompile Include="ColorOnlyPixelShader.hlsl">
       <Filter>Assets\Shaders</Filter>
     </FxCompile>
   </ItemGroup>
@@ -46,12 +40,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
-    <None Include="PixelShaderCommon.hlsl">
-      <Filter>Assets\Shaders</Filter>
-    </None>
-    <None Include="SimpleShaderCommonTypes.hlsl">
-      <Filter>Assets\Shaders</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="cube.fbx">

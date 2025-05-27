@@ -119,6 +119,8 @@ namespace URM::Engine {
             lightDistance / 1.5f,
             cos(rotationRad) * lightDistance
         );
+
+        // TODO: Add support for custom PixelConstantBuffer types.
         auto pixelBufferValue = PixelConstantBuffer(
             PixelConstantBuffer::Light(
                 1.0f, 1.0f, 1.0f,

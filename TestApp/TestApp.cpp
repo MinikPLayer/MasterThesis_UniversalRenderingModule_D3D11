@@ -328,7 +328,15 @@ void TestDraw(TestDrawData data) {
 
         URM::Engine::Engine engine(URM::Core::WindowCreationParams(1600, 1000, "UniversalRenderingModule", hInstance));
         auto& scene = engine.GetScene();
-        auto suzanne = new URM::Scene::SceneModel("suzanne.glb");
+
+        auto alternativeShader = URM::Core::ShaderProgram(engine.GetCore(), L"SimpleVertexShader.cso", L"ColorOnlyPixelShader.cso");
+        auto alternativeLayout = URM::Core::ModelLoaderLayout(engine.GetCore(), alternativeShader);
+
+        auto suzanne = new URM::Scene::SceneModel(
+            "suzanne.glb", 
+            std::make_shared<URM::Core::ShaderProgram>(alternativeShader), 
+            std::make_shared< URM::Core::ModelLoaderLayout>(alternativeLayout)
+        );
         scene.GetRoot().lock()->AddChild(suzanne)->GetTransform().SetLocalPosition({ -2.0f, 0.0f, 0.0f });
 
         auto cube = new URM::Scene::SceneModel("cube_textured.glb");
