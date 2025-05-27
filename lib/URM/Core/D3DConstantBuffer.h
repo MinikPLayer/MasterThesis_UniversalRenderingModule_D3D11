@@ -3,38 +3,40 @@
 #include "ID3DBuffer.h"
 #include "ShaderProgram.h"
 
-class D3DConstantBuffer : public ID3DBuffer {
-	ShaderStages stage;
+namespace URM::Core {
+	class D3DConstantBuffer : public ID3DBuffer {
+		ShaderStages stage;
 
-	D3DConstantBuffer(D3DCore& core, D3D11_BUFFER_DESC desc, D3D11_SUBRESOURCE_DATA* initData, ShaderStages newStage)
-		: ID3DBuffer(core, desc, initData) {
-		this->stage = newStage;
-	}
-
-public:
-	void Bind(D3DCore& core, UINT slot) override {
-		switch (stage) {
-		case ShaderStages::VERTEX:
-			core.GetContext()->VSSetConstantBuffers(slot, 1, this->buffer.GetAddressOf());
-			break;
-
-		case ShaderStages::PIXEL:
-			core.GetContext()->PSSetConstantBuffers(slot, 1, this->buffer.GetAddressOf());
-			break;
-
-		default:
-			throw std::runtime_error("Unsupported shader stage");
+		D3DConstantBuffer(D3DCore& core, D3D11_BUFFER_DESC desc, D3D11_SUBRESOURCE_DATA* initData, ShaderStages newStage)
+			: ID3DBuffer(core, desc, initData) {
+			this->stage = newStage;
 		}
-	}
 
-	template<typename T>
-	static D3DConstantBuffer Create(D3DCore& core, ShaderStages shaderStage, UINT cpuAccessFlags = 0, D3D11_USAGE usage = D3D11_USAGE_DEFAULT) {
-		D3D11_BUFFER_DESC desc = {};
-		desc.Usage = usage;
-		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		desc.ByteWidth = static_cast<UINT>(sizeof(T));
-		desc.CPUAccessFlags = cpuAccessFlags;
+	public:
+		void Bind(D3DCore& core, UINT slot) override {
+			switch (stage) {
+			case ShaderStages::VERTEX:
+				core.GetContext()->VSSetConstantBuffers(slot, 1, this->buffer.GetAddressOf());
+				break;
 
-		return D3DConstantBuffer(core, desc, nullptr, shaderStage);
-	}
-};
+			case ShaderStages::PIXEL:
+				core.GetContext()->PSSetConstantBuffers(slot, 1, this->buffer.GetAddressOf());
+				break;
+
+			default:
+				throw std::runtime_error("Unsupported shader stage");
+			}
+		}
+
+		template<typename T>
+		static D3DConstantBuffer Create(D3DCore& core, ShaderStages shaderStage, UINT cpuAccessFlags = 0, D3D11_USAGE usage = D3D11_USAGE_DEFAULT) {
+			D3D11_BUFFER_DESC desc = {};
+			desc.Usage = usage;
+			desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+			desc.ByteWidth = static_cast<UINT>(sizeof(T));
+			desc.CPUAccessFlags = cpuAccessFlags;
+
+			return D3DConstantBuffer(core, desc, nullptr, shaderStage);
+		}
+	};
+}

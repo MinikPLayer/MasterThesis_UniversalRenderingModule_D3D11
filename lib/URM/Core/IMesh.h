@@ -4,33 +4,35 @@
 #include "D3DCore.h"
 #include "VertexConcept.h"
 
-template<VertexTypeConcept VertexType>
-class Mesh;
-
-class IMesh {
-protected:
-	IMesh() {}
-
+namespace URM::Core {
 	template<VertexTypeConcept VertexType>
-	static size_t GetTypeHashCode() {
-		return typeid(VertexType).hash_code();
-	}
+	class Mesh;
 
-	virtual void UpdateBuffer(D3DCore& core) = 0;
-	virtual size_t GetVertexTypeHashCode() = 0;
-public:
+	class IMesh {
+	protected:
+		IMesh() {}
 
-	virtual void ResetVertices(D3DCore& core) = 0;
-
-	template<VertexTypeConcept VertexType>
-	Mesh<VertexType>* GetImplementation() { 
-		auto templateHashCode = GetTypeHashCode<VertexType>();
-		auto implementationHashCode = GetVertexTypeHashCode();
-
-		if (templateHashCode != implementationHashCode) {
-			throw std::runtime_error("Invalid vertex type");
+		template<VertexTypeConcept VertexType>
+		static size_t GetTypeHashCode() {
+			return typeid(VertexType).hash_code();
 		}
 
-		return static_cast<Mesh<VertexType>*>(this);
-	}
-};
+		virtual void UpdateBuffer(D3DCore& core) = 0;
+		virtual size_t GetVertexTypeHashCode() = 0;
+	public:
+
+		virtual void ResetVertices(D3DCore& core) = 0;
+
+		template<VertexTypeConcept VertexType>
+		Mesh<VertexType>* GetImplementation() {
+			auto templateHashCode = GetTypeHashCode<VertexType>();
+			auto implementationHashCode = GetVertexTypeHashCode();
+
+			if (templateHashCode != implementationHashCode) {
+				throw std::runtime_error("Invalid vertex type");
+			}
+
+			return static_cast<Mesh<VertexType>*>(this);
+		}
+	};
+}

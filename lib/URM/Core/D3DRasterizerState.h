@@ -3,44 +3,46 @@
 #include "D3DCore.h"
 #include <d3d11.h>
 
-enum class CullModes {
-	NONE = D3D11_CULL_NONE,
-	FRONT = D3D11_CULL_FRONT,
-	BACK = D3D11_CULL_BACK,
-};
+namespace URM::Core {
+	enum class CullModes {
+		NONE = D3D11_CULL_NONE,
+		FRONT = D3D11_CULL_FRONT,
+		BACK = D3D11_CULL_BACK,
+	};
 
-enum class FillModes {
-	SOLID = D3D11_FILL_SOLID,
-	WIREFRAME = D3D11_FILL_WIREFRAME,
-};
+	enum class FillModes {
+		SOLID = D3D11_FILL_SOLID,
+		WIREFRAME = D3D11_FILL_WIREFRAME,
+	};
 
-struct D3DRasterizerStateData {
-	CullModes cullMode = CullModes::BACK;
-	FillModes fillMode = FillModes::SOLID;
+	struct D3DRasterizerStateData {
+		CullModes cullMode = CullModes::BACK;
+		FillModes fillMode = FillModes::SOLID;
 
-	bool frontCounterClockwise = false;
-	int depthBias = 0;
-	float depthBiasClamp = 0.0f;
-	float slopeScaledDepthBias = 0.0f;
+		bool frontCounterClockwise = false;
+		int depthBias = 0;
+		float depthBiasClamp = 0.0f;
+		float slopeScaledDepthBias = 0.0f;
 
-	bool enableDepthClip = true;
-	bool enableScissor = false;
-	bool enableMultisampling = false;
-	bool enableLineAA = false;
-};
+		bool enableDepthClip = true;
+		bool enableScissor = false;
+		bool enableMultisampling = false;
+		bool enableLineAA = false;
+	};
 
-class D3DRasterizerState {
-	ComPtr<ID3D11RasterizerState> state;
-	D3DRasterizerStateData data;
+	class D3DRasterizerState {
+		ComPtr<ID3D11RasterizerState> state;
+		D3DRasterizerStateData data;
 
-	bool dataChanged = false;
+		bool dataChanged = false;
 
-public:
-	void Bind(D3DCore& core);
-	void SetData(D3DRasterizerStateData data);
-	D3DRasterizerStateData GetData() {
-		return this->data;
-	}
+	public:
+		void Bind(D3DCore& core);
+		void SetData(D3DRasterizerStateData data);
+		D3DRasterizerStateData GetData() {
+			return this->data;
+		}
 
-	D3DRasterizerState(D3DRasterizerStateData data);
-};
+		D3DRasterizerState(D3DRasterizerStateData data);
+	};
+}

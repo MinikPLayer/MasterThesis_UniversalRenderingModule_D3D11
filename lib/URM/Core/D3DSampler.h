@@ -7,29 +7,31 @@
 
 using namespace Microsoft::WRL;
 
-struct D3DSamplerData : public D3D11_SAMPLER_DESC {
-	D3DSamplerData() {
-		this->Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-		this->AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-		this->AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-		this->AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-		this->ComparisonFunc = D3D11_COMPARISON_NEVER;
-		this->MinLOD = 0;
-		this->MaxLOD = D3D11_FLOAT32_MAX;
-	}
-};
+namespace URM::Core {
+	struct D3DSamplerData : public D3D11_SAMPLER_DESC {
+		D3DSamplerData() {
+			this->Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+			this->AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+			this->AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+			this->AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+			this->ComparisonFunc = D3D11_COMPARISON_NEVER;
+			this->MinLOD = 0;
+			this->MaxLOD = D3D11_FLOAT32_MAX;
+		}
+	};
 
-class D3DSampler {
-	ComPtr<ID3D11SamplerState> samplerState;
-	D3DSamplerData data;
+	class D3DSampler {
+		ComPtr<ID3D11SamplerState> samplerState;
+		D3DSamplerData data;
 
-	bool dataChanged = false;
-public:
-	void Bind(D3DCore& core, UINT slot);
-	D3DSamplerData GetData() {
-		return this->data;
-	}
+		bool dataChanged = false;
+	public:
+		void Bind(D3DCore& core, UINT slot);
+		D3DSamplerData GetData() {
+			return this->data;
+		}
 
-	void SetData(D3DSamplerData params);
-	D3DSampler(D3DSamplerData params);
-};
+		void SetData(D3DSamplerData params);
+		D3DSampler(D3DSamplerData params);
+	};
+}

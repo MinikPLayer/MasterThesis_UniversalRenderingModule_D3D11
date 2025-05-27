@@ -6,37 +6,39 @@
 #include <memory>
 #include <URM/Core/D3DCore.h>
 
-class SceneMesh;
-class SceneObject;
-class Scene {
-	friend class SceneMesh;
+namespace URM::Scene {
+	class SceneMesh;
+	class SceneObject;
+	class Scene {
+		friend class SceneMesh;
 
-	std::shared_ptr<SceneObject> rootObject;
-	std::vector<std::weak_ptr<SceneMesh>> meshes;
+		std::shared_ptr<SceneObject> rootObject;
+		std::vector<std::weak_ptr<SceneMesh>> meshes;
 
-	AssetManager assetManager;
-	D3DCore& core;
+		AssetManager assetManager;
+		URM::Core::D3DCore& core;
 
-public:
-	// Disable copy constructor and assignment operator
-	Scene(const Scene&) = delete;
-	Scene& operator=(const Scene&) = delete;
+	public:
+		// Disable copy constructor and assignment operator
+		Scene(const Scene&) = delete;
+		Scene& operator=(const Scene&) = delete;
 
-	std::vector<std::weak_ptr<SceneMesh>>& GetMeshes();
+		std::vector<std::weak_ptr<SceneMesh>>& GetMeshes();
 
-	void PrintObjectsHierarchy();
+		void PrintObjectsHierarchy();
 
-	AssetManager& GetAssetManager() {
-		return this->assetManager;
-	}
+		AssetManager& GetAssetManager() {
+			return this->assetManager;
+		}
 
-	D3DCore& GetCore() {
-		return this->core;
-	}
+		URM::Core::D3DCore& GetCore() {
+			return this->core;
+		}
 
-	std::weak_ptr<SceneObject> GetRoot() const {
-		return this->rootObject;
-	}
+		std::weak_ptr<SceneObject> GetRoot() const {
+			return this->rootObject;
+		}
 
-	Scene(D3DCore& core);
-};
+		Scene(URM::Core::D3DCore& core);
+	};
+}

@@ -5,20 +5,22 @@
 #include "D3DCore.h"
 #include "D3DTexture2D.h"
 
-using ModelLoaderVertexType = VertexPositionNormalTexture;
+namespace URM::Core {
+	using ModelLoaderVertexType = VertexPositionNormalTexture;
 
-class ModelLoaderNode {
-public:
-	DirectX::XMMATRIX transform;
+	class ModelLoaderNode {
+	public:
+		DirectX::XMMATRIX transform;
 
-	std::vector<Mesh<ModelLoaderVertexType>> meshes;
-	std::vector<ModelLoaderNode> children;
-};
+		std::vector<Mesh<ModelLoaderVertexType>> meshes;
+		std::vector<ModelLoaderNode> children;
+	};
 
-class ModelLoader {
-	ModelLoader() {}
+	class ModelLoader {
+		ModelLoader() {}
 
-public:
+	public:
 
-	static ModelLoaderNode LoadFromFile(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, std::string path);
-};
+		static ModelLoaderNode LoadFromFile(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, std::string path);
+	};
+}

@@ -1,5 +1,7 @@
 #pragma once
 
-class Engine {
+namespace URM::Engine {
+	class Engine {
 
-};
+	};
+}

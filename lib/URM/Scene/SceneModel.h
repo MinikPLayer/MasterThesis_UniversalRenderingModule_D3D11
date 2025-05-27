@@ -4,11 +4,13 @@
 #include <URM/Core/ModelLoader.h>
 #include <string>
 
-class SceneModel : public SceneObject {
-	std::string path;
+namespace URM::Scene {
+	class SceneModel : public SceneObject {
+		std::string path;
 
-public:
-	void OnAdded() override;
+	public:
+		void OnAdded() override;
 
-	SceneModel(std::string path);
-};
+		SceneModel(std::string path);
+	};
+}

@@ -35,7 +35,7 @@ extern "C"
 
 std::chrono::high_resolution_clock::time_point lastTime = std::chrono::high_resolution_clock::now();
 std::chrono::high_resolution_clock::time_point programStartTime = std::chrono::high_resolution_clock::now();
-void Clear(D3DCore& core) {
+void Clear(URM::Core::D3DCore& core) {
     auto now = std::chrono::high_resolution_clock::now();
     auto deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(now - lastTime).count() / 1000000.0f;
     UNREFERENCED_PARAMETER(deltaTime);
@@ -104,7 +104,7 @@ WVPMatrix CreateTransformationMatrix(
     float fov, // Degrees
     float nearPlane,
     float farPlane,
-    Size2i windowSize
+    URM::Core::Size2i windowSize
 )
 {
     // 1. World Matrix
@@ -135,15 +135,15 @@ WVPMatrix CreateTransformationMatrix(
 }
 
 struct TestDrawData {
-    D3DCore& core;
-    D3DConstantBuffer& vertexConstantBuffer;
-	D3DConstantBuffer& pixelConstantBuffer;
-    D3DViewport& viewport;
-    D3DRasterizerState& rState;
-    ShaderProgram& texturedProgram;
-    ShaderProgram& nonTexturedProgram;
-    D3DInputLayout<ModelLoaderVertexType>& iLayout;
-    Scene& scene;
+    URM::Core::D3DCore& core;
+    URM::Core::D3DConstantBuffer& vertexConstantBuffer;
+	URM::Core::D3DConstantBuffer& pixelConstantBuffer;
+    URM::Core::D3DViewport& viewport;
+    URM::Core::D3DRasterizerState& rState;
+    URM::Core::ShaderProgram& texturedProgram;
+    URM::Core::ShaderProgram& nonTexturedProgram;
+    URM::Core::D3DInputLayout<URM::Core::ModelLoaderVertexType>& iLayout;
+    URM::Scene::Scene& scene;
 };
 
 //void TestDrawNode(TestDrawData& data, ModelLoaderNode& node, WVPMatrix transformMatrix) {
@@ -182,7 +182,7 @@ struct TestDrawData {
 //		TestDrawNode(data, child, transformMatrix);
 //	}
 //}
-void TestDrawMesh(TestDrawData& data, std::weak_ptr<SceneMesh> mesh, WVPMatrix transformMatrix) {
+void TestDrawMesh(TestDrawData& data, std::weak_ptr<URM::Scene::SceneMesh> mesh, WVPMatrix transformMatrix) {
     auto nodeWorldMatrix = mesh.lock()->GetTransform().GetWorldSpaceMatrix();
     VertexConstantBuffer cBufferData;
 	transformMatrix.World = nodeWorldMatrix * transformMatrix.World;
@@ -216,7 +216,7 @@ static int cbCounter = 0;
 static const DirectX::XMFLOAT3 camPos = { 0.0f, 4.0f, -8.0f };
 static const DirectX::XMFLOAT3 camTarget = { 0.0f, 0.0f, 0.0f };
 static const DirectX::XMFLOAT3 camUp = { 0.0f, 1.0f, 0.0f };
-WVPMatrix TestDrawCreateWVP(XMFLOAT3 positionOffset, Size2i windowSize, float rotation, float scale = 1.0f) {
+WVPMatrix TestDrawCreateWVP(XMFLOAT3 positionOffset, URM::Core::Size2i windowSize, float rotation, float scale = 1.0f) {
     DirectX::XMFLOAT3 modelPos = positionOffset;
     DirectX::XMFLOAT3 modelRot = { 0.0f, rotation, 0.0f };
     DirectX::XMFLOAT3 modelScl = { scale, scale, scale };
@@ -241,7 +241,7 @@ WVPMatrix TestDrawCreateWVP(XMFLOAT3 positionOffset, Size2i windowSize, float ro
     return WVP;
 }
 
-template<VertexTypeConcept V>
+template<URM::Core::VertexTypeConcept V>
 void TestDraw(TestDrawData data) {
     auto context = data.core.GetContext();
 
@@ -255,7 +255,7 @@ void TestDraw(TestDrawData data) {
 
     data.rState.Bind(data.core);
 
-    data.core.SetPrimitiveTopology(PrimitiveTopologies::TRIANGLE_LIST);
+    data.core.SetPrimitiveTopology(URM::Core::PrimitiveTopologies::TRIANGLE_LIST);
     data.iLayout.Bind(data.core);
 
     data.vertexConstantBuffer.Bind(data.core, 0);
@@ -314,27 +314,27 @@ int actualMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ 
     if (FAILED(hr))
         return 1;
 
-    D3DCore core(WindowCreationParams(1600, 1000, "UniversalRenderingModule", hInstance));
+    URM::Core::D3DCore core(URM::Core::WindowCreationParams(1600, 1000, "UniversalRenderingModule", hInstance));
 
-    Scene scene(core);
-	auto suzanne = new SceneModel("suzanne.glb");
+    URM::Scene::Scene scene(core);
+	auto suzanne = new URM::Scene::SceneModel("suzanne.glb");
 	scene.GetRoot().lock()->AddChild(suzanne)->GetTransform().SetLocalPosition({ -2.0f, 0.0f, 0.0f });
 
-    auto cube = new SceneModel("cube_textured.glb");
+    auto cube = new URM::Scene::SceneModel("cube_textured.glb");
     scene.GetRoot().lock()->AddChild(cube)->GetTransform().SetLocalPosition({ 2.0f, 0.0f, 0.0f });
 
-    ShaderProgram nonTexturedProgram(core, L"SimpleVertexShader.cso", L"SimplePixelShader.cso");
-    ShaderProgram texturedProgram(core, L"SimpleVertexShader.cso", L"TexturedPixelShader.cso");
+    URM::Core::ShaderProgram nonTexturedProgram(core, L"SimpleVertexShader.cso", L"SimplePixelShader.cso");
+    URM::Core::ShaderProgram texturedProgram(core, L"SimpleVertexShader.cso", L"TexturedPixelShader.cso");
 
-    D3DConstantBuffer vertexConstantBuffer = D3DConstantBuffer::Create<VertexConstantBuffer>(core, ShaderStages::VERTEX);
-    D3DConstantBuffer pixelConstantBuffer = D3DConstantBuffer::Create<PixelConstantBuffer>(core, ShaderStages::PIXEL);
+    URM::Core::D3DConstantBuffer vertexConstantBuffer = URM::Core::D3DConstantBuffer::Create<VertexConstantBuffer>(core, URM::Core::ShaderStages::VERTEX);
+    URM::Core::D3DConstantBuffer pixelConstantBuffer = URM::Core::D3DConstantBuffer::Create<PixelConstantBuffer>(core, URM::Core::ShaderStages::PIXEL);
 
-    D3DInputLayout<ModelLoaderVertexType> inputLayout(core, texturedProgram);
-    D3DViewport viewport(D3DViewportData(core.GetWindow().GetSize()));
+    URM::Core::D3DInputLayout<URM::Core::ModelLoaderVertexType> inputLayout(core, texturedProgram);
+    URM::Core::D3DViewport viewport(URM::Core::D3DViewportData(core.GetWindow().GetSize()));
 
-    auto rStateData = D3DRasterizerStateData();
-    rStateData.cullMode = CullModes::BACK;
-    auto rState = D3DRasterizerState(rStateData);
+    auto rStateData = URM::Core::D3DRasterizerStateData();
+    rStateData.cullMode = URM::Core::CullModes::BACK;
+    auto rState = URM::Core::D3DRasterizerState(rStateData);
 
     auto testDrawData = TestDrawData {
         core,
@@ -348,17 +348,17 @@ int actualMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ 
         scene
     };
 
-    core.OnWindowPaint = [&](D3DCore& core) {
+    core.OnWindowPaint = [&](URM::Core::D3DCore& core) {
         Clear(core);
-        TestDraw<VertexPositionColor>(testDrawData);
+        TestDraw<URM::Core::VertexPositionColor>(testDrawData);
     };
 
     while (!core.GetWindow().IsDestroyed()) {
         core.GetWindow().PollEvents();
         Clear(core);
-        TestDraw<VertexPositionColor>(testDrawData);
+        TestDraw<URM::Core::VertexPositionColor>(testDrawData);
     }
-    Logger::DisposeLogger();
+    URM::Core::Logger::DisposeLogger();
 
     return 0;
 }
@@ -390,7 +390,7 @@ std::string GetLastErrorAsString()
 // Entry point
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
-    Logger::InitLogger();
+    URM::Core::Logger::InitLogger();
     int returnCode = 123456;
     try {
         returnCode = actualMain(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
@@ -407,7 +407,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
         MessageBox(nullptr, std::wstring(e.what(), e.what() + strlen(e.what())).c_str(), L"Unrecoverable general error.", MB_OK | MB_ICONERROR);
         PostQuitMessage(0);
     }
-    Logger::DisposeLogger();
+    URM::Core::Logger::DisposeLogger();
 
     return returnCode;
 }

@@ -4,68 +4,70 @@
 #include <functional>
 #include "pch.h"
 
-struct WindowCreationParams {
-	int width;
-	int height;
-	std::string title;
+namespace URM::Core {
+	struct WindowCreationParams {
+		int width;
+		int height;
+		std::string title;
 
-	HINSTANCE hInstance;
-	HICON icon;
+		HINSTANCE hInstance;
+		HICON icon;
 
-	WindowCreationParams(int width, int height, std::string title, HINSTANCE hInstance, HICON icon = NULL):	
-		width(width), 
-		height(height), 
-		title(title), 
-		hInstance(hInstance),
-		icon(icon) {}
-};
+		WindowCreationParams(int width, int height, std::string title, HINSTANCE hInstance, HICON icon = NULL) :
+			width(width),
+			height(height),
+			title(title),
+			hInstance(hInstance),
+			icon(icon) {
+		}
+	};
 
-class Window {
-	friend class D3DCore;
-	friend LRESULT WndProdDispatcher(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+	class Window {
+		friend class D3DCore;
+		friend LRESULT WndProdDispatcher(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-	HWND handle = NULL;
+		HWND handle = NULL;
 
-	Size2i oldSize = { -1, -1 };
-	bool isResizing = false;
+		Size2i oldSize = { -1, -1 };
+		bool isResizing = false;
 
-	int width = -1;
-	int height = -1;
+		int width = -1;
+		int height = -1;
 
-	bool isDestroyed = false;
+		bool isDestroyed = false;
 
-	std::function<void(Window&)> OnPaint = {};
-	std::function<void(Window& window, Size2i oldSize, Size2i newSize)> OnResize = {};
+		std::function<void(Window&)> OnPaint = {};
+		std::function<void(Window& window, Size2i oldSize, Size2i newSize)> OnResize = {};
 
-	std::function<void(Window& window, bool isFocused)> OnFocusChange = {};
+		std::function<void(Window& window, bool isFocused)> OnFocusChange = {};
 
-	// Return true to prevent the window from closing.
-	std::function<bool(Window& window)> OnCloseRequested = {};
+		// Return true to prevent the window from closing.
+		std::function<bool(Window& window)> OnCloseRequested = {};
 
-	bool Create(WindowCreationParams params);
+		bool Create(WindowCreationParams params);
 
-	LRESULT WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+		LRESULT WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-public:
-	void PollEvents();
+	public:
+		void PollEvents();
 
-	HWND GetHandle() {
-		return this->handle;
-	}
+		HWND GetHandle() {
+			return this->handle;
+		}
 
-	bool IsDestroyed() {
-		return isDestroyed;
-	}
+		bool IsDestroyed() {
+			return isDestroyed;
+		}
 
-	void Show();
-	void Hide();
-	void Close(bool ignoreOnCloseRequested = false);
+		void Show();
+		void Hide();
+		void Close(bool ignoreOnCloseRequested = false);
 
-	Size2i GetSize() {
-		return Size2i(this->width, this->height);
-	}
+		Size2i GetSize() {
+			return Size2i(this->width, this->height);
+		}
 
-	Window(WindowCreationParams params, bool show = true);
-	~Window();
-};
-
+		Window(WindowCreationParams params, bool show = true);
+		~Window();
+	};
+}

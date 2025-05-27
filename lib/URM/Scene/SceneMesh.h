@@ -3,16 +3,18 @@
 #include "SceneObject.h"
 #include <URM/Core/ModelLoader.h>
 
-class SceneMesh : public SceneObject {
-	Mesh<ModelLoaderVertexType> mesh;
+namespace URM::Scene {
+	class SceneMesh : public SceneObject {
+		URM::Core::Mesh<URM::Core::ModelLoaderVertexType> mesh;
 
-public:
-	void OnAdded() override;
-	void OnDestroyed() override;
+	public:
+		void OnAdded() override;
+		void OnDestroyed() override;
 
-	Mesh<ModelLoaderVertexType> GetMesh() {
-		return this->mesh;
-	}
+		URM::Core::Mesh<URM::Core::ModelLoaderVertexType> GetMesh() {
+			return this->mesh;
+		}
 
-	SceneMesh(Mesh<ModelLoaderVertexType> mesh);
-};
+		SceneMesh(URM::Core::Mesh<URM::Core::ModelLoaderVertexType> mesh);
+	};
+}
