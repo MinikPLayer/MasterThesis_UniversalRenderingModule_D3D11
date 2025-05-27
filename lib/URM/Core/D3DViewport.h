@@ -10,7 +10,7 @@ namespace URM::Core {
 		float maxDepth;
 		Vector2 topLeft;
 
-		D3DViewportData(Size2i size, float minDepth = 0.0f, float maxDepth = 1.0f, Vector2 topLeft = Vector2::Zero)
+		D3DViewportData(Size2i size = Size2i::ZERO, float minDepth = 0.0f, float maxDepth = 1.0f, Vector2 topLeft = Vector2::Zero)
 			: size(size), minDepth(minDepth), maxDepth(maxDepth), topLeft(topLeft) {
 		}
 	};
@@ -26,6 +26,6 @@ namespace URM::Core {
 		}
 		void SetData(D3DViewportData data);
 
-		D3DViewport(D3DViewportData data);
+		D3DViewport(D3DViewportData data = D3DViewportData());
 	};
 }

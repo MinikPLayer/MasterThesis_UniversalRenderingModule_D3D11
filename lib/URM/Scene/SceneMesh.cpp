@@ -23,5 +23,9 @@ namespace URM::Scene {
 		}
 	}
 
-	SceneMesh::SceneMesh(URM::Core::Mesh<URM::Core::ModelLoaderVertexType> mesh) : mesh(mesh) {}
+	SceneMesh::SceneMesh(
+		URM::Core::Mesh<URM::Core::ModelLoaderVertexType> mesh,
+		std::shared_ptr<URM::Core::D3DInputLayout<URM::Core::ModelLoaderVertexType>> inputLayout,
+		std::shared_ptr<URM::Core::ShaderProgram> shader
+	) : mesh(mesh), inputLayout(inputLayout), shader(shader) {}
 }

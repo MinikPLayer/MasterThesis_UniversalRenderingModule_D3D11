@@ -10,6 +10,13 @@ namespace URM::Core {
 		int height;
 
 		Size2i(int width, int height) : width(width), height(height) {}
+		Size2i() {
+			this->width = 0;
+			this->height = 0;
+		}
+
+		bool operator==(Size2i& s2);
+		bool operator!=(Size2i& s2);
 
 		const static Size2i ZERO;
 	};

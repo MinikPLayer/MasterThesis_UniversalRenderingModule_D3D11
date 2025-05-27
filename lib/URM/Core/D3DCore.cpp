@@ -177,7 +177,7 @@ namespace URM::Core {
 
         CreateResources();
 
-        if (this->OnWindowResized)
+        if (this->OnWindowResized && oldSize != newSize)
             this->OnWindowResized(*this, oldSize, newSize);
     }
 

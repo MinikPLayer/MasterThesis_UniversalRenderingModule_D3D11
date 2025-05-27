@@ -19,7 +19,13 @@
 #include <URM/Scene/SceneModel.h>
 #include <URM/Scene/SceneMesh.h>
 
+#include <URM/Engine/Engine.h>
+
 using namespace DirectX;
+
+// Notes:
+// - Ograniczenia: 
+//      - Jeden silnik = jedno okno. 
 
 #ifdef __clang__
 #pragma clang diagnostic ignored "-Wcovered-switch-default"
@@ -53,7 +59,6 @@ struct VertexConstantBuffer
     DirectX::XMMATRIX WVP;
 	DirectX::XMMATRIX worldMatrix;
 	DirectX::XMMATRIX inverseWorldMatrix;
-    
 };
 
 struct PixelConstantBuffer {
@@ -140,6 +145,7 @@ struct TestDrawData {
 	URM::Core::D3DConstantBuffer& pixelConstantBuffer;
     URM::Core::D3DViewport& viewport;
     URM::Core::D3DRasterizerState& rState;
+    URM::Core::D3DSampler& sampler;
     URM::Core::ShaderProgram& texturedProgram;
     URM::Core::ShaderProgram& nonTexturedProgram;
     URM::Core::D3DInputLayout<URM::Core::ModelLoaderVertexType>& iLayout;
@@ -261,6 +267,9 @@ void TestDraw(TestDrawData data) {
     data.vertexConstantBuffer.Bind(data.core, 0);
 	data.pixelConstantBuffer.Bind(data.core, 1);
 
+    // Bind the default sampler
+    data.sampler.Bind(data.core, 0);
+
 	auto windowSize = data.core.GetWindow().GetSize();
 	auto rotation = elapsedTime * 90.0f;
 	auto rotationRad = rotation * XM_PI / 180.0f;
@@ -302,6 +311,35 @@ void TestDraw(TestDrawData data) {
 
 #pragma endregion
 
+#define ENGINE_MODE 1
+
+#if ENGINE_MODE
+    int actualMainEngine(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow) {
+        UNREFERENCED_PARAMETER(hPrevInstance);
+        UNREFERENCED_PARAMETER(lpCmdLine);
+        UNREFERENCED_PARAMETER(nCmdShow);
+
+        if (!XMVerifyCPUSupport())
+            return 1;
+
+        HRESULT hr = CoInitializeEx(nullptr, COINITBASE_MULTITHREADED);
+        if (FAILED(hr))
+            return 1;
+
+        URM::Engine::Engine engine(URM::Core::WindowCreationParams(1600, 1000, "UniversalRenderingModule", hInstance));
+        auto& scene = engine.GetScene();
+        auto suzanne = new URM::Scene::SceneModel("suzanne.glb");
+        scene.GetRoot().lock()->AddChild(suzanne)->GetTransform().SetLocalPosition({ -2.0f, 0.0f, 0.0f });
+
+        auto cube = new URM::Scene::SceneModel("cube_textured.glb");
+        scene.GetRoot().lock()->AddChild(cube)->GetTransform().SetLocalPosition({ 2.0f, 0.0f, 0.0f });
+
+        engine.RunLoop();
+
+        return 0;
+    }
+#endif
+
 int actualMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow) {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
@@ -336,12 +374,15 @@ int actualMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ 
     rStateData.cullMode = URM::Core::CullModes::BACK;
     auto rState = URM::Core::D3DRasterizerState(rStateData);
 
+    auto sampler = URM::Core::D3DSampler(URM::Core::D3DSamplerData());
+
     auto testDrawData = TestDrawData {
         core,
         vertexConstantBuffer,
         pixelConstantBuffer,
         viewport,
         rState,
+        sampler,
         texturedProgram,
         nonTexturedProgram,
         inputLayout,
@@ -393,7 +434,11 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     URM::Core::Logger::InitLogger();
     int returnCode = 123456;
     try {
+#if ENGINE_MODE
+        returnCode = actualMainEngine(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
+#else
         returnCode = actualMain(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
+#endif
     }
     catch (std::exception e) {
         spdlog::critical("Exception: {}", e.what());

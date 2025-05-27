@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Resource Files\Shaders">
+      <UniqueIdentifier>{030e54fa-0d9a-4075-a4b1-53550548aeef}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -62,5 +65,19 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
+    <None Include="PixelShaderCommon.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="SimpleShaderCommonTypes.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="SimplePixelShader.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="SimpleVertexShader.hlsl">
+      <Filter>Resource Files\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

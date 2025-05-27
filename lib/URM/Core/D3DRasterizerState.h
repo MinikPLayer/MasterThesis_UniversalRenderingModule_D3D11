@@ -28,6 +28,8 @@ namespace URM::Core {
 		bool enableScissor = false;
 		bool enableMultisampling = false;
 		bool enableLineAA = false;
+
+		D3DRasterizerStateData() {}
 	};
 
 	class D3DRasterizerState {
@@ -43,6 +45,6 @@ namespace URM::Core {
 			return this->data;
 		}
 
-		D3DRasterizerState(D3DRasterizerStateData data);
+		D3DRasterizerState(D3DRasterizerStateData data = D3DRasterizerStateData());
 	};
 }

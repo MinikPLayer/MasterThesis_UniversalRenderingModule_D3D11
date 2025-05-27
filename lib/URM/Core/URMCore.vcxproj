@@ -182,6 +182,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Color.h" />
     <ClInclude Include="D3DIndexBuffer.h" />
     <ClInclude Include="D3DRasterizerState.h" />
     <ClInclude Include="D3DSampler.h" />
@@ -219,6 +220,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="ShaderProgram.cpp" />
+    <ClCompile Include="Utils.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>

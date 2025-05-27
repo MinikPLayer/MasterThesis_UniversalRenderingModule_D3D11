@@ -17,6 +17,8 @@ namespace URM::Core {
 			this->ComparisonFunc = D3D11_COMPARISON_NEVER;
 			this->MinLOD = 0;
 			this->MaxLOD = D3D11_FLOAT32_MAX;
+			this->MipLODBias = 0;
+			this->MaxAnisotropy = 16;
 		}
 	};
 
@@ -32,6 +34,6 @@ namespace URM::Core {
 		}
 
 		void SetData(D3DSamplerData params);
-		D3DSampler(D3DSamplerData params);
+		D3DSampler(D3DSamplerData params = D3DSamplerData());
 	};
 }

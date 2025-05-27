@@ -8,11 +8,10 @@ namespace URM::Core {
 	}
 
 	void D3DTexture2D::Bind(D3DCore& core, UINT slot) {
-		sampler.Bind(core, slot);
 		core.GetContext()->PSSetShaderResources(slot, 1, this->textureView.GetAddressOf());
 	}
 
-	D3DTexture2D::D3DTexture2D(D3DCore& core, std::string name, std::string type, Size2i size, Texel2D* pixelData, D3DTexture2DCreationParams params) : sampler(params.samplerData) {
+	D3DTexture2D::D3DTexture2D(D3DCore& core, std::string name, std::string type, Size2i size, Texel2D* pixelData, D3DTexture2DCreationParams params) {
 		this->path = name;
 		this->type = type;
 
@@ -58,7 +57,7 @@ namespace URM::Core {
 		}
 	}
 
-	D3DTexture2D::D3DTexture2D(D3DCore& core, std::string path, std::string type, D3DTexture2DCreationParams params) : sampler(params.samplerData) {
+	D3DTexture2D::D3DTexture2D(D3DCore& core, std::string path, std::string type, D3DTexture2DCreationParams params) {
 		this->path = path;
 		this->type = type;
 		// Load a compressed texture

@@ -14,8 +14,6 @@ namespace URM::Core {
 	};
 
 	struct D3DTexture2DCreationParams {
-		D3DSamplerData samplerData = D3DSamplerData();
-
 		UINT mipLevels = 1;
 		UINT arraySize = 1;
 		UINT samplesCount = 1;
@@ -29,7 +27,6 @@ namespace URM::Core {
 
 	class D3DTexture2D {
 		ComPtr<ID3D11ShaderResourceView> textureView;
-		D3DSampler sampler;
 
 		std::string path;
 		std::string type;

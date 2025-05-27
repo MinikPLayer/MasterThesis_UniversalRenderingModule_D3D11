@@ -4,10 +4,11 @@
 #include <memory>
 #include <d3d11.h>
 #include "ShaderProgram.h"
+#include "ModelLoader.h"
 
 namespace URM::Core {
 	template<VertexTypeConcept VertexType>
-	class D3DInputLayout {
+	class D3DInputLayout {		
 		ComPtr<ID3D11InputLayout> inputLayout;
 
 	public:
@@ -34,4 +35,6 @@ namespace URM::Core {
 			this->inputLayout.GetAddressOf()
 		);
 	}
+
+	using ModelLoaderLayout = D3DInputLayout<ModelLoaderVertexType>;
 }
