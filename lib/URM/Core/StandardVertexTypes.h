@@ -11,7 +11,7 @@ namespace URM::Core {
 
 		static std::vector<D3D11_INPUT_ELEMENT_DESC> GetInputLayout() {
 			return {
-				{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosition, position), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+				{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosition, position), D3D11_INPUT_PER_VERTEX_DATA, 0},
 			};
 		}
 
@@ -25,8 +25,8 @@ namespace URM::Core {
 
 		static std::vector<D3D11_INPUT_ELEMENT_DESC> GetInputLayout() {
 			return {
-				{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosition, position), D3D11_INPUT_PER_VERTEX_DATA, 0 },
-				{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, offsetof(VertexPositionColor, color), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+				{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosition, position), D3D11_INPUT_PER_VERTEX_DATA, 0},
+				{"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, offsetof(VertexPositionColor, color), D3D11_INPUT_PER_VERTEX_DATA, 0},
 			};
 		}
 
@@ -39,8 +39,8 @@ namespace URM::Core {
 		DirectX::XMFLOAT3 normal;
 		static std::vector<D3D11_INPUT_ELEMENT_DESC> GetInputLayout() {
 			return {
-				{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosition, position), D3D11_INPUT_PER_VERTEX_DATA, 0 },
-				{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPositionNormal, normal), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+				{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosition, position), D3D11_INPUT_PER_VERTEX_DATA, 0},
+				{"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPositionNormal, normal), D3D11_INPUT_PER_VERTEX_DATA, 0},
 			};
 		}
 		VertexPositionNormal(float x, float y, float z, float nx, float ny, float nz) : position(x, y, z), normal(nx, ny, nz) {}
@@ -52,14 +52,14 @@ namespace URM::Core {
 		DirectX::XMFLOAT2 texcoord;
 		static std::vector<D3D11_INPUT_ELEMENT_DESC> GetInputLayout() {
 			return {
-				{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosition, position), D3D11_INPUT_PER_VERTEX_DATA, 0 },
-				{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(VertexPositionTexture, texcoord), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+				{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosition, position), D3D11_INPUT_PER_VERTEX_DATA, 0},
+				{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(VertexPositionTexture, texcoord), D3D11_INPUT_PER_VERTEX_DATA, 0},
 			};
 		}
 		VertexPositionTexture(float x, float y, float z, float u, float v) : position(x, y, z), texcoord(u, v) {}
 		VertexPositionTexture() {
-			position = { 0.0f, 0.0f, 0.0f };
-			texcoord = { 0.0f, 0.0f };
+			position = {0.0f, 0.0f, 0.0f};
+			texcoord = {0.0f, 0.0f};
 		}
 	};
 
@@ -70,16 +70,16 @@ namespace URM::Core {
 		DirectX::XMFLOAT2 texcoord;
 		static std::vector<D3D11_INPUT_ELEMENT_DESC> GetInputLayout() {
 			return {
-				{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPositionNormalTexture, position), D3D11_INPUT_PER_VERTEX_DATA, 0 },
-				{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPositionNormalTexture, normal), D3D11_INPUT_PER_VERTEX_DATA, 0 },
-				{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(VertexPositionNormalTexture, texcoord), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+				{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPositionNormalTexture, position), D3D11_INPUT_PER_VERTEX_DATA, 0},
+				{"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPositionNormalTexture, normal), D3D11_INPUT_PER_VERTEX_DATA, 0},
+				{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(VertexPositionNormalTexture, texcoord), D3D11_INPUT_PER_VERTEX_DATA, 0},
 			};
 		}
 		VertexPositionNormalTexture(float x, float y, float z, float nx, float ny, float nz, float u, float v) : position(x, y, z), normal(nx, ny, nz), texcoord(u, v) {}
 		VertexPositionNormalTexture() {
-			position = { 0.0f, 0.0f, 0.0f };
-			normal = { 0.0f, 0.0f, 0.0f };
-			texcoord = { 0.0f, 0.0f };
+			position = {0.0f, 0.0f, 0.0f};
+			normal = {0.0f, 0.0f, 0.0f};
+			texcoord = {0.0f, 0.0f};
 		}
 	};
 }

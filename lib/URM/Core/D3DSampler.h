@@ -8,7 +8,7 @@
 using namespace Microsoft::WRL;
 
 namespace URM::Core {
-	struct D3DSamplerData : public D3D11_SAMPLER_DESC {
+	struct D3DSamplerData : D3D11_SAMPLER_DESC {
 		D3DSamplerData() {
 			this->Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 			this->AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -23,17 +23,17 @@ namespace URM::Core {
 	};
 
 	class D3DSampler {
-		ComPtr<ID3D11SamplerState> samplerState;
-		D3DSamplerData data;
+		ComPtr<ID3D11SamplerState> mSamplerState;
+		D3DSamplerData mData;
 
-		bool dataChanged = false;
+		bool mDataChanged = false;
 	public:
-		void Bind(D3DCore& core, UINT slot);
-		D3DSamplerData GetData() {
-			return this->data;
+		void Bind(const D3DCore& core, UINT slot);
+		D3DSamplerData GetData() const {
+			return this->mData;
 		}
 
-		void SetData(D3DSamplerData params);
-		D3DSampler(D3DSamplerData params = D3DSamplerData());
+		void SetData(const D3DSamplerData& params);
+		D3DSampler(const D3DSamplerData& params = D3DSamplerData());
 	};
 }

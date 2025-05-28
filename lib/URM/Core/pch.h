@@ -55,14 +55,11 @@
 // Use namespace to include SimpleMath as a part of the module.
 using namespace DirectX::SimpleMath;
 
-namespace DX
-{
-    inline void ThrowIfFailed(HRESULT hr, std::string message = "WinAPI call failed")
-    {
-        if (FAILED(hr))
-        {
-            // Set a breakpoint on this line to catch DirectX API errors
-            throw std::exception(message.c_str());
-        }
-    }
+namespace DX {
+	inline void ThrowIfFailed(HRESULT hr, const std::string& message = "WinAPI call failed") {
+		if (FAILED(hr)) {
+			// Set a breakpoint on this line to catch DirectX API errors
+			throw std::exception(message.c_str());
+		}
+	}
 }

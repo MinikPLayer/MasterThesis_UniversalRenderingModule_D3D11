@@ -10,7 +10,7 @@
 #include <assimp/postprocess.h>
 
 namespace URM::Core {
-	D3DTexture2D LoadEmbeddedTexture(D3DCore& core, std::string path, std::string type, const aiTexture* embeddedTexture) {
+	D3DTexture2D LoadEmbeddedTexture(const D3DCore& core, const std::string& path, const std::string& type, const aiTexture* embeddedTexture) {
 		auto width = embeddedTexture->mWidth;
 		auto height = embeddedTexture->mHeight;
 		auto pixelData = embeddedTexture->pcData;
@@ -18,7 +18,7 @@ namespace URM::Core {
 		return D3DTexture2D(core, path, type, Size2i(width, height), reinterpret_cast<Texel2D*>(pixelData));
 	}
 
-	std::vector<D3DTexture2D> LoadMaterialTextures(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, std::string fileDirectory, aiMaterial* mat, aiTextureType type, std::string typeName, const aiScene* scene) {
+	std::vector<D3DTexture2D> LoadMaterialTextures(const D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, const std::string& fileDirectory, const aiMaterial* mat, aiTextureType type, const std::string& typeName, const aiScene* scene) {
 		std::vector<D3DTexture2D> textures;
 		for (UINT i = 0; i < mat->GetTextureCount(type); i++) {
 			aiString str;
@@ -35,9 +35,7 @@ namespace URM::Core {
 			if (!skip) {   // If texture hasn't been loaded already, load it
 				const aiTexture* embeddedTexture = scene->GetEmbeddedTexture(str.C_Str());
 
-				D3DTexture2D texture = embeddedTexture == nullptr ?
-					D3DTexture2D(core, fileDirectory + '/' + std::string(str.C_Str()), typeName) :
-					LoadEmbeddedTexture(core, std::string(str.C_Str()), typeName, embeddedTexture);
+				D3DTexture2D texture = embeddedTexture == nullptr ? D3DTexture2D(core, fileDirectory + '/' + std::string(str.C_Str()), typeName) : LoadEmbeddedTexture(core, std::string(str.C_Str()), typeName, embeddedTexture);
 
 				textures.push_back(texture);
 				loadedTexturesPool.push_back(texture);  // Store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
@@ -47,38 +45,36 @@ namespace URM::Core {
 	}
 
 
-	float unpackFloat(const uint8_t* b) {
-		uint32_t temp = 0;
-		temp = (((uint32_t)b[3] << 24) |
-			((uint32_t)b[2] << 16) |
-			((uint32_t)b[1] << 8) |
-			(uint32_t)b[0]);
-		return *((float*)&temp);
+	float UnpackFloat(const uint8_t* b) {
+		uint32_t temp = ((static_cast<uint32_t>(b[3]) << 24) |
+		        (static_cast<uint32_t>(b[2]) << 16) |
+		        (static_cast<uint32_t>(b[1]) << 8) |
+		        static_cast<uint32_t>(b[0]));
+		return *reinterpret_cast<float*>(&temp);
 	}
 
-	double unpackDouble(const uint8_t* b) {
-		uint64_t temp = 0;
-		temp = ((uint64_t)b[7] << 56) |
-			((uint64_t)b[6] << 48) |
-			((uint64_t)b[5] << 40) |
-			((uint64_t)b[4] << 32) |
-			((uint64_t)b[3] << 24) |
-			((uint64_t)b[2] << 16) |
-			((uint64_t)b[1] << 8) |
-			b[0];
-		return *((double*)&temp);
+	double UnpackDouble(const uint8_t* b) {
+		uint64_t temp = (static_cast<uint64_t>(b[7]) << 56) |
+		       (static_cast<uint64_t>(b[6]) << 48) |
+		       (static_cast<uint64_t>(b[5]) << 40) |
+		       (static_cast<uint64_t>(b[4]) << 32) |
+		       (static_cast<uint64_t>(b[3]) << 24) |
+		       (static_cast<uint64_t>(b[2]) << 16) |
+		       (static_cast<uint64_t>(b[1]) << 8) |
+		       b[0];
+		return *reinterpret_cast<double*>(&temp);
 	}
 
-	int unpackInteger(const uint8_t* b) {
+	int UnpackInteger(const uint8_t* b) {
 		int temp = ((b[3] << 24) |
-			(b[2] << 16) |
-			(b[1] << 8) |
-			b[0]);
+		            (b[2] << 16) |
+		            (b[1] << 8) |
+		            b[0]);
 		return temp;
 	}
 
 	template<typename T, int TSizeInBytes>
-	std::vector<T> unpackPropertyData(const unsigned char* buf, unsigned int bufSizeInBytes, std::function<T(const unsigned char*)> unpackFunc) {
+	std::vector<T> UnpackPropertyData(const unsigned char* buf, unsigned int bufSizeInBytes, std::function<T(const unsigned char*)> unpackFunc) {
 
 		std::vector<T> temp;
 		for (size_t offset = 0; offset < bufSizeInBytes; offset += TSizeInBytes) {
@@ -88,37 +84,36 @@ namespace URM::Core {
 		return temp;
 	}
 
-	MaterialProperty GetPropertyFromAssimpProperty(aiMaterialProperty* prop) {
+	MaterialProperty GetPropertyFromAssimpProperty(const aiMaterialProperty* prop) {
 		auto nameString = std::string(prop->mKey.C_Str());
 
 		switch (prop->mType) {
-		case aiPTI_String:
-			// Skip first 4 bytes, which are the length of the string + 1 byte for the null terminator
-			// [TEST]: Verify prop->mDataLength vs first 4 bytes
-			return MaterialProperty::CreateString(nameString, prop->mData + 4, prop->mDataLength - 4 - 1);
+			case aiPTI_String:
+				// Skip first 4 bytes, which are the length of the string + 1 byte for the null terminator
+				// [TEST]: Verify prop->mDataLength vs first 4 bytes
+				return MaterialProperty::CreateString(nameString, prop->mData + 4, prop->mDataLength - 4 - 1);
 
-		case aiPTI_Float:
-			return MaterialProperty::CreateFloat(nameString, unpackPropertyData<float, 4>((const unsigned char*)prop->mData, prop->mDataLength, unpackFloat));
+			case aiPTI_Float:
+				return MaterialProperty::CreateFloat(nameString, UnpackPropertyData<float, 4>(reinterpret_cast<const uint8_t*>(prop->mData), prop->mDataLength, UnpackFloat));
 
-		case aiPTI_Double:
-			return MaterialProperty::CreateDouble(nameString, unpackPropertyData<double, 8>((const unsigned char*)prop->mData, prop->mDataLength, unpackDouble));
+			case aiPTI_Double:
+				return MaterialProperty::CreateDouble(nameString, UnpackPropertyData<double, 8>(reinterpret_cast<const uint8_t*>(prop->mData), prop->mDataLength, UnpackDouble));
 
-		case aiPTI_Integer:
-			return MaterialProperty::CreateInteger(nameString, unpackPropertyData<int, 4>((const unsigned char*)prop->mData, prop->mDataLength, unpackInteger));
+			case aiPTI_Integer:
+				return MaterialProperty::CreateInteger(nameString, UnpackPropertyData<int, 4>(reinterpret_cast<const uint8_t*>(prop->mData), prop->mDataLength, UnpackInteger));
 
-		case aiPTI_Buffer:
-		{
-			unsigned char* newData = new unsigned char[prop->mDataLength];
-			std::copy(prop->mData, prop->mData + prop->mDataLength, newData);
-			return MaterialProperty::CreateBuffer(nameString, newData, prop->mDataLength);
-		}
+			case aiPTI_Buffer: {
+				auto newData = new unsigned char[prop->mDataLength];
+				std::copy_n(prop->mData, prop->mDataLength, newData);
+				return MaterialProperty::CreateBuffer(nameString, newData, prop->mDataLength);
+			}
 
-		default:
-			throw std::runtime_error("Unknown property type");
+			default:
+				throw std::runtime_error("Unknown property type");
 		}
 	}
 
-	std::shared_ptr<Mesh<ModelLoaderVertexType>> processMesh(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, std::string fileDirectory, aiMesh* mesh, const aiScene* scene) {
+	std::shared_ptr<Mesh<ModelLoaderVertexType>> ProcessMesh(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, const std::string& fileDirectory, const aiMesh* mesh, const aiScene* scene) {
 		// Data to fill
 		std::vector<ModelLoaderVertexType> vertices;
 		std::vector<UINT> indices;
@@ -132,8 +127,8 @@ namespace URM::Core {
 			vertex.position.z = mesh->mVertices[i].z;
 
 			if (mesh->mTextureCoords[0]) {
-				vertex.texcoord.x = (float)mesh->mTextureCoords[0][i].x;
-				vertex.texcoord.y = (float)mesh->mTextureCoords[0][i].y;
+				vertex.texcoord.x = mesh->mTextureCoords[0][i].x;
+				vertex.texcoord.y = mesh->mTextureCoords[0][i].y;
 			}
 
 			if (mesh->HasNormals()) {
@@ -179,52 +174,48 @@ namespace URM::Core {
 		return std::shared_ptr<Mesh<ModelLoaderVertexType>>(newMesh);
 	}
 
-	std::shared_ptr<ModelLoaderNode> processNode(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, std::string fileDirectory, aiNode* node, const aiScene* scene) {
-		std::shared_ptr<ModelLoaderNode> newNode = std::shared_ptr<ModelLoaderNode>(new ModelLoaderNode());
+	std::shared_ptr<ModelLoaderNode> ProcessNode(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, const std::string& fileDirectory, const aiNode* node, const aiScene* scene) {
+		auto newNode = std::make_shared<ModelLoaderNode>();
 		if (node->mTransformation.IsIdentity()) {
 			newNode->transform = DirectX::XMMatrixIdentity();
 		}
 		else {
 			aiMatrix4x4 transform = node->mTransformation;
-			newNode->transform = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&transform)));
+			newNode->transform = XMMatrixTranspose(XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&transform)));
 		}
 
 		for (UINT i = 0; i < node->mNumMeshes; i++) {
 			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-			newNode->meshes.push_back(std::shared_ptr(processMesh(core, loadedTexturesPool, fileDirectory, mesh, scene)));
+			newNode->meshes.push_back(std::shared_ptr(ProcessMesh(core, loadedTexturesPool, fileDirectory, mesh, scene)));
 		}
 
 		for (UINT i = 0; i < node->mNumChildren; i++) {
-			auto&& newChild = processNode(core, loadedTexturesPool, fileDirectory, node->mChildren[i], scene);
+			auto&& newChild = ProcessNode(core, loadedTexturesPool, fileDirectory, node->mChildren[i], scene);
 			newNode->children.push_back(newChild);
 		}
 
 		return std::move(newNode);
 	}
 
-	std::shared_ptr<ModelLoaderNode> Load(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, std::string filePath) {
+	std::shared_ptr<ModelLoaderNode> Load(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, const std::string& filePath) {
 		Assimp::Importer importer;
 
 		const aiScene* pScene = importer.ReadFile(filePath,
-			aiProcess_Triangulate |
-			aiProcess_ConvertToLeftHanded);
+		                                          aiProcess_Triangulate |
+		                                          aiProcess_ConvertToLeftHanded);
 
 		if (pScene == nullptr)
 			return nullptr;
 
 		auto dir = StringUtils::GetDirectoryFromPath(filePath);
-		return processNode(core, loadedTexturesPool, dir, pScene->mRootNode, pScene);
+		return ProcessNode(core, loadedTexturesPool, dir, pScene->mRootNode, pScene);
 	}
 
-	std::shared_ptr<ModelLoaderNode> ModelLoader::LoadFromFile(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, std::string path) {
+	std::shared_ptr<ModelLoaderNode> ModelLoader::LoadFromFile(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, const std::string& path) {
 		auto mesh = Load(core, loadedTexturesPool, path);
-		if (mesh != nullptr)
-		{
+		if (mesh != nullptr) {
 			return mesh;
 		}
-		else 
-		{
-			throw std::runtime_error("Failed to load model from file: " + path);
-		}
+		throw std::runtime_error("Failed to load model from file: " + path);
 	}
 }

@@ -2,21 +2,14 @@
 #include "iD3DBuffer.h"
 
 namespace URM::Core {
-	static void ReleaseBuffer(ID3D11Buffer* buffer) {
-		if (buffer) {
-			buffer->Release();
-		}
+	ID3DBuffer::ID3DBuffer(const D3DCore& core, const D3D11_BUFFER_DESC& desc, const D3D11_SUBRESOURCE_DATA* initData) {
+		core.GetDevice()->CreateBuffer(&desc, initData, this->mBuffer.GetAddressOf());
 	}
 
-	ID3DBuffer::ID3DBuffer(D3DCore& core, D3D11_BUFFER_DESC desc, D3D11_SUBRESOURCE_DATA* initData)
-	{
-		core.GetDevice()->CreateBuffer(&desc, initData, this->buffer.GetAddressOf());
-	}
-
-	void ID3DBuffer::UpdateWithData(D3DCore& core, const void* data) {
+	void ID3DBuffer::UpdateWithData(const D3DCore& core, const void* data) const {
 		auto context = core.GetContext();
 		context->UpdateSubresource(
-			this->buffer.Get(),
+			this->mBuffer.Get(),
 			0,
 			nullptr,
 			data,

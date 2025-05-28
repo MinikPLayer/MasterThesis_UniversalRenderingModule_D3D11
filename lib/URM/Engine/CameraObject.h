@@ -6,41 +6,41 @@
 #include "SceneObject.h"
 
 namespace URM::Engine {
-	class CameraObject : public URM::Engine::SceneObject {
-		float fov = 60.0f;
-		float nearPlane = 0.1f;
-		float farPlane = 1000.0f;
+	class CameraObject : public SceneObject {
+		float mFov = 60.0f;
+		float mNearPlane = 0.1f;
+		float mFarPlane = 1000.0f;
 	public:
-		float GetFOV() {
-			return this->fov;
+		float GetFov() const {
+			return this->mFov;
 		}
 
-		void SetFOV(float newFov) {
-			this->fov = newFov;
+		void SetFov(float newFov) {
+			this->mFov = newFov;
 		}
 
-		float GetNearPlane() {
-			return this->nearPlane;
+		float GetNearPlane() const {
+			return this->mNearPlane;
 		}
 
 		void SetNearPlane(float newNearPlane) {
-			this->nearPlane = newNearPlane;
+			this->mNearPlane = newNearPlane;
 		}
 
-		float GetFarPlane() {
-			return this->farPlane;
+		float GetFarPlane() const {
+			return this->mFarPlane;
 		}
 
 		void SetFarPlane(float newFarPlane) {
-			this->farPlane = newFarPlane;
+			this->mFarPlane = newFarPlane;
 		}
 
-		bool IsMainCamera();
-		void SetAsMainCamera();
+		static bool IsMainCamera();
+		static void SetAsMainCamera();
 
 		// PLAN: Add caching
-		DirectX::SimpleMath::Matrix CalculateProjectionMatrix(URM::Core::Size2i viewSize);
-		DirectX::SimpleMath::Matrix CalculateViewMatrix();
+		Matrix CalculateProjectionMatrix(Core::Size2i viewSize) const;
+		Matrix CalculateViewMatrix();
 
 		CameraObject(float fov = 60.0f, float nearPlane = 0.1f, float farPlane = 1000.0f);
 	};

@@ -11,18 +11,17 @@ namespace URM::Engine {
 		std::optional<std::chrono::high_resolution_clock::time_point> lastUpdate = std::nullopt;
 		std::optional<std::chrono::high_resolution_clock::time_point> startTime = std::nullopt;
 
-		float deltaTime = 0;
-		float elapsedTime = 0;
+		float mDeltaTime = 0;
+		float mElapsedTime = 0;
 
 		void Update();
-
 	public:
-		float GetDeltaTime() {
-			return deltaTime;
+		float GetDeltaTime() const {
+			return mDeltaTime;
 		}
 
-		float GetElapsedTime() {
-			return elapsedTime;
+		float GetElapsedTime() const {
+			return mElapsedTime;
 		}
 	};
 }

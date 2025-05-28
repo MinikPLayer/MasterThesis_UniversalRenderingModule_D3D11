@@ -6,9 +6,9 @@ namespace URM::Engine {
 		return this->meshes;
 	}
 
-	void Scene::PrintObjectsHierarchy() {
+	void Scene::PrintObjectsHierarchy() const {
 		spdlog::info("\n\nObjects hierarchy:");
-		rootObject->__PrintHierarchy__(0);
+		rootObject->PrintHierarchy(0);
 		spdlog::info("\n\n");
 	}
 }

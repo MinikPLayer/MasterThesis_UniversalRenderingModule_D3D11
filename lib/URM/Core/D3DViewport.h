@@ -1,7 +1,6 @@
 #pragma once
 
 #include "D3DCore.h"
-#include <d3d11.h>
 
 namespace URM::Core {
 	struct D3DViewportData {
@@ -10,22 +9,19 @@ namespace URM::Core {
 		float maxDepth;
 		Vector2 topLeft;
 
-		D3DViewportData(Size2i size = Size2i::ZERO, float minDepth = 0.0f, float maxDepth = 1.0f, Vector2 topLeft = Vector2::Zero)
-			: size(size), minDepth(minDepth), maxDepth(maxDepth), topLeft(topLeft) {
-		}
+		D3DViewportData(Size2i size = Size2i::ZERO, float minDepth = 0.0f, float maxDepth = 1.0f, Vector2 topLeft = Vector2::Zero) : size(size), minDepth(minDepth), maxDepth(maxDepth), topLeft(topLeft) {}
 	};
 
 	class D3DViewport {
 		D3DViewportData data;
-
 	public:
-		void Bind(D3DCore& core);
+		void Bind(const D3DCore& core) const;
 
-		D3DViewportData GetData() {
+		D3DViewportData GetData() const {
 			return this->data;
 		}
-		void SetData(D3DViewportData data);
+		void SetData(const D3DViewportData& data);
 
-		D3DViewport(D3DViewportData data = D3DViewportData());
+		D3DViewport(const D3DViewportData& data = D3DViewportData());
 	};
 }

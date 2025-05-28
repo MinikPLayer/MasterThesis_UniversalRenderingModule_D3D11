@@ -26,17 +26,16 @@ namespace URM::Core {
 	};
 
 	class D3DTexture2D {
-		ComPtr<ID3D11ShaderResourceView> textureView;
+		ComPtr<ID3D11ShaderResourceView> mTextureView;
 
-		std::string path;
-		std::string type;
-
+		std::string mPath;
+		std::string mType;
 	public:
 		std::string GetPath();
 
-		void Bind(D3DCore& core, UINT slot);
+		void Bind(const D3DCore& core, UINT slot);
 
-		D3DTexture2D(D3DCore& core, std::string name, std::string type, Size2i size, Texel2D* pixelData, D3DTexture2DCreationParams params = D3DTexture2DCreationParams());
-		D3DTexture2D(D3DCore& core, std::string path, std::string type, D3DTexture2DCreationParams params = D3DTexture2DCreationParams());
+		D3DTexture2D(const D3DCore& core, const std::string& name, const std::string& type, Size2i size, const Texel2D* pixelData, const D3DTexture2DCreationParams& params = D3DTexture2DCreationParams());
+		D3DTexture2D(const D3DCore& core, const std::string& path, const std::string& type, const D3DTexture2DCreationParams& params = D3DTexture2DCreationParams());
 	};
 }

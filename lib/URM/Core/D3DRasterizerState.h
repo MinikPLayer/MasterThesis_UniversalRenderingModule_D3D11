@@ -5,13 +5,13 @@
 
 namespace URM::Core {
 	enum class CullModes {
-		NONE = D3D11_CULL_NONE,
+		NONE  = D3D11_CULL_NONE,
 		FRONT = D3D11_CULL_FRONT,
-		BACK = D3D11_CULL_BACK,
+		BACK  = D3D11_CULL_BACK,
 	};
 
 	enum class FillModes {
-		SOLID = D3D11_FILL_SOLID,
+		SOLID     = D3D11_FILL_SOLID,
 		WIREFRAME = D3D11_FILL_WIREFRAME,
 	};
 
@@ -37,14 +37,13 @@ namespace URM::Core {
 		D3DRasterizerStateData data;
 
 		bool dataChanged = false;
-
 	public:
-		void Bind(D3DCore& core);
-		void SetData(D3DRasterizerStateData data);
+		void Bind(const D3DCore& core);
+		void SetData(const D3DRasterizerStateData& data);
 		D3DRasterizerStateData GetData() {
 			return this->data;
 		}
 
-		D3DRasterizerState(D3DRasterizerStateData data = D3DRasterizerStateData());
+		D3DRasterizerState(const D3DRasterizerStateData& data = D3DRasterizerStateData());
 	};
 }

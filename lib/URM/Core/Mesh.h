@@ -1,6 +1,5 @@
 #pragma once
 #include <d3d11.h>
-#include <concepts>
 #include <vector>
 
 #include "D3DVertexBuffer.h"
@@ -13,15 +12,15 @@
 namespace URM::Core {
 	template<VertexTypeConcept VertexType>
 	class Mesh : public IMesh, NonCopyable {
-		D3DVertexBuffer<VertexType> vertexBuffer;
-		std::optional<D3DIndexBuffer> indexBuffer = std::nullopt;
+		D3DVertexBuffer<VertexType> mVertexBuffer;
+		std::optional<D3DIndexBuffer> mIndexBuffer = std::nullopt;
 
-		std::vector<VertexType> vertices;
-		std::vector<unsigned int> indices;
-		std::vector<D3DTexture2D> textures;
+		std::vector<VertexType> mVertices;
+		std::vector<unsigned int> mIndices;
+		std::vector<D3DTexture2D> mTextures;
 
 		// [TEST]
-		void UpdateBuffer(D3DCore& core);
+		void UpdateBuffer(D3DCore& core) override;
 
 		size_t GetVertexTypeHashCode() override {
 			return GetTypeHashCode<VertexType>();
@@ -29,103 +28,99 @@ namespace URM::Core {
 	public:
 		std::vector<MaterialProperty> materialProperties;
 
-		bool ContainsTextures() {
-			return !textures.empty();
+		bool ContainsTextures() const {
+			return !mTextures.empty();
 		}
 
 		bool ContainsIndices() const {
-			return indexBuffer.has_value();
+			return mIndexBuffer.has_value();
 		}
 
 		D3DVertexBuffer<VertexType>& GetVertexBuffer() {
-			return vertexBuffer;
+			return mVertexBuffer;
 		}
 
 		D3DIndexBuffer& GetIndexBuffer() {
-			if (indexBuffer.has_value()) {
-				return indexBuffer.value();
+			if (mIndexBuffer.has_value()) {
+				return mIndexBuffer.value();
 			}
 			throw std::runtime_error("Index buffer not available");
 		}
 
 		UINT GetVerticesCount() {
-			return (UINT)vertices.size();
+			return static_cast<UINT>(mVertices.size());
 		}
 
-		UINT GetIndicesCount() {
-			if (indexBuffer.has_value()) {
-				return (UINT)indices.size();
+		UINT GetIndicesCount() const {
+			if (mIndexBuffer.has_value()) {
+				return static_cast<UINT>(mIndices.size());
 			}
 			return 0;
 		}
 
-		Mesh(D3DCore& core, std::vector<VertexType> data, std::vector<D3DTexture2D> textures = {})
-			: vertexBuffer(D3DVertexBuffer<VertexType>::Create(core, data))
-		{
-			this->vertices = data;
-			this->textures = textures;
+		Mesh(D3DCore& core, std::vector<VertexType> data, std::vector<D3DTexture2D> textures = {}) : mVertexBuffer(D3DVertexBuffer<VertexType>::Create(core, data)) {
+			this->mVertices = data;
+			this->mTextures = textures;
 		}
 
-		Mesh(D3DCore& core, std::vector<VertexType> data, std::vector<unsigned int> indices, std::vector<D3DTexture2D> textures = {})
-			: vertexBuffer(D3DVertexBuffer<VertexType>::Create(core, data)),
-			indexBuffer(D3DIndexBuffer::Create(core, indices))
-		{
-			this->vertices = data;
-			this->indices = indices;
-			this->textures = textures;
+		Mesh(D3DCore& core, std::vector<VertexType> data, std::vector<unsigned int> indices, std::vector<D3DTexture2D> textures = {}) : mVertexBuffer(D3DVertexBuffer<VertexType>::Create(core, data)),
+		                                                                                                                                mIndexBuffer(D3DIndexBuffer::Create(core, indices)) {
+			this->mVertices = data;
+			this->mIndices = indices;
+			this->mTextures = textures;
 		}
 
 		void ResetVertices(D3DCore& core) override {
-			vertices.clear();
+			mVertices.clear();
 			UpdateBuffer(core);
 		}
 
 		void SetVertices(D3DCore& core, const std::vector<VertexType>& newVertices) {
-			vertices = newVertices;
+			mVertices = newVertices;
 			UpdateBuffer(core);
 		}
 
-		void ResetIndices(D3DCore& core) {
-			indices.clear();
-			if (indexBuffer.has_value()) {
-				indexBuffer->UpdateWithData(core, indices.data());
+		void ResetIndices(const D3DCore& core) {
+			mIndices.clear();
+			if (mIndexBuffer.has_value()) {
+				mIndexBuffer->UpdateWithData(core, mIndices.data());
 			}
 		}
 
-		void SetIndices(D3DCore& core, const std::vector<unsigned int>& newIndices) {
-			indices = newIndices;
-			if (indexBuffer.has_value()) {
-				indexBuffer->UpdateWithData(core, indices.data());
+		void SetIndices(const D3DCore& core, const std::vector<unsigned int>& newIndices) {
+			mIndices = newIndices;
+			if (mIndexBuffer.has_value()) {
+				mIndexBuffer->UpdateWithData(core, mIndices.data());
 			}
 		}
 
-		const std::vector<VertexType> GetVerticesCopy() const {
-			return vertices;
+		std::vector<VertexType> GetVerticesCopy() const {
+			return mVertices;
 		}
 
-		const std::vector<unsigned int> GetIndicesCopy() const {
-			return indices;
+		std::vector<unsigned int> GetIndicesCopy() const {
+			return mIndices;
 		}
 
 		std::vector<D3DTexture2D> GetTexturesCopy() const {
-			return textures;
+			return mTextures;
 		}
 
-		void BindTextures(D3DCore& core) {
-			for (UINT i = 0; i < (UINT)textures.size(); i++) {
-				textures[i].Bind(core, i);
+		void BindTextures(const D3DCore& core) {
+			for (UINT i = 0; i < static_cast<UINT>(mTextures.size()); i++) {
+				mTextures[i].Bind(core, i);
 			}
 		}
 	};
 
 	template<VertexTypeConcept VertexType>
-	inline void Mesh<VertexType>::UpdateBuffer(D3DCore& core) {
+	void Mesh<VertexType>::UpdateBuffer(D3DCore& core) {
 		core.GetContext()->UpdateSubresource(
-			vertexBuffer.get().Get(),
+			mVertexBuffer.Get().Get(),
 			0,
 			nullptr,
-			vertices.data(),
-			(UINT)(sizeof(VertexType) * vertices.size()),
+			mVertices.data(),
+			static_cast<UINT>(sizeof(VertexType) * mVertices.size()),
 			sizeof(VertexType)
 		);
 	}

@@ -1,30 +1,28 @@
 #pragma once
 
-#include <memory>
 #include <URM/Core/pch.h>
 
 namespace URM::Engine {
 	class SceneObject;
 	class Transform {
-		Matrix worldSpaceModelMatrix = Matrix::Identity;
-		SceneObject& sceneObject;
+		Matrix mWorldSpaceModelMatrix = Matrix::Identity;
+		SceneObject& mSceneObject;
 
-		Vector3 localPosition = Vector3(0.0f, 0.0f, 0.0f);
-		Quaternion localRotation = Quaternion::Identity;
-		Vector3 localScale = Vector3::One;
+		Vector3 mLocalPosition = Vector3(0.0f, 0.0f, 0.0f);
+		Quaternion mLocalRotation = Quaternion::Identity;
+		Vector3 mLocalScale = Vector3::One;
 
-		Vector3 globalPosition;
-		Quaternion globalRotation;
-		Vector3 globalScale;
+		Vector3 mGlobalPosition;
+		Quaternion mGlobalRotation;
+		Vector3 mGlobalScale;
 
-		Matrix CalculateLocalModelMatrix();
-
+		Matrix CalculateLocalModelMatrix() const;
 	public:
 		void UpdateMatrix();
 		void UpdateMatrix(Matrix localMatrix, bool updateLocalValues = true);
 
-		void SetWorldSpaceMatrix(Matrix matrix);
-		Matrix GetWorldSpaceMatrix();
+		void SetWorldSpaceMatrix(const Matrix& matrix);
+		Matrix GetWorldSpaceMatrix() const;
 
 		void SetPosition(Vector3 position);
 		void SetRotation(Quaternion quat);
@@ -33,19 +31,19 @@ namespace URM::Engine {
 		void SetLocalScale(Vector3 scale);
 		void SetLocalRotation(Quaternion quat);
 
-		Vector3 GetForwardVector();
-		Vector3 GetUpVector();
-		Vector3 GetRightVector();
+		Vector3 GetForwardVector() const;
+		Vector3 GetUpVector() const;
+		Vector3 GetRightVector() const;
 
-		Vector3 GetPosition();
-		Vector3 GetScale();
-		Quaternion GetRotation();
+		Vector3 GetPosition() const;
+		Vector3 GetScale() const;
+		Quaternion GetRotation() const;
 
-		Vector3 GetLocalPosition();
-		Vector3 GetLocalScale();
-		Quaternion GetLocalRotation();
+		Vector3 GetLocalPosition() const;
+		Vector3 GetLocalScale() const;
+		Quaternion GetLocalRotation() const;
 
-		SceneObject& GetSceneObject();
+		SceneObject& GetSceneObject() const;
 
 		// Disable copy constructor and assignment operator
 		Transform(const Transform&) = delete;
@@ -53,6 +51,6 @@ namespace URM::Engine {
 
 		Transform(SceneObject& sceneObject);
 
-		std::string ToString();
+		std::string ToString() const;
 	};
 }

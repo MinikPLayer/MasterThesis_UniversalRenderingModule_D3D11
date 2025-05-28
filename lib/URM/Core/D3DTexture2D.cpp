@@ -4,23 +4,23 @@
 
 namespace URM::Core {
 	std::string D3DTexture2D::GetPath() {
-		return path;
+		return mPath;
 	}
 
-	void D3DTexture2D::Bind(D3DCore& core, UINT slot) {
-		core.GetContext()->PSSetShaderResources(slot, 1, this->textureView.GetAddressOf());
+	void D3DTexture2D::Bind(const D3DCore& core, UINT slot) {
+		core.GetContext()->PSSetShaderResources(slot, 1, this->mTextureView.GetAddressOf());
 	}
 
-	D3DTexture2D::D3DTexture2D(D3DCore& core, std::string name, std::string type, Size2i size, Texel2D* pixelData, D3DTexture2DCreationParams params) {
-		this->path = name;
-		this->type = type;
+	D3DTexture2D::D3DTexture2D(const D3DCore& core, const std::string& name, const std::string& type, Size2i size, const Texel2D* pixelData, const D3DTexture2DCreationParams& params) {
+		this->mPath = name;
+		this->mType = type;
 
 		// mHeight is 0, so try to load a compressed texture of mWidth bytes
 		if (size.height == 0) {
 			const size_t bufferLength = size.width;
 
 			DX::ThrowIfFailed(
-				DirectX::CreateWICTextureFromMemory(core.GetDevice(), core.GetContext(), reinterpret_cast<const unsigned char*>(pixelData), bufferLength, nullptr, this->textureView.GetAddressOf()),
+				DirectX::CreateWICTextureFromMemory(core.GetDevice(), core.GetContext(), reinterpret_cast<const unsigned char*>(pixelData), bufferLength, nullptr, this->mTextureView.GetAddressOf()),
 				"WIC Texture creation failed."
 			);
 		}
@@ -51,20 +51,20 @@ namespace URM::Core {
 			);
 
 			DX::ThrowIfFailed(
-				core.GetDevice()->CreateShaderResourceView(texture2D, nullptr, this->textureView.GetAddressOf()),
+				core.GetDevice()->CreateShaderResourceView(texture2D, nullptr, this->mTextureView.GetAddressOf()),
 				"Failed to create a Texture2D ShaderResourceView."
 			);
 		}
 	}
 
-	D3DTexture2D::D3DTexture2D(D3DCore& core, std::string path, std::string type, D3DTexture2DCreationParams params) {
-		this->path = path;
-		this->type = type;
+	D3DTexture2D::D3DTexture2D(const D3DCore& core, const std::string& path, const std::string& type, const D3DTexture2DCreationParams& params) {
+		this->mPath = path;
+		this->mType = type;
 		// Load a compressed texture
 		std::wstring widePath = StringUtils::StringToWString(path);
 
 		DX::ThrowIfFailed(
-			DirectX::CreateWICTextureFromFileEx(
+			CreateWICTextureFromFileEx(
 				core.GetDevice(),
 				core.GetContext(),
 				widePath.c_str(),
@@ -75,7 +75,7 @@ namespace URM::Core {
 				params.miscFlags,
 				DirectX::WIC_LOADER_DEFAULT,
 				nullptr,
-				this->textureView.GetAddressOf()
+				this->mTextureView.GetAddressOf()
 			),
 			"Failed to create a Texture2D from file (" + path + ")."
 		);

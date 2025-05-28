@@ -1,3 +1,4 @@
+
 #include "pch.h"
 #include "Transform.h"
 #include "SceneObject.h"
@@ -8,39 +9,39 @@
 using namespace DirectX;
 
 // Fix weird linker issues.
-const Matrix DirectX::SimpleMath::Matrix::Identity = DirectX::SimpleMath::Matrix(DirectX::XMMatrixIdentity());
-const Quaternion DirectX::SimpleMath::Quaternion::Identity = DirectX::SimpleMath::Quaternion(DirectX::XMQuaternionIdentity());
-const Vector2 DirectX::SimpleMath::Vector2::Zero = DirectX::SimpleMath::Vector2(0, 0);
-const Vector3 DirectX::SimpleMath::Vector3::Zero = DirectX::SimpleMath::Vector3(0, 0, 0);
-const Vector3 DirectX::SimpleMath::Vector3::One = DirectX::SimpleMath::Vector3(1, 1, 1);
-const Vector3 DirectX::SimpleMath::Vector3::Up = DirectX::SimpleMath::Vector3(0, 1, 0);
-const Vector3 DirectX::SimpleMath::Vector3::Right = DirectX::SimpleMath::Vector3(1, 0, 0);
-const Vector3 DirectX::SimpleMath::Vector3::Forward = DirectX::SimpleMath::Vector3(0, 0, 1);
+const Matrix Matrix::Identity = Matrix(XMMatrixIdentity());
+const Quaternion Quaternion::Identity = Quaternion(XMQuaternionIdentity());
+const Vector2 Vector2::Zero = Vector2(0, 0);
+const Vector3 Vector3::Zero = Vector3(0, 0, 0);
+const Vector3 Vector3::One = Vector3(1, 1, 1);
+const Vector3 Vector3::Up = Vector3(0, 1, 0);
+const Vector3 Vector3::Right = Vector3(1, 0, 0);
+const Vector3 Vector3::Forward = Vector3(0, 0, 1);
 
 namespace URM::Engine {
-	Matrix Transform::CalculateLocalModelMatrix() {
-		auto matTranslation = Matrix::CreateTranslation(this->localPosition);
-		auto matRotation = Matrix::CreateFromQuaternion(this->localRotation);
-		auto matScaling = Matrix::CreateScale(this->localScale.x, this->localScale.y, this->localScale.z);
+	Matrix Transform::CalculateLocalModelMatrix() const {
+		auto matTranslation = Matrix::CreateTranslation(this->mLocalPosition);
+		auto matRotation = Matrix::CreateFromQuaternion(this->mLocalRotation);
+		auto matScaling = Matrix::CreateScale(this->mLocalScale.x, this->mLocalScale.y, this->mLocalScale.z);
 
-		return Matrix((XMMATRIX)matScaling * (XMMATRIX)matRotation * (XMMATRIX)matTranslation);
+		return Matrix(static_cast<XMMATRIX>(matScaling) * static_cast<XMMATRIX>(matRotation) * static_cast<XMMATRIX>(matTranslation));
 	}
 
 	// TODO: Compute inverse matrix together with a normal one
 	void Transform::UpdateMatrix(Matrix localMatrix, bool updateLocalValues) {
 		if (updateLocalValues) {
-			auto decomp = localMatrix.Decompose(this->localScale, this->localRotation, this->localPosition);
+			localMatrix.Decompose(this->mLocalScale, this->mLocalRotation, this->mLocalPosition);
 		}
 
-		auto parentMatrix = (sceneObject.HasParent()) ? sceneObject.GetParent().lock()->GetTransform().GetWorldSpaceMatrix() : Matrix::Identity;
-		worldSpaceModelMatrix = Matrix((XMMATRIX)localMatrix * (XMMATRIX)parentMatrix);
+		auto parentMatrix = (mSceneObject.HasParent()) ? mSceneObject.GetParent().lock()->GetTransform().GetWorldSpaceMatrix() : Matrix::Identity;
+		mWorldSpaceModelMatrix = Matrix(static_cast<XMMATRIX>(localMatrix) * static_cast<XMMATRIX>(parentMatrix));
 
 		// PLAN: Find a faster way to do this? 
 		// Decompose is probably not the fastest way to do this
 		// But should work for now
-		worldSpaceModelMatrix.Decompose(this->globalScale, this->globalRotation, this->globalPosition);
+		mWorldSpaceModelMatrix.Decompose(this->mGlobalScale, this->mGlobalRotation, this->mGlobalPosition);
 
-		for (auto child : sceneObject.GetChildren()) {
+		for (auto child : mSceneObject.GetChildren()) {
 			child->GetTransform().UpdateMatrix();
 		}
 	}
@@ -49,7 +50,7 @@ namespace URM::Engine {
 		this->UpdateMatrix(CalculateLocalModelMatrix(), false);
 	}
 
-	Transform::Transform(SceneObject& sceneObject) : sceneObject(sceneObject) {}
+	Transform::Transform(SceneObject& sceneObject) : mSceneObject(sceneObject) {}
 
 	std::string Vector3ToString(Vector3 v) {
 		std::stringstream ss;
@@ -57,43 +58,43 @@ namespace URM::Engine {
 		return ss.str();
 	}
 
-	std::string Transform::ToString() {
+	std::string Transform::ToString() const {
 		std::stringstream ss;
 		ss << "Transform[Position: ";
-		ss << Vector3ToString(this->globalPosition);
+		ss << Vector3ToString(this->mGlobalPosition);
 		ss << ", Rotation: ";
-		ss << Vector3ToString(this->globalRotation.ToEuler());
+		ss << Vector3ToString(this->mGlobalRotation.ToEuler());
 		ss << ", Scale: ";
-		ss << Vector3ToString(this->globalScale);
+		ss << Vector3ToString(this->mGlobalScale);
 		ss << "]";
 		return ss.str();
 	}
 
-	void Transform::SetWorldSpaceMatrix(Matrix matrix) {
-		auto parentMatrix = (sceneObject.HasParent()) ? sceneObject.GetParent().lock()->GetTransform().GetWorldSpaceMatrix() : Matrix::Identity;
+	void Transform::SetWorldSpaceMatrix(const Matrix& matrix) {
+		auto parentMatrix = (mSceneObject.HasParent()) ? mSceneObject.GetParent().lock()->GetTransform().GetWorldSpaceMatrix() : Matrix::Identity;
 		auto parentInverse = parentMatrix.Invert();
-		auto localMatrix = Matrix((XMMATRIX)matrix * (XMMATRIX)parentInverse);
-		localMatrix.Decompose(this->localScale, this->localRotation, this->localPosition);
+		auto localMatrix = Matrix(static_cast<XMMATRIX>(matrix) * static_cast<XMMATRIX>(parentInverse));
+		localMatrix.Decompose(this->mLocalScale, this->mLocalRotation, this->mLocalPosition);
 
 		UpdateMatrix();
 	}
 
-	Matrix Transform::GetWorldSpaceMatrix() {
-		return worldSpaceModelMatrix;
+	Matrix Transform::GetWorldSpaceMatrix() const {
+		return mWorldSpaceModelMatrix;
 	}
 
 	// PLAN: Optimize to avoid decomposing matrix every time
 	void Transform::SetPosition(Vector3 position) {
-		if (sceneObject.HasParent()) {
-			auto parentMatrix = sceneObject.GetParent().lock()->GetTransform().GetWorldSpaceMatrix();
+		if (mSceneObject.HasParent()) {
+			auto parentMatrix = mSceneObject.GetParent().lock()->GetTransform().GetWorldSpaceMatrix();
 			auto parentInverse = parentMatrix.Invert();
 			auto localPosition = Matrix::CreateTranslation(position);
 
-			auto relativePosition = Matrix((XMMATRIX)localPosition * (XMMATRIX)parentInverse);
-			this->localPosition = relativePosition.Translation();
+			auto relativePosition = Matrix(static_cast<XMMATRIX>(localPosition) * static_cast<XMMATRIX>(parentInverse));
+			this->mLocalPosition = relativePosition.Translation();
 		}
 		else {
-			this->localPosition = position;
+			this->mLocalPosition = position;
 		}
 
 		UpdateMatrix();
@@ -117,79 +118,79 @@ namespace URM::Engine {
 	//}
 
 	void Transform::SetRotation(Quaternion quat) {
-		if (sceneObject.HasParent()) {
-			auto parentMatrix = sceneObject.GetParent().lock()->GetTransform().GetWorldSpaceMatrix();
+		if (mSceneObject.HasParent()) {
+			auto parentMatrix = mSceneObject.GetParent().lock()->GetTransform().GetWorldSpaceMatrix();
 			auto parentInverse = parentMatrix.Invert();
 			auto localRotation = Matrix::CreateFromQuaternion(quat);
-			auto relativeRotation = Matrix((XMMATRIX)localRotation * (XMMATRIX)parentInverse);
+			auto relativeRotation = Matrix(static_cast<XMMATRIX>(localRotation) * static_cast<XMMATRIX>(parentInverse));
 
 			Vector3 _;
 			Quaternion rotation;
 			relativeRotation.Decompose(_, rotation, _);
-			this->localRotation = rotation;
+			this->mLocalRotation = rotation;
 		}
 		else {
-			this->localRotation = quat;
+			this->mLocalRotation = quat;
 		}
 
 		UpdateMatrix();
 	}
 
 	void Transform::SetLocalPosition(Vector3 position) {
-		this->localPosition = position;
+		this->mLocalPosition = position;
 
 		UpdateMatrix();
 	}
 
 	void Transform::SetLocalScale(Vector3 scale) {
-		this->localScale = scale;
+		this->mLocalScale = scale;
 
 		UpdateMatrix();
 	}
 
 	void Transform::SetLocalRotation(Quaternion quat) {
-		this->localRotation = quat;
+		this->mLocalRotation = quat;
 
 		UpdateMatrix();
 	}
 
-	Vector3 Transform::GetForwardVector() {
-		return Vector3::Transform(Vector3::Forward, this->globalRotation);
+	Vector3 Transform::GetForwardVector() const {
+		return Vector3::Transform(Vector3::Forward, this->mGlobalRotation);
 	}
 
-	Vector3 Transform::GetUpVector() {
-		return Vector3::Transform(Vector3::Up, this->globalRotation);
+	Vector3 Transform::GetUpVector() const {
+		return Vector3::Transform(Vector3::Up, this->mGlobalRotation);
 	}
 
-	Vector3 Transform::GetRightVector() {
-		return Vector3::Transform(Vector3::Right, this->globalRotation);
+	Vector3 Transform::GetRightVector() const {
+		return Vector3::Transform(Vector3::Right, this->mGlobalRotation);
 	}
 
-	Vector3 Transform::GetPosition() {
-		return this->globalPosition;
+	Vector3 Transform::GetPosition() const {
+		return this->mGlobalPosition;
 	}
 
-	Vector3 Transform::GetScale() {
-		return this->globalScale;
+	Vector3 Transform::GetScale() const {
+		return this->mGlobalScale;
 	}
 
-	Quaternion Transform::GetRotation() {
-		return this->globalRotation;
+	Quaternion Transform::GetRotation() const {
+		return this->mGlobalRotation;
 	}
 
-	Vector3 Transform::GetLocalPosition() {
-		return this->localPosition;
+	Vector3 Transform::GetLocalPosition() const {
+		return this->mLocalPosition;
 	}
 
-	Vector3 Transform::GetLocalScale() {
-		return this->localScale;
+	Vector3 Transform::GetLocalScale() const {
+		return this->mLocalScale;
 	}
 
-	Quaternion Transform::GetLocalRotation() {
-		return this->localRotation;
+	Quaternion Transform::GetLocalRotation() const {
+		return this->mLocalRotation;
 	}
 
-	SceneObject& Transform::GetSceneObject() {
-		return this->sceneObject;
+	SceneObject& Transform::GetSceneObject() const {
+		return this->mSceneObject;
 	}
 }

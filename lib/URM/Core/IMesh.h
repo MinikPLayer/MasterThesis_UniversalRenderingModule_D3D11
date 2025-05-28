@@ -20,7 +20,7 @@ namespace URM::Core {
 		virtual void UpdateBuffer(D3DCore& core) = 0;
 		virtual size_t GetVertexTypeHashCode() = 0;
 	public:
-
+		virtual ~IMesh() = default;
 		virtual void ResetVertices(D3DCore& core) = 0;
 
 		template<VertexTypeConcept VertexType>

@@ -13,22 +13,20 @@ namespace URM::Core {
 		HINSTANCE hInstance;
 		HICON icon;
 
-		WindowCreationParams(int width, int height, std::string title, HINSTANCE hInstance, HICON icon = NULL) :
-			width(width),
-			height(height),
-			title(title),
-			hInstance(hInstance),
-			icon(icon) {
-		}
+		WindowCreationParams(int width, int height, const std::string& title, HINSTANCE hInstance, HICON icon = nullptr) : width(width),
+		                                                                                                            height(height),
+		                                                                                                            title(title),
+		                                                                                                            hInstance(hInstance),
+		                                                                                                            icon(icon) {}
 	};
 
 	class Window : NonCopyable {
 		friend class D3DCore;
 		friend LRESULT WndProdDispatcher(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-		HWND handle = NULL;
+		HWND handle = nullptr;
 
-		Size2i oldSize = { -1, -1 };
+		Size2i oldSize = {-1, -1};
 		bool isResizing = false;
 
 		int width = -1;
@@ -47,27 +45,26 @@ namespace URM::Core {
 		bool Create(WindowCreationParams params);
 
 		LRESULT WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
-
 	public:
-		void PollEvents();
+		static void PollEvents();
 
-		HWND GetHandle() {
+		HWND GetHandle() const {
 			return this->handle;
 		}
 
-		bool IsDestroyed() {
+		bool IsDestroyed() const {
 			return isDestroyed;
 		}
 
-		void Show();
-		void Hide();
+		void Show() const;
+		void Hide() const;
 		void Close(bool ignoreOnCloseRequested = false);
 
-		Size2i GetSize() {
+		Size2i GetSize() const {
 			return Size2i(this->width, this->height);
 		}
 
-		Window(WindowCreationParams params, bool show = true);
-		~Window();
+		Window(const WindowCreationParams& params, bool show = true);
+		~Window() override;
 	};
 }

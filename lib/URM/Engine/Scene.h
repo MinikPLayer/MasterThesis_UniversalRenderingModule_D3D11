@@ -10,7 +10,6 @@
 namespace URM::Engine {
 	class Scene : NonCopyable {
 		friend class SceneMesh;
-
 	protected:
 		struct CustomData {
 			void* data;
@@ -26,17 +25,16 @@ namespace URM::Engine {
 		std::vector<std::weak_ptr<SceneMesh>> meshes;
 
 		AssetManager assetManager;
-		URM::Core::D3DCore& core;
-
+		Core::D3DCore& core;
 	public:
-		void PrintObjectsHierarchy();
+		void PrintObjectsHierarchy() const;
 		std::vector<std::weak_ptr<SceneMesh>>& GetMeshes();
 
 		AssetManager& GetAssetManager() {
 			return this->assetManager;
 		}
 
-		URM::Core::D3DCore& GetCore() {
+		Core::D3DCore& GetCore() const {
 			return this->core;
 		}
 
@@ -44,10 +42,10 @@ namespace URM::Engine {
 			return this->rootObject;
 		}
 
-		Scene(URM::Core::D3DCore& core) : core(core) {
+		Scene(Core::D3DCore& core) : core(core) {
 			this->rootObject = std::make_shared<SceneObject>();
-			this->rootObject->scene = *this;
-			this->rootObject->self = this->rootObject;
+			this->rootObject->mScene = *this;
+			this->rootObject->mSelf = this->rootObject;
 		}
 	};
 }

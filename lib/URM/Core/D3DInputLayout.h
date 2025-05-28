@@ -1,38 +1,36 @@
 #pragma once
 
 #include "VertexConcept.h"
-#include <memory>
 #include <d3d11.h>
 #include "ShaderProgram.h"
 #include "ModelLoader.h"
 
 namespace URM::Core {
 	template<VertexTypeConcept VertexType>
-	class D3DInputLayout {		
-		ComPtr<ID3D11InputLayout> inputLayout;
-
+	class D3DInputLayout {
+		ComPtr<ID3D11InputLayout> mInputLayout;
 	public:
-		void Bind(D3DCore& core) {
-			core.GetContext()->IASetInputLayout(this->inputLayout.Get());
+		void Bind(const D3DCore& core) const {
+			core.GetContext()->IASetInputLayout(this->mInputLayout.Get());
 		}
 
-		ComPtr<ID3D11InputLayout> get() {
-			return this->inputLayout;
+		ComPtr<ID3D11InputLayout> Get() {
+			return this->mInputLayout;
 		}
 
-		D3DInputLayout(D3DCore& core, ShaderProgram program);
+		D3DInputLayout(const D3DCore& core, ShaderProgram program);
 	};
 
 	template<VertexTypeConcept VertexType>
-	inline D3DInputLayout<VertexType>::D3DInputLayout(D3DCore& core, ShaderProgram program) {
+	D3DInputLayout<VertexType>::D3DInputLayout(const D3DCore& core, ShaderProgram program) {
 		auto layout = VertexType::GetInputLayout();
 
 		core.GetDevice()->CreateInputLayout(
 			layout.data(),
-			(UINT)layout.size(),
+			static_cast<UINT>(layout.size()),
 			program.GetVertexShaderSource()->GetBufferPointer(),
 			program.GetVertexShaderSource()->GetBufferSize(),
-			this->inputLayout.GetAddressOf()
+			this->mInputLayout.GetAddressOf()
 		);
 	}
 

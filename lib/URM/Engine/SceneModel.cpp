@@ -1,21 +1,20 @@
 #include "pch.h"
 #include "SceneModel.h"
-#include <stdexcept>
 
 #include "SceneMesh.h"
 #include "Scene.h"
 
 namespace URM::Engine {
-	std::shared_ptr<URM::Core::ShaderProgram> SceneModel::DefaultShaderProgram = nullptr;
-	std::shared_ptr<URM::Core::ModelLoaderLayout> SceneModel::DefaultInputLayout;
+	std::shared_ptr<Core::ShaderProgram> SceneModel::mDefaultShaderProgram = nullptr;
+	std::shared_ptr<Core::ModelLoaderLayout> SceneModel::mDefaultInputLayout;
 
-	void SceneModel::AddMeshRecursive(std::shared_ptr<URM::Core::ModelLoaderNode> node, std::weak_ptr<SceneObject> parent) {
+	void SceneModel::AddMeshRecursive(const std::shared_ptr<Core::ModelLoaderNode>& node, const std::weak_ptr<SceneObject>& parent) {
 		auto newObject = std::make_shared<SceneObject>();
 		newObject->GetTransform().SetWorldSpaceMatrix(node->transform);
 		parent.lock()->AddChild(newObject);
 
 		for (auto& mesh : node->meshes) {
-			auto meshObject = std::make_shared<SceneMesh>(mesh, this->inputLayout, this->shader);
+			auto meshObject = std::make_shared<SceneMesh>(mesh, this->mInputLayout, this->mShader);
 			newObject->AddChild(meshObject);
 		}
 
@@ -27,28 +26,28 @@ namespace URM::Engine {
 	// TODO: Add model load caching.
 	// Maybe something like "AssetManager"
 	void SceneModel::OnAdded() {
-		if (this->shader == nullptr) {
-			this->shader = SceneModel::GetDefaultShader(this->GetScene().GetCore());
+		if (this->mShader == nullptr) {
+			this->mShader = GetDefaultShader(this->GetScene().GetCore());
 		}
 
-		if(this->inputLayout == nullptr) {
-			this->inputLayout = SceneModel::GetDefaultInputLayout(this->GetScene().GetCore());
+		if (this->mInputLayout == nullptr) {
+			this->mInputLayout = GetDefaultInputLayout(this->GetScene().GetCore());
 		}
 
 		auto& scene = GetScene();
-		auto model = URM::Core::ModelLoader::LoadFromFile(scene.GetCore(), scene.GetAssetManager().texturePool, this->path);
+		auto model = Core::ModelLoader::LoadFromFile(scene.GetCore(), scene.GetAssetManager().texturePool, this->mPath);
 
 		AddMeshRecursive(model, this->GetSelfPtr());
 	}
 
-	SceneModel::SceneModel(std::string path, std::shared_ptr<URM::Core::ShaderProgram> shader, std::shared_ptr<URM::Core::ModelLoaderLayout> layout) {
-		this->path = path;
-		this->shader = shader;
-		this->inputLayout = layout;
+	SceneModel::SceneModel(const std::string& path, const std::shared_ptr<Core::ShaderProgram>& shader, const std::shared_ptr<Core::ModelLoaderLayout>& layout) {
+		this->mPath = path;
+		this->mShader = shader;
+		this->mInputLayout = layout;
 	}
 
 	// PLAN: Async loading
-	SceneModel::SceneModel(std::string path) {
-		this->path = path;
+	SceneModel::SceneModel(const std::string& path) {
+		this->mPath = path;
 	}
 }

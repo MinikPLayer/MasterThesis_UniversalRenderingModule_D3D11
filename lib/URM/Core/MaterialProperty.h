@@ -10,8 +10,8 @@ namespace URM::Core {
 			std::string stringData;
 		};
 
-		size_t dataLength;
-		size_t bufferSize;
+		size_t mDataLength;
+		size_t mBufferSize;
 	public:
 		enum class Types {
 			FLOAT,
@@ -26,37 +26,35 @@ namespace URM::Core {
 			T* data;
 			size_t length;
 
-			PropertyValue(void* data, size_t size) : data((T*)data), length(size) {}
+			PropertyValue(void* data, size_t size) : data(static_cast<T*>(data)), length(size) {}
 		};
 
 		std::string name;
-		MaterialProperty::Types type;
-
+		Types type;
 	private:
 		void ThrowIfNotValidType(Types expectedType) const;
 
-		MaterialProperty(std::string name, Types type, BYTE* data, size_t bufferSize, size_t dataLength);
-		MaterialProperty(std::string name, std::string data);
+		MaterialProperty(const std::string& name, Types type, const BYTE* data, size_t bufferSize, size_t dataLength);
+		MaterialProperty(const std::string& name, const std::string& data);
 
 		void CopyFrom(const MaterialProperty& other);
-
 	public:
 		MaterialProperty(const MaterialProperty& other);
-		MaterialProperty operator=(const MaterialProperty& other);
+		MaterialProperty operator=(const MaterialProperty& other) const;
 		~MaterialProperty();
 
-		PropertyValue<float> GetFloatArray();
-		PropertyValue<double> GetDoubleArray();
-		PropertyValue<int> GetIntegerArray();
+		PropertyValue<float> GetFloatArray() const;
+		PropertyValue<double> GetDoubleArray() const;
+		PropertyValue<int> GetIntegerArray() const;
 		std::string GetString();
-		PropertyValue<void> GetBuffer();
+		PropertyValue<void> GetBuffer() const;
 
 		std::string GetValueAsString();
 
-		static MaterialProperty CreateFloat(std::string name, std::vector<float> values);
-		static MaterialProperty CreateDouble(std::string name, std::vector<double> values);
-		static MaterialProperty CreateInteger(std::string name, std::vector<int> values);
-		static MaterialProperty CreateString(std::string name, const char* value, size_t length);
-		static MaterialProperty CreateBuffer(std::string name, void* buffer, size_t dataLength);
+		static MaterialProperty CreateFloat(const std::string& name, std::vector<float> values);
+		static MaterialProperty CreateDouble(const std::string& name, std::vector<double> values);
+		static MaterialProperty CreateInteger(const std::string& name, std::vector<int> values);
+		static MaterialProperty CreateString(const std::string& name, const char* value, size_t length);
+		static MaterialProperty CreateBuffer(const std::string& name, void* buffer, size_t dataLength);
 	};
 }

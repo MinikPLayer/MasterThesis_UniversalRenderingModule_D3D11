@@ -5,6 +5,6 @@
 namespace URM::Engine {
 	class AssetManager : NonCopyable {
 	public:
-		std::vector<URM::Core::D3DTexture2D> texturePool;
+		std::vector<Core::D3DTexture2D> texturePool;
 	};
 }

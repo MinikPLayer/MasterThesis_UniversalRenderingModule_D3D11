@@ -2,26 +2,26 @@
 #include "D3DSampler.h"
 
 namespace URM::Core {
-	void D3DSampler::Bind(D3DCore& core, UINT slot) {
-		if (this->dataChanged) {
-			D3D11_SAMPLER_DESC desc = this->data;
+	void D3DSampler::Bind(const D3DCore& core, UINT slot) {
+		if (this->mDataChanged) {
+			D3D11_SAMPLER_DESC desc = this->mData;
 
 			DX::ThrowIfFailed(
-				core.GetDevice()->CreateSamplerState(&desc, this->samplerState.GetAddressOf()),
+				core.GetDevice()->CreateSamplerState(&desc, this->mSamplerState.GetAddressOf()),
 				"Failed to create a Sampler State!"
 			);
 		}
 
-		core.GetContext()->PSSetSamplers(slot, 1, this->samplerState.GetAddressOf());
+		core.GetContext()->PSSetSamplers(slot, 1, this->mSamplerState.GetAddressOf());
 	}
 
-	void D3DSampler::SetData(D3DSamplerData params) {
-		this->data = params;
+	void D3DSampler::SetData(const D3DSamplerData& params) {
+		this->mData = params;
 
-		this->dataChanged = true;
+		this->mDataChanged = true;
 	}
 
-	D3DSampler::D3DSampler(D3DSamplerData params) {
+	D3DSampler::D3DSampler(const D3DSamplerData& params) {
 		this->SetData(params);
 	}
 }

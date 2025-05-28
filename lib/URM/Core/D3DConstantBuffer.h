@@ -7,24 +7,22 @@ namespace URM::Core {
 	class D3DConstantBuffer : public ID3DBuffer {
 		ShaderStages stage;
 
-		D3DConstantBuffer(D3DCore& core, D3D11_BUFFER_DESC desc, D3D11_SUBRESOURCE_DATA* initData, ShaderStages newStage)
-			: ID3DBuffer(core, desc, initData) {
+		D3DConstantBuffer(D3DCore& core, const D3D11_BUFFER_DESC& desc, D3D11_SUBRESOURCE_DATA* initData, ShaderStages newStage) : ID3DBuffer(core, desc, initData) {
 			this->stage = newStage;
 		}
-
 	public:
 		void Bind(D3DCore& core, UINT slot) override {
 			switch (stage) {
-			case ShaderStages::VERTEX:
-				core.GetContext()->VSSetConstantBuffers(slot, 1, this->buffer.GetAddressOf());
-				break;
+				case VERTEX:
+					core.GetContext()->VSSetConstantBuffers(slot, 1, this->mBuffer.GetAddressOf());
+					break;
 
-			case ShaderStages::PIXEL:
-				core.GetContext()->PSSetConstantBuffers(slot, 1, this->buffer.GetAddressOf());
-				break;
+				case PIXEL:
+					core.GetContext()->PSSetConstantBuffers(slot, 1, this->mBuffer.GetAddressOf());
+					break;
 
-			default:
-				throw std::runtime_error("Unsupported shader stage");
+				default:
+					throw std::runtime_error("Unsupported shader stage");
 			}
 		}
 
@@ -36,7 +34,7 @@ namespace URM::Core {
 			desc.ByteWidth = static_cast<UINT>(sizeof(T));
 			desc.CPUAccessFlags = cpuAccessFlags;
 
-			return D3DConstantBuffer(core, desc, nullptr, shaderStage);
+			return {core, desc, nullptr, shaderStage};
 		}
 	};
 }

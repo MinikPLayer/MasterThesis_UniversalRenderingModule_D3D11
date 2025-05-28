@@ -7,17 +7,16 @@
 namespace URM::Core {
 	class ID3DBuffer {
 	protected:
+		ComPtr<ID3D11Buffer> mBuffer;
 
-		ComPtr<ID3D11Buffer> buffer;
-
-		ID3DBuffer(D3DCore& core, D3D11_BUFFER_DESC desc, D3D11_SUBRESOURCE_DATA* initData);
-
+		ID3DBuffer(const D3DCore& core, const D3D11_BUFFER_DESC& desc, const D3D11_SUBRESOURCE_DATA* initData);
 	public:
+		virtual ~ID3DBuffer() = default;
 		virtual void Bind(D3DCore& core, UINT slot) = 0;
-		void UpdateWithData(D3DCore& core, const void* data);
+		void UpdateWithData(const D3DCore& core, const void* data) const;
 
-		ComPtr<ID3D11Buffer> get() {
-			return this->buffer;
+		ComPtr<ID3D11Buffer> Get() {
+			return this->mBuffer;
 		}
 	};
 }

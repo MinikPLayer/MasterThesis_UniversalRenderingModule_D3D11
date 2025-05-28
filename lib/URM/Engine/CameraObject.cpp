@@ -4,27 +4,26 @@
 #include "Scene.h"
 
 bool URM::Engine::CameraObject::IsMainCamera() {
-    return false;
+	return false;
 }
 
-void URM::Engine::CameraObject::SetAsMainCamera() {
+void URM::Engine::CameraObject::SetAsMainCamera() {}
+
+Matrix URM::Engine::CameraObject::CalculateProjectionMatrix(Core::Size2i viewSize) const {
+	return Matrix::CreatePerspectiveFieldOfView(
+		this->mFov,
+		static_cast<float>(viewSize.width) / static_cast<float>(viewSize.height),
+		this->mNearPlane,
+		this->mFarPlane
+	);
 }
 
-DirectX::SimpleMath::Matrix URM::Engine::CameraObject::CalculateProjectionMatrix(URM::Core::Size2i viewSize) {
-    return Matrix::CreatePerspectiveFieldOfView(
-        this->fov,
-        (float)viewSize.width / (float)viewSize.height,
-        this->nearPlane,
-        this->farPlane
-    );
-}
-
-DirectX::SimpleMath::Matrix URM::Engine::CameraObject::CalculateViewMatrix() {
-    return this->GetTransform().GetWorldSpaceMatrix().Invert();
+Matrix URM::Engine::CameraObject::CalculateViewMatrix() {
+	return this->GetTransform().GetWorldSpaceMatrix().Invert();
 }
 
 URM::Engine::CameraObject::CameraObject(float fov, float nearPlane, float farPlane) {
-    this->fov = fov;
-    this->nearPlane = nearPlane;
-    this->farPlane = farPlane;
+	this->mFov = fov;
+	this->mNearPlane = nearPlane;
+	this->mFarPlane = farPlane;
 }

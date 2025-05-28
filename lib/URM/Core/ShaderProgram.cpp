@@ -1,7 +1,6 @@
 ﻿#include "pch.h"
 #include "ShaderProgram.h"
 
-#include <fstream>
 #include <d3dcompiler.h>
 
 #pragma comment(lib, "d3dcompiler.lib")
@@ -17,31 +16,30 @@ namespace URM::Core {
 		return blob;
 	}
 
-	void ShaderProgram::Bind(D3DCore& core) {
-		core.GetContext()->VSSetShader(this->vertexShader.Get(), nullptr, 0);
-		core.GetContext()->PSSetShader(this->pixelShader.Get(), nullptr, 0);
+	void ShaderProgram::Bind(const D3DCore& core) const {
+		core.GetContext()->VSSetShader(this->mVertexShader.Get(), nullptr, 0);
+		core.GetContext()->PSSetShader(this->mPixelShader.Get(), nullptr, 0);
 	}
 
-	ShaderProgram::ShaderProgram(D3DCore& core, const std::wstring& vertexPath, const std::wstring& pixelPath)
-	{
+	ShaderProgram::ShaderProgram(const D3DCore& core, const std::wstring& vertexPath, const std::wstring& pixelPath) {
 		ID3D11VertexShader* vShader;
-		this->vsSource = LoadShaderBytecode(vertexPath);
+		this->mVertexSource = LoadShaderBytecode(vertexPath);
 		spdlog::trace("Creating vertex shader from {}", StringUtils::WStringToString(vertexPath));
-		spdlog::trace("Vertex shader size: {} bytes", this->vsSource->GetBufferSize());
-		auto hr = core.GetDevice()->CreateVertexShader(this->vsSource->GetBufferPointer(), this->vsSource->GetBufferSize(), nullptr, &vShader);
+		spdlog::trace("Vertex shader size: {} bytes", this->mVertexSource->GetBufferSize());
+		auto hr = core.GetDevice()->CreateVertexShader(this->mVertexSource->GetBufferPointer(), this->mVertexSource->GetBufferSize(), nullptr, &vShader);
 		if (FAILED(hr)) {
 			spdlog::error("Failed to create vertex shader from source");
 			throw std::runtime_error("Failed to create vertex shader.");
 		}
-		this->vertexShader = vShader;
+		this->mVertexShader = vShader;
 
 		ID3D11PixelShader* pShader;
-		this->psSource = LoadShaderBytecode(pixelPath);
-		hr = core.GetDevice()->CreatePixelShader(this->psSource->GetBufferPointer(), this->psSource->GetBufferSize(), nullptr, &pShader);
+		this->mPixelSource = LoadShaderBytecode(pixelPath);
+		hr = core.GetDevice()->CreatePixelShader(this->mPixelSource->GetBufferPointer(), this->mPixelSource->GetBufferSize(), nullptr, &pShader);
 		if (FAILED(hr)) {
 			spdlog::error("Failed to create pixel shader from source");
 			throw std::runtime_error("Failed to create pixel shader.");
 		}
-		this->pixelShader = pShader;
+		this->mPixelShader = pShader;
 	}
 }

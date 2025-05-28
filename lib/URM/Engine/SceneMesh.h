@@ -7,30 +7,29 @@
 
 namespace URM::Engine {
 	class SceneMesh : public SceneObject {
-		std::shared_ptr<URM::Core::Mesh<URM::Core::ModelLoaderVertexType>> mesh;
-		std::shared_ptr<URM::Core::ModelLoaderLayout> inputLayout;
-		std::shared_ptr<URM::Core::ShaderProgram> shader;
-
+		std::shared_ptr<Core::Mesh<Core::ModelLoaderVertexType>> mMesh;
+		std::shared_ptr<Core::ModelLoaderLayout> mInputLayout;
+		std::shared_ptr<Core::ShaderProgram> mShader;
 	public:
 		void OnAdded() override;
 		void OnDestroyed() override;
 
-		std::shared_ptr<URM::Core::ModelLoaderLayout> GetInputLayout() {
-			return this->inputLayout;
+		std::shared_ptr<Core::ModelLoaderLayout> GetInputLayout() {
+			return this->mInputLayout;
 		}
 
-		std::shared_ptr<URM::Core::ShaderProgram> GetShader() {
-			return this->shader;
+		std::shared_ptr<Core::ShaderProgram> GetShader() {
+			return this->mShader;
 		}
 
-		URM::Core::Mesh<URM::Core::ModelLoaderVertexType>& GetMesh() {
-			return *this->mesh;
+		Core::Mesh<Core::ModelLoaderVertexType>& GetMesh() const {
+			return *this->mMesh;
 		}
 
 		SceneMesh(
-			std::shared_ptr<URM::Core::Mesh<URM::Core::ModelLoaderVertexType>> mesh,
-			std::shared_ptr<URM::Core::D3DInputLayout<URM::Core::ModelLoaderVertexType>> inputLayout,
-			std::shared_ptr<URM::Core::ShaderProgram> shader
+			const std::shared_ptr<Core::Mesh<Core::ModelLoaderVertexType>>& mesh,
+			const std::shared_ptr<Core::D3DInputLayout<Core::ModelLoaderVertexType>>& inputLayout,
+			const std::shared_ptr<Core::ShaderProgram>& shader
 		);
 	};
 }

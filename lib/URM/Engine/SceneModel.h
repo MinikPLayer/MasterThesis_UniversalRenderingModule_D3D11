@@ -4,7 +4,6 @@
 #include <URM/Core/ModelLoader.h>
 #include <URM/Core/D3DInputLayout.h>
 #include <URM/Core/ShaderProgram.h>
-#include <URM/Core/VertexConcept.h>
 #include <string>
 
 namespace URM::Engine {
@@ -13,36 +12,36 @@ namespace URM::Engine {
 	// TODO: Add support for custom PixelConstantBuffer types.
 	class SceneModel : public SceneObject {
 		// TODO: Move defaults, VertexConstantBuffer and PixelConstantBuffer to a separate class.
-		static std::shared_ptr<URM::Core::ShaderProgram> DefaultShaderProgram;
-		static std::shared_ptr<URM::Core::ModelLoaderLayout> DefaultInputLayout;
+		static std::shared_ptr<Core::ShaderProgram> mDefaultShaderProgram;
+		static std::shared_ptr<Core::ModelLoaderLayout> mDefaultInputLayout;
 
-		std::shared_ptr<URM::Core::ShaderProgram> shader = nullptr;
-		std::shared_ptr<URM::Core::ModelLoaderLayout> inputLayout = nullptr;
+		std::shared_ptr<Core::ShaderProgram> mShader = nullptr;
+		std::shared_ptr<Core::ModelLoaderLayout> mInputLayout = nullptr;
 
-		std::string path;
+		std::string mPath;
 
-		void AddMeshRecursive(std::shared_ptr<URM::Core::ModelLoaderNode> node, std::weak_ptr<SceneObject> parent);
+		void AddMeshRecursive(const std::shared_ptr<Core::ModelLoaderNode>& node, const std::weak_ptr<SceneObject>& parent);
 	public:
-		static std::shared_ptr<URM::Core::ShaderProgram> GetDefaultShader(URM::Core::D3DCore& core) {
-			if (!DefaultShaderProgram) {
-				DefaultShaderProgram = std::make_shared<URM::Core::ShaderProgram>(core, L"SimpleVertexShader.cso", L"SimplePixelShader.cso");
+		static std::shared_ptr<Core::ShaderProgram> GetDefaultShader(Core::D3DCore& core) {
+			if (!mDefaultShaderProgram) {
+				mDefaultShaderProgram = std::make_shared<Core::ShaderProgram>(core, L"SimpleVertexShader.cso", L"SimplePixelShader.cso");
 			}
 
-			return DefaultShaderProgram;
+			return mDefaultShaderProgram;
 		}
 
-		static std::shared_ptr<URM::Core::ModelLoaderLayout> GetDefaultInputLayout(URM::Core::D3DCore& core) {
-			if (!DefaultInputLayout) {
+		static std::shared_ptr<Core::ModelLoaderLayout> GetDefaultInputLayout(Core::D3DCore& core) {
+			if (!mDefaultInputLayout) {
 				auto defaultShader = GetDefaultShader(core);
-				DefaultInputLayout = std::make_shared<URM::Core::ModelLoaderLayout>(core, *(defaultShader.get()));
+				mDefaultInputLayout = std::make_shared<Core::ModelLoaderLayout>(core, *(defaultShader.get()));
 			}
 
-			return DefaultInputLayout;
+			return mDefaultInputLayout;
 		}
 
 		void OnAdded() override;
 
-		SceneModel(std::string path, std::shared_ptr<URM::Core::ShaderProgram> shader, std::shared_ptr<URM::Core::ModelLoaderLayout> layout);
-		SceneModel(std::string path);
+		SceneModel(const std::string& path, const std::shared_ptr<Core::ShaderProgram>& shader, const std::shared_ptr<Core::ModelLoaderLayout>& layout);
+		SceneModel(const std::string& path);
 	};
 }

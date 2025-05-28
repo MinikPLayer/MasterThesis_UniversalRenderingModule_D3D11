@@ -2,7 +2,7 @@
 #include "D3DRasterizerState.h"
 
 namespace URM::Core {
-	void D3DRasterizerState::Bind(D3DCore& core) {
+	void D3DRasterizerState::Bind(const D3DCore& core) {
 		if (this->dataChanged) {
 			if (this->state.Get() != nullptr) {
 				this->state->Release();
@@ -31,13 +31,13 @@ namespace URM::Core {
 		core.GetContext()->RSSetState(state.Get());
 	}
 
-	void D3DRasterizerState::SetData(D3DRasterizerStateData newData) {
+	void D3DRasterizerState::SetData(const D3DRasterizerStateData& newData) {
 		this->data = newData;
 
 		this->dataChanged = true;
 	}
 
-	D3DRasterizerState::D3DRasterizerState(D3DRasterizerStateData data) {
+	D3DRasterizerState::D3DRasterizerState(const D3DRasterizerStateData& data) {
 		this->SetData(data);
 	}
 }

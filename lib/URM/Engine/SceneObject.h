@@ -10,39 +10,38 @@ namespace URM::Engine {
 	class SceneObject : NonCopyable {
 		friend class Scene;
 		friend class Transform;
-
+		
 	public:
 		virtual void OnAdded() {}
 		virtual void OnDestroyed() {}
-
+		
 	private:
+		std::optional<std::reference_wrapper<Scene>> mScene;
 
-		std::optional<std::reference_wrapper<Scene>> scene;
+		std::vector<std::shared_ptr<SceneObject>> mChildren;
+		std::weak_ptr<SceneObject> mParent;
+		bool mHasParent = false;
 
-		std::vector<std::shared_ptr<SceneObject>> children;
-		std::weak_ptr<SceneObject> parent;
-		bool _hasParent = false;
+		std::weak_ptr<SceneObject> mSelf;
+		size_t mTypeCode = -1;
 
-		std::weak_ptr<SceneObject> self;
-		size_t typeCode = -1;
+		Transform mTransform;
 
-		Transform transform;
+		bool mIsStarted = false;
+		bool mIsLateStarted = false;
+		bool mIsDestroyed = false;
 
-		bool isStarted = false;
-		bool isLateStarted = false;
-		bool isDestroyed = false;
-
-		void __AddChild__(std::weak_ptr<SceneObject> object);
-		void __PrintHierarchy__(int level);
+		void AddChildInternal(const std::weak_ptr<SceneObject>& object);
+		void PrintHierarchy(int level);
 
 		template<typename T>
 		static std::shared_ptr<T> Instantiate(std::reference_wrapper<Scene> scene, std::shared_ptr<T> object, std::shared_ptr<SceneObject> parent) {
-			static_assert(std::is_base_of<SceneObject, T>::value, "T must derive from GameObject");
+			static_assert(std::is_base_of_v<SceneObject, T>, "T must derive from GameObject");
 
-			object->self = object;
-			object->typeCode = URM::Core::TypeUtils::GetTypeCode<T>();
-			object->scene = scene;
-			parent->__AddChild__(object);
+			object->mSelf = object;
+			object->mTypeCode = Core::TypeUtils::GetTypeCode<T>();
+			object->mScene = scene;
+			parent->AddChildInternal(object);
 
 			object->OnAdded();
 
@@ -51,52 +50,50 @@ namespace URM::Engine {
 
 		template<typename T>
 		static std::shared_ptr<T> Instantiate(std::reference_wrapper<Scene> scene, T* object, std::shared_ptr<SceneObject> parent) {
-			static_assert(std::is_base_of<SceneObject, T>::value, "T must derive from GameObject");
+			static_assert(std::is_base_of_v<SceneObject, T>, "T must derive from GameObject");
 
 			auto objPtr = std::shared_ptr<T>(object);
 			return Instantiate<T>(scene, objPtr, parent);
 		}
 
 		std::vector<std::shared_ptr<SceneObject>>& GetChildren() {
-			return this->children;
+			return this->mChildren;
 		}
-
 	public:
-
-		static void Destroy(std::shared_ptr<SceneObject> object);
+		static void Destroy(const std::shared_ptr<SceneObject>& object);
 
 		template<typename T>
 		bool IsType() {
-			return typeCode == URM::Core::TypeUtils::GetTypeCode<T>();
+			return mTypeCode == Core::TypeUtils::GetTypeCode<T>();
 		}
 
 		std::weak_ptr<SceneObject> GetSelfPtr();
 
 		void RemoveParent();
-		void SetParent(std::shared_ptr<SceneObject> parent);
+		void SetParent(const std::shared_ptr<SceneObject>& parent) const;
 
-		bool HasParent() {
-			return this->_hasParent;
+		bool HasParent() const {
+			return this->mHasParent;
 		}
 
-		Scene& GetScene() {
-			if (!this->scene.has_value()) {
+		Scene& GetScene() const {
+			if (!this->mScene.has_value()) {
 				throw std::runtime_error("SceneObject is not attached to a scene");
 			}
 
-			return this->scene.value().get();
+			return this->mScene.value().get();
 		}
 
 		Transform& GetTransform() {
-			return this->transform;
+			return this->mTransform;
 		}
 
 		std::weak_ptr<SceneObject> GetParent() {
-			return this->parent;
+			return this->mParent;
 		}
 
 		std::shared_ptr<SceneObject> GetChildByIndex(int index) {
-			return this->children[index];
+			return this->mChildren[index];
 		}
 
 		const char* GetTypeName() {
@@ -105,28 +102,28 @@ namespace URM::Engine {
 
 		template<typename T>
 		std::shared_ptr<T> AddChild(std::shared_ptr<T> child) {
-			if (self.lock() == nullptr) {
+			if (mSelf.lock() == nullptr) {
 				spdlog::warn("Trying to add component to uninitialized object");
 			}
 
-			if (!this->scene.has_value()) {
+			if (!this->mScene.has_value()) {
 				throw std::runtime_error("SceneObject is not attached to a scene");
 			}
 
-			return Instantiate<T>(this->scene.value(), child, this->self.lock());
+			return Instantiate<T>(this->mScene.value(), child, this->mSelf.lock());
 		}
 
 		template<typename T>
 		std::shared_ptr<T> AddChild(T* child) {
-			if (self.lock() == nullptr) {
+			if (mSelf.lock() == nullptr) {
 				spdlog::warn("Trying to add component to uninitialized object");
 			}
 
-			if (!this->scene.has_value()) {
+			if (!this->mScene.has_value()) {
 				throw std::runtime_error("SceneObject is not attached to a scene");
 			}
 
-			return Instantiate<T>(this->scene.value(), child, this->self.lock());
+			return Instantiate<T>(this->mScene.value(), child, this->mSelf.lock());
 		}
 
 		void RemoveChild(std::weak_ptr<SceneObject> child);
@@ -135,10 +132,7 @@ namespace URM::Engine {
 		SceneObject(const SceneObject&) = delete;
 		SceneObject& operator=(const SceneObject&) = delete;
 
-		SceneObject(SceneObject&&) = default;
-		SceneObject& operator=(SceneObject&&) = default;
-
-		SceneObject() : transform(*this) {}
-		~SceneObject();
+		SceneObject() : mTransform(*this) {}
+		~SceneObject() override;
 	};
 }

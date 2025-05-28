@@ -7,8 +7,6 @@
 #include <URM/Core/D3DConstantBuffer.h>
 
 #include <functional>
-#include <chrono>
-#include <optional>
 
 #include "Timer.h"
 #include "Scene.h"
@@ -16,52 +14,51 @@
 namespace URM::Engine {
 	struct RenderingParams {
 		Color clearColor;
-		URM::Core::PrimitiveTopologies toplogy = URM::Core::PrimitiveTopologies::TRIANGLE_LIST;
-		URM::Core::D3DRasterizerState rasterizerState;
-		URM::Core::D3DViewport viewport;
-		URM::Core::D3DSampler albedoTextureSampler;
+		Core::PrimitiveTopologies toplogy = Core::PrimitiveTopologies::TRIANGLE_LIST;
+		Core::D3DRasterizerState rasterizerState;
+		Core::D3DViewport viewport;
+		Core::D3DSampler albedoTextureSampler;
 
-		RenderingParams() {}
+		RenderingParams() = default;
 	};
 
 	class Engine : NonCopyable {
-		Timer timer;
+		Timer mTimer;
 
-		URM::Core::D3DCore core;
-		URM::Engine::Scene scene;
+		Core::D3DCore mCore;
+		Scene mScene;
 
-		URM::Core::D3DConstantBuffer vertexConstantBuffer;
-		URM::Core::D3DConstantBuffer pixelConstantBuffer;
-
+		Core::D3DConstantBuffer mVertexConstantBuffer;
+		Core::D3DConstantBuffer mPixelConstantBuffer;
 	public:
-		int VSyncInterval = 0;
-		RenderingParams RenderParameters;
+		int vSyncInterval = 0;
+		RenderingParams renderParameters;
 
-		std::function<void(Engine& engine)> OnUpdate;
+		std::function<void(Engine& engine)> onUpdate;
 
 		Timer& GetTimer() {
-			return timer;
+			return mTimer;
 		}
 
-		URM::Core::D3DCore& GetCore() {
-			return core;
+		Core::D3DCore& GetCore() {
+			return mCore;
 		}
 
-		URM::Engine::Scene& GetScene() {
-			return scene;
+		Scene& GetScene() {
+			return mScene;
 		}
 
 		void Update();
 
 		void Clear(Color color);
 		void Clear();
-		void Draw(RenderingParams& params, std::vector<std::weak_ptr<URM::Engine::SceneMesh>>& meshes);
+		void Draw(RenderingParams& params, std::vector<std::weak_ptr<SceneMesh>>& meshes);
 		void Draw(RenderingParams& params);
 		void Present(int verticalSyncInterval);
 
 		bool ShouldClose();
 
-		Engine(URM::Core::WindowCreationParams windowParams);
+		Engine(const Core::WindowCreationParams& windowParams);
 
 		void RunLoop();
 	};
