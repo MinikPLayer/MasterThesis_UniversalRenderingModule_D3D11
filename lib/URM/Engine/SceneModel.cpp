@@ -5,21 +5,21 @@
 #include "SceneMesh.h"
 #include "Scene.h"
 
-namespace URM::Scene {
+namespace URM::Engine {
 	std::shared_ptr<URM::Core::ShaderProgram> SceneModel::DefaultShaderProgram = nullptr;
 	std::shared_ptr<URM::Core::ModelLoaderLayout> SceneModel::DefaultInputLayout;
 
-	void SceneModel::AddMeshRecursive(URM::Core::ModelLoaderNode& node, std::weak_ptr<SceneObject> parent) {
+	void SceneModel::AddMeshRecursive(std::shared_ptr<URM::Core::ModelLoaderNode> node, std::weak_ptr<SceneObject> parent) {
 		auto newObject = std::make_shared<SceneObject>();
-		newObject->GetTransform().SetWorldSpaceMatrix(node.transform);
+		newObject->GetTransform().SetWorldSpaceMatrix(node->transform);
 		parent.lock()->AddChild(newObject);
 
-		for (auto& mesh : node.meshes) {
+		for (auto& mesh : node->meshes) {
 			auto meshObject = std::make_shared<SceneMesh>(mesh, this->inputLayout, this->shader);
 			newObject->AddChild(meshObject);
 		}
 
-		for (auto& child : node.children) {
+		for (auto& child : node->children) {
 			AddMeshRecursive(child, newObject);
 		}
 	}

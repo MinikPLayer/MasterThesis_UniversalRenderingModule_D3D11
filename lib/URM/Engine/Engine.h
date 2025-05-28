@@ -2,7 +2,6 @@
 
 #include <URM/Core/Window.h>
 #include <URM/Core/D3DCore.h>
-#include <URM/Scene/Scene.h>
 #include <URM/Core/D3DViewport.h>
 #include <URM/Core/D3DRasterizerState.h>
 #include <URM/Core/D3DConstantBuffer.h>
@@ -12,6 +11,7 @@
 #include <optional>
 
 #include "Timer.h"
+#include "Scene.h"
 
 namespace URM::Engine {
 	struct RenderingParams {
@@ -24,11 +24,11 @@ namespace URM::Engine {
 		RenderingParams() {}
 	};
 
-	class Engine {
+	class Engine : NonCopyable {
 		Timer timer;
 
 		URM::Core::D3DCore core;
-		URM::Scene::Scene scene;
+		URM::Engine::Scene scene;
 
 		URM::Core::D3DConstantBuffer vertexConstantBuffer;
 		URM::Core::D3DConstantBuffer pixelConstantBuffer;
@@ -47,7 +47,7 @@ namespace URM::Engine {
 			return core;
 		}
 
-		URM::Scene::Scene& GetScene() {
+		URM::Engine::Scene& GetScene() {
 			return scene;
 		}
 
@@ -55,15 +55,11 @@ namespace URM::Engine {
 
 		void Clear(Color color);
 		void Clear();
-		void Draw(RenderingParams params, std::vector<std::weak_ptr<URM::Scene::SceneMesh>> meshes);
-		void Draw(RenderingParams params);
+		void Draw(RenderingParams& params, std::vector<std::weak_ptr<URM::Engine::SceneMesh>>& meshes);
+		void Draw(RenderingParams& params);
 		void Present(int verticalSyncInterval);
 
 		bool ShouldClose();
-
-		// Disable copy constructor and assignment operator
-		Engine(const Engine&) = delete;
-		Engine& operator=(const Engine&) = delete;
 
 		Engine(URM::Core::WindowCreationParams windowParams);
 

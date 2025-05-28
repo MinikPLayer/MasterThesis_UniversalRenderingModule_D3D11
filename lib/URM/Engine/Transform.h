@@ -3,7 +3,7 @@
 #include <memory>
 #include <URM/Core/pch.h>
 
-namespace URM::Scene {
+namespace URM::Engine {
 	class SceneObject;
 	class Transform {
 		Matrix worldSpaceModelMatrix = Matrix::Identity;

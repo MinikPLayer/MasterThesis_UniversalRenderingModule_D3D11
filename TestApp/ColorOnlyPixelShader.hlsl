@@ -1,4 +1,4 @@
-#include "../lib/URM/Scene/PixelShaderCommon.hlsl"
+#include "../lib/URM/Engine/PixelShaderCommon.hlsl"
 
 Texture2D diffuseTexture : register(t0);
 SamplerState sampleType : register(s0);

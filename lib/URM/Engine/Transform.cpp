@@ -17,7 +17,7 @@ const Vector3 DirectX::SimpleMath::Vector3::Up = DirectX::SimpleMath::Vector3(0,
 const Vector3 DirectX::SimpleMath::Vector3::Right = DirectX::SimpleMath::Vector3(1, 0, 0);
 const Vector3 DirectX::SimpleMath::Vector3::Forward = DirectX::SimpleMath::Vector3(0, 0, 1);
 
-namespace URM::Scene {
+namespace URM::Engine {
 	Matrix Transform::CalculateLocalModelMatrix() {
 		auto matTranslation = Matrix::CreateTranslation(this->localPosition);
 		auto matRotation = Matrix::CreateFromQuaternion(this->localRotation);

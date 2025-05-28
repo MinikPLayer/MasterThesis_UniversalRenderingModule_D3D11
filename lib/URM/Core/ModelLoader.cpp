@@ -118,7 +118,7 @@ namespace URM::Core {
 		}
 	}
 
-	Mesh<ModelLoaderVertexType> processMesh(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, std::string fileDirectory, aiMesh* mesh, const aiScene* scene) {
+	std::shared_ptr<Mesh<ModelLoaderVertexType>> processMesh(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, std::string fileDirectory, aiMesh* mesh, const aiScene* scene) {
 		// Data to fill
 		std::vector<ModelLoaderVertexType> vertices;
 		std::vector<UINT> indices;
@@ -173,36 +173,36 @@ namespace URM::Core {
 		//	OutputDebugString(StringUtils::StringToWString(prop.name + ": " + prop.GetValueAsString() + "\n").c_str());
 		//}
 
-		auto newMesh = Mesh<ModelLoaderVertexType>(core, vertices, indices, textures);
-		newMesh.materialProperties = materialProperties;
+		auto newMesh = new Mesh<ModelLoaderVertexType>(core, vertices, indices, textures);
+		newMesh->materialProperties = materialProperties;
 
-		return newMesh;
+		return std::shared_ptr<Mesh<ModelLoaderVertexType>>(newMesh);
 	}
 
-	ModelLoaderNode processNode(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, std::string fileDirectory, aiNode* node, const aiScene* scene) {
-		ModelLoaderNode newNode;
+	std::shared_ptr<ModelLoaderNode> processNode(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, std::string fileDirectory, aiNode* node, const aiScene* scene) {
+		std::shared_ptr<ModelLoaderNode> newNode = std::shared_ptr<ModelLoaderNode>(new ModelLoaderNode());
 		if (node->mTransformation.IsIdentity()) {
-			newNode.transform = DirectX::XMMatrixIdentity();
+			newNode->transform = DirectX::XMMatrixIdentity();
 		}
 		else {
 			aiMatrix4x4 transform = node->mTransformation;
-			newNode.transform = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&transform)));
+			newNode->transform = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&transform)));
 		}
 
 		for (UINT i = 0; i < node->mNumMeshes; i++) {
 			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-			newNode.meshes.push_back(processMesh(core, loadedTexturesPool, fileDirectory, mesh, scene));
+			newNode->meshes.push_back(std::shared_ptr(processMesh(core, loadedTexturesPool, fileDirectory, mesh, scene)));
 		}
 
 		for (UINT i = 0; i < node->mNumChildren; i++) {
-			auto newChild = processNode(core, loadedTexturesPool, fileDirectory, node->mChildren[i], scene);
-			newNode.children.push_back(newChild);
+			auto&& newChild = processNode(core, loadedTexturesPool, fileDirectory, node->mChildren[i], scene);
+			newNode->children.push_back(newChild);
 		}
 
-		return newNode;
+		return std::move(newNode);
 	}
 
-	std::optional<ModelLoaderNode> Load(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, std::string filePath) {
+	std::shared_ptr<ModelLoaderNode> Load(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, std::string filePath) {
 		Assimp::Importer importer;
 
 		const aiScene* pScene = importer.ReadFile(filePath,
@@ -210,17 +210,21 @@ namespace URM::Core {
 			aiProcess_ConvertToLeftHanded);
 
 		if (pScene == nullptr)
-			return std::nullopt;
+			return nullptr;
 
 		auto dir = StringUtils::GetDirectoryFromPath(filePath);
 		return processNode(core, loadedTexturesPool, dir, pScene->mRootNode, pScene);
 	}
 
-	ModelLoaderNode ModelLoader::LoadFromFile(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, std::string path) {
+	std::shared_ptr<ModelLoaderNode> ModelLoader::LoadFromFile(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, std::string path) {
 		auto mesh = Load(core, loadedTexturesPool, path);
-		if (mesh.has_value())
-			return mesh.value();
-		else
+		if (mesh != nullptr)
+		{
+			return mesh;
+		}
+		else 
+		{
 			throw std::runtime_error("Failed to load model from file: " + path);
+		}
 	}
 }

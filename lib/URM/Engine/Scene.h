@@ -7,8 +7,8 @@
 #include <URM/Core/D3DCore.h>
 #include <URM/Core/Utils.h>
 
-namespace URM::Scene {
-	class Scene {
+namespace URM::Engine {
+	class Scene : NonCopyable {
 		friend class SceneMesh;
 
 	protected:
@@ -28,37 +28,9 @@ namespace URM::Scene {
 		AssetManager assetManager;
 		URM::Core::D3DCore& core;
 
-		virtual CustomData GetCustomData_Internal() {
-			return CustomData(nullptr, 0);
-		}
 	public:
-		template<typename T>
-		T* GetCustomData() {
-			auto internalData = GetCustomData_Internal();
-			if (internalData.data == nullptr) {
-				return nullptr;
-			}
-
-			if (!URM::Core::TypeUtils::IsType<T>(internalData.typeCode)) {
-				throw std::runtime_error(
-					fmt::format(
-						"Scene custom data type mismatch! Expected: {}, got: {}", 
-						URM::Core::TypeUtils::GetTypeCode<T>(),
-						internalData.typeCode
-					)
-				);
-			}
-
-			return (T*)internalData.data;
-		}
-
-		// Disable copy constructor and assignment operator
-		Scene(const Scene&) = delete;
-		Scene& operator=(const Scene&) = delete;
-
-		std::vector<std::weak_ptr<SceneMesh>>& GetMeshes();
-
 		void PrintObjectsHierarchy();
+		std::vector<std::weak_ptr<SceneMesh>>& GetMeshes();
 
 		AssetManager& GetAssetManager() {
 			return this->assetManager;

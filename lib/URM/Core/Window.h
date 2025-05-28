@@ -22,7 +22,7 @@ namespace URM::Core {
 		}
 	};
 
-	class Window {
+	class Window : NonCopyable {
 		friend class D3DCore;
 		friend LRESULT WndProdDispatcher(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 

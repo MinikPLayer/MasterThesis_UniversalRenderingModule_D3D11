@@ -6,9 +6,10 @@
 #include <optional>
 #include <URM/Core/Utils.h>
 
-namespace URM::Scene {
-	class SceneObject {
+namespace URM::Engine {
+	class SceneObject : NonCopyable {
 		friend class Scene;
+		friend class Transform;
 
 	public:
 		virtual void OnAdded() {}
@@ -56,6 +57,10 @@ namespace URM::Scene {
 			return Instantiate<T>(scene, objPtr, parent);
 		}
 
+		std::vector<std::shared_ptr<SceneObject>>& GetChildren() {
+			return this->children;
+		}
+
 	public:
 
 		static void Destroy(std::shared_ptr<SceneObject> object);
@@ -90,8 +95,8 @@ namespace URM::Scene {
 			return this->parent;
 		}
 
-		std::vector<std::shared_ptr<SceneObject>> GetChildren() {
-			return this->children;
+		std::shared_ptr<SceneObject> GetChildByIndex(int index) {
+			return this->children[index];
 		}
 
 		const char* GetTypeName() {

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Engine.h"
-#include "EngineSceneData.h"
-#include <URM/Scene/SceneMesh.h>
+#include "SceneMesh.h"
+
 #include <directxtk/SimpleMath.h>
 
 namespace URM::Engine {
@@ -70,15 +70,15 @@ namespace URM::Engine {
     )
     {
         // 2. View Matrix
-        //auto vecCameraPosition = DirectX::XMLoadFloat3(&cameraPosition);
-        //auto vecCameraTarget = DirectX::XMLoadFloat3(&cameraTarget);
-        //auto vecCameraUp = DirectX::XMLoadFloat3(&cameraUp);
-        //auto matView = DirectX::XMMatrixLookAtLH(vecCameraPosition, vecCameraTarget, vecCameraUp);
-        URM::Scene::SceneObject cameraObject;
-        cameraObject.GetTransform().SetLocalPosition(cameraPosition);
-        cameraObject.GetTransform().SetLocalRotation(Quaternion::Identity);
-        cameraObject.GetTransform().SetLocalScale(Vector3(1, 1, 1));
-        auto matView = cameraObject.GetTransform().GetWorldSpaceMatrix().Invert();
+        auto vecCameraPosition = DirectX::XMLoadFloat3(&cameraPosition);
+        auto vecCameraTarget = DirectX::XMLoadFloat3(&cameraTarget);
+        auto vecCameraUp = DirectX::XMLoadFloat3(&cameraUp);
+        auto matView = DirectX::XMMatrixLookAtLH(vecCameraPosition, vecCameraTarget, vecCameraUp);
+        //URM::Engine::SceneObject cameraObject;
+        //cameraObject.GetTransform().SetLocalPosition(cameraPosition);
+        //cameraObject.GetTransform().SetLocalRotation(Quaternion::Identity);
+        //cameraObject.GetTransform().SetLocalScale(Vector3(1, 1, 1));
+        //auto matView = cameraObject.GetTransform().GetWorldSpaceMatrix().Invert();
 
         // 3. Projection Matrix (Orthographic)
         DirectX::XMMATRIX matProjection = DirectX::XMMatrixPerspectiveFovLH(
@@ -117,7 +117,7 @@ namespace URM::Engine {
         this->Clear(RenderParameters.clearColor);
     }
 
-    void Engine::Draw(RenderingParams params, std::vector<std::weak_ptr<URM::Scene::SceneMesh>> meshes) {
+    void Engine::Draw(RenderingParams& params, std::vector<std::weak_ptr<URM::Engine::SceneMesh>>& meshes) {
         auto context = this->core.GetContext();
 
         auto vp = params.viewport.GetData();
@@ -180,6 +180,9 @@ namespace URM::Engine {
         // TODO: Group meshes by shaders and input layouts.
         for (auto& mesh : meshes) {
             auto sceneMesh = mesh.lock();
+            if (sceneMesh == nullptr) {
+                spdlog::error("What");
+            }
 
 			VertexConstantBuffer vcb;
             auto worldMatrix = sceneMesh->GetTransform().GetWorldSpaceMatrix();
@@ -192,7 +195,7 @@ namespace URM::Engine {
             sceneMesh->GetInputLayout()->Bind(core);
             sceneMesh->GetShader()->Bind(core);
 
-            auto m = sceneMesh->GetMesh();
+            auto& m = sceneMesh->GetMesh();
 
             // TODO: Combine similiar meshes to avoid multiple data sending.
             // TODO: Add support for materials.
@@ -218,7 +221,7 @@ namespace URM::Engine {
 		}
     }
 
-    void Engine::Draw(RenderingParams params) {
+    void Engine::Draw(RenderingParams& params) {
         this->Draw(params, scene.GetMeshes());
     }
 

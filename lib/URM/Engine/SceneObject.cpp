@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "SceneObject.h"
 
-namespace URM::Scene {
+namespace URM::Engine {
 	void SceneObject::Destroy(std::shared_ptr<SceneObject> object) {
 #if !NDEBUG
 		if (object->isDestroyed) {

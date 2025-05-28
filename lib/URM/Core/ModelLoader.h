@@ -8,12 +8,12 @@
 namespace URM::Core {
 	using ModelLoaderVertexType = VertexPositionNormalTexture;
 
-	class ModelLoaderNode {
+	class ModelLoaderNode : NonCopyable {
 	public:
 		DirectX::XMMATRIX transform;
 
-		std::vector<Mesh<ModelLoaderVertexType>> meshes;
-		std::vector<ModelLoaderNode> children;
+		std::vector<std::shared_ptr<Mesh<ModelLoaderVertexType>>> meshes;
+		std::vector<std::shared_ptr<ModelLoaderNode>> children;
 	};
 
 	class ModelLoader {
@@ -21,6 +21,6 @@ namespace URM::Core {
 
 	public:
 
-		static ModelLoaderNode LoadFromFile(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, std::string path);
+		static std::shared_ptr<ModelLoaderNode> LoadFromFile(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, std::string path);
 	};
 }

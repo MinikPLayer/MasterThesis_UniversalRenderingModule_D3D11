@@ -168,9 +168,6 @@
     <ProjectReference Include="..\lib\URM\Engine\Engine.vcxproj">
       <Project>{461996cf-21c1-4d55-aa48-652ad9b9e2c1}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\lib\URM\Scene\URMScene.vcxproj">
-      <Project>{f85a09df-7e5b-4a01-b9a0-312d13b69280}</Project>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="cube.glb">

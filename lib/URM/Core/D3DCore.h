@@ -21,7 +21,7 @@ namespace URM::Core {
 		TRIANGLESTRIP_ADJ = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP_ADJ,
 	};
 
-	class D3DCore {
+	class D3DCore : NonCopyable {
 		std::unique_ptr<Window> window;
 
 		D3D_FEATURE_LEVEL featureLevel;

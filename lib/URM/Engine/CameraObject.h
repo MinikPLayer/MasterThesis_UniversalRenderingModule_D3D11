@@ -1,11 +1,12 @@
 #pragma once
 
 #include <URM/Core/Utils.h>
-#include <URM/Scene/SceneObject.h>
 #include <directxtk/SimpleMath.h>
 
+#include "SceneObject.h"
+
 namespace URM::Engine {
-	class CameraObject : public URM::Scene::SceneObject {
+	class CameraObject : public URM::Engine::SceneObject {
 		float fov = 60.0f;
 		float nearPlane = 0.1f;
 		float farPlane = 1000.0f;

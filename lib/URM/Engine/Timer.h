@@ -2,8 +2,10 @@
 #include <optional>
 #include <chrono>
 
+#include <URM/Core/Utils.h>
+
 namespace URM::Engine {
-	class Timer {
+	class Timer : NonCopyable {
 		friend class Engine;
 
 		std::optional<std::chrono::high_resolution_clock::time_point> lastUpdate = std::nullopt;

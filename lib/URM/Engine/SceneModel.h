@@ -7,7 +7,7 @@
 #include <URM/Core/VertexConcept.h>
 #include <string>
 
-namespace URM::Scene {
+namespace URM::Engine {
 
 	// PLAN: Try adding support for custom shaders with different vertex types.
 	// TODO: Add support for custom PixelConstantBuffer types.
@@ -21,7 +21,7 @@ namespace URM::Scene {
 
 		std::string path;
 
-		void AddMeshRecursive(URM::Core::ModelLoaderNode& node, std::weak_ptr<SceneObject> parent);
+		void AddMeshRecursive(std::shared_ptr<URM::Core::ModelLoaderNode> node, std::weak_ptr<SceneObject> parent);
 	public:
 		static std::shared_ptr<URM::Core::ShaderProgram> GetDefaultShader(URM::Core::D3DCore& core) {
 			if (!DefaultShaderProgram) {

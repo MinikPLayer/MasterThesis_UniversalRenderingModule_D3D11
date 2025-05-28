@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Scene.h"
 
-namespace URM::Scene {
+namespace URM::Engine {
 	std::vector<std::weak_ptr<SceneMesh>>& Scene::GetMeshes() {
 		return this->meshes;
 	}

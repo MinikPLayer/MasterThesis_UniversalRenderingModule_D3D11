@@ -12,7 +12,7 @@
 
 namespace URM::Core {
 	template<VertexTypeConcept VertexType>
-	class Mesh : public IMesh {
+	class Mesh : public IMesh, NonCopyable {
 		D3DVertexBuffer<VertexType> vertexBuffer;
 		std::optional<D3DIndexBuffer> indexBuffer = std::nullopt;
 

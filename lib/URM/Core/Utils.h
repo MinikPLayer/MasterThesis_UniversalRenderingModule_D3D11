@@ -4,6 +4,13 @@
 #include <vector>
 #include <locale>
 
+class NonCopyable {
+public:
+	NonCopyable(const NonCopyable&) = delete;
+	NonCopyable& operator=(NonCopyable const&) = delete;
+	NonCopyable() {}
+};
+
 namespace URM::Core {
 	struct Size2i {
 		int width;
