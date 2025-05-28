@@ -265,30 +265,70 @@ public:
 class MultipleShadersTest : public ITest {
 public:
     void Init(URM::Core::D3DCore& core, URM::Scene::Scene& scene) override {
-        auto alternativeShader = URM::Core::ShaderProgram(core, L"SimpleVertexShader.cso", L"ColorOnlyPixelShader.cso");
-        auto alternativeLayout = URM::Core::ModelLoaderLayout(core, alternativeShader);
+        auto alternativeShader = std::make_shared<URM::Core::ShaderProgram>(URM::Core::ShaderProgram(core, L"SimpleVertexShader.cso", L"ColorOnlyPixelShader.cso"));
+        auto alternativeLayout = std::make_shared<URM::Core::ModelLoaderLayout>(URM::Core::ModelLoaderLayout(core, *alternativeShader));
 
         auto suzanneModel = new URM::Scene::SceneModel(
             "suzanne.glb",
-            std::make_shared<URM::Core::ShaderProgram>(alternativeShader),
-            std::make_shared< URM::Core::ModelLoaderLayout>(alternativeLayout)
+            alternativeShader,
+            alternativeLayout
         );
         auto suzanne = scene.GetRoot().lock()->AddChild(suzanneModel);
         suzanne->GetTransform().SetLocalPosition({ -2.0f, 0.0f, 0.0f });
 
-        auto cubeModel = new URM::Scene::SceneModel("cube_textured.glb");
-        auto cube = scene.GetRoot().lock()->AddChild(cubeModel);
+        auto cube = scene.GetRoot().lock()->AddChild(new URM::Scene::SceneModel("cube_textured.glb"));
         cube->GetTransform().SetLocalPosition({ 2.0f, 0.0f, 0.0f });
+
+        auto floorCube = scene.GetRoot().lock()->AddChild(
+            new URM::Scene::SceneModel(
+                "cube.glb",
+                alternativeShader,
+                alternativeLayout
+            )
+        );
+        floorCube->GetTransform().SetLocalPosition({ 0.0f, -2.0f, 0.0f });
+        floorCube->GetTransform().SetLocalScale({ 5.0f, 1.0f, 5.0f });
+
+        auto wallCube = scene.GetRoot().lock()->AddChild(
+            new URM::Scene::SceneModel(
+                "cube.glb",
+                alternativeShader,
+                alternativeLayout
+            )
+        );
+        wallCube->GetTransform().SetLocalPosition({ 0.0f, 3.0f, 5.0f });
+        wallCube->GetTransform().SetLocalScale({ 5.0f, 5.0f, 1.0f });
+
+        auto leftWallCube = scene.GetRoot().lock()->AddChild(
+            new URM::Scene::SceneModel(
+                "cube.glb",
+                alternativeShader,
+                alternativeLayout
+            )
+        );
+        leftWallCube->GetTransform().SetLocalPosition({ -5.0f, 3.0f, 0.0f });
+        leftWallCube->GetTransform().SetLocalScale({ 1.0f, 5.0f, 5.0f });
+
+        auto rightWallCube = scene.GetRoot().lock()->AddChild(
+            new URM::Scene::SceneModel(
+                "cube.glb",
+                alternativeShader,
+                alternativeLayout
+            )
+        );
+        rightWallCube->GetTransform().SetLocalPosition({ 5.0f, 3.0f, 0.0f });
+        rightWallCube->GetTransform().SetLocalScale({ 1.0f, 5.0f, 5.0f });
     }
 
     void Update(URM::Engine::Engine& engine) override {
         // TODO: Change light position
+        engine.GetScene().GetRoot().lock()->GetTransform().SetLocalRotation(Quaternion::CreateFromAxisAngle(Vector3::Up, sin(engine.GetTimer().GetElapsedTime()) / 2));
     }
 };
 
 const bool ENGINE_MODE = true;
 const bool ENGINE_LOOP_MODE = true;
-std::unique_ptr<ITest> SELECTED_TEST = std::unique_ptr<ITest>(new SceneRelativeTransformationsTest());
+std::unique_ptr<ITest> SELECTED_TEST = std::unique_ptr<ITest>(new MultipleShadersTest());
 
 void Init(URM::Core::D3DCore& core, URM::Scene::Scene& scene) {
     SELECTED_TEST->Init(core, scene);

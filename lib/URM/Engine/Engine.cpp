@@ -12,32 +12,35 @@ namespace URM::Engine {
         DirectX::XMMATRIX inverseWorldMatrix;
     };
 
+    // Alignment rules: https://maraneshi.github.io/HLSL-ConstantBufferLayoutVisualizer/
     struct PixelConstantBuffer {
-        Vector4 viewPosition;
+        struct Material {
+            alignas(4) int useAlbedoTexture = 0;
+        };
 
-        struct Light {
-            Vector4 color;
-            Vector4 position;
-            float ambientIntensity;
-            float diffuseIntensity;
-            float specularIntensity;
+        struct alignas(16) Light {
+            alignas(16) Vector3 color;
+            alignas(16) Vector3 position;
+            alignas(4) float ambientIntensity;
+            alignas(4) float diffuseIntensity;
+            alignas(4) float specularIntensity;
 
             int __padding__;
 
-            Light(float r, float g, float b,
-                float x, float y, float z,
-                float ambient, float diffuse, float specular)
-                : color(r, g, b, 1.0f), position(x, y, z, 1.0f), ambientIntensity(ambient), diffuseIntensity(diffuse), specularIntensity(specular)
-            {
-            }
-        } light;
+            Light(Vector3 position = Vector3::Zero,
+                Color color = Color(1, 1, 1),
+                float ambient = 0.05f, float diffuse = 0.9f, float specular = 1.0f)
+                : color(color.ToVector3()), position(position), ambientIntensity(ambient), diffuseIntensity(diffuse), specularIntensity(specular)
+            {}
+        };
 
-        struct Material {
-            int useAlbedoTexture = 0;
-            Vector3 __padding__;
-        } material;
+        alignas(4) Vector4 viewPosition;
+        alignas(16) Material material;
+        alignas(4) int activeLightsCount = 0;
+        alignas(16) Light lights[8];
 
-        PixelConstantBuffer(Light light, Vector3 viewPos) : light(light), viewPosition(viewPos.x, viewPos.y, viewPos.z, 1.0f) {}
+
+        PixelConstantBuffer(Vector3 viewPos) : viewPosition(viewPos.x, viewPos.y, viewPos.z, 1.0f) {}
     };
 
     struct WVPMatrix {
@@ -128,7 +131,7 @@ namespace URM::Engine {
         // TODO: Add dynamic lights with separate type.
         auto rotation = this->timer.GetElapsedTime() * 90.0f;
         auto rotationRad = rotation * DirectX::XM_PI / 180.0f;
-        auto cameraPos = Vector3(0.0f, 4.0f, -8.0f);
+        auto cameraPos = Vector3(0.0f, 15.0f, -20.0f);
         const float lightDistance = 2.1f;
         auto lightPosition = Vector3(
             sin(rotationRad) * lightDistance,
@@ -137,14 +140,24 @@ namespace URM::Engine {
         );
 
         // TODO: Add support for custom PixelConstantBuffer types.
-        auto pixelBufferValue = PixelConstantBuffer(
-            PixelConstantBuffer::Light(
-                1.0f, 1.0f, 1.0f,
-                lightPosition.x, lightPosition.y, lightPosition.z,
-                0.1f, 0.9f, 1.0f
-            ),
-            cameraPos
+        auto pixelBufferValue = PixelConstantBuffer(cameraPos);
+        pixelBufferValue.activeLightsCount = 3;
+        pixelBufferValue.lights[0] = PixelConstantBuffer::Light(
+            Vector3(sin(rotationRad) * lightDistance, lightDistance / 1.5f, cos(rotationRad) * lightDistance),
+            Color(0, 0, 1),
+            0.03f, 0.9f, 1.0f
         );
+        pixelBufferValue.lights[1] = PixelConstantBuffer::Light(
+            Vector3(sin(rotationRad + 2.1) * lightDistance, lightDistance / 1.5f, cos(rotationRad + 2.1) * lightDistance),
+            Color(1, 0, 0),
+            0.02f, 0.9f, 1.0f
+        );
+        pixelBufferValue.lights[2] = PixelConstantBuffer::Light(
+            Vector3(sin(rotationRad + 4.2) * lightDistance, lightDistance / 1.5f, cos(rotationRad + 4.2) * lightDistance),
+            Color(0, 1, 0),
+            0.01f, 0.9f, 1.0f
+        );
+
         this->pixelConstantBuffer.UpdateWithData(this->core, &pixelBufferValue);
 
         // TODO: Add dynamic camera.

@@ -12,6 +12,6 @@ float4 main(PS_INPUT input) : SV_TARGET
     {
         lightColor += CalculateLighting(input, data.lights[i]);
     }
-        
+    
     return textureColor * float4(lightColor, 1.0f);
 }

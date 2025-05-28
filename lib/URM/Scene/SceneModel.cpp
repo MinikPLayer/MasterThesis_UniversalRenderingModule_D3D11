@@ -24,6 +24,8 @@ namespace URM::Scene {
 		}
 	}
 
+	// TODO: Add model load caching.
+	// Maybe something like "AssetManager"
 	void SceneModel::OnAdded() {
 		if (this->shader == nullptr) {
 			this->shader = SceneModel::GetDefaultShader(this->GetScene().GetCore());
