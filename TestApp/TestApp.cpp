@@ -155,42 +155,6 @@ struct TestDrawData {
     URM::Scene::Scene& scene;
 };
 
-//void TestDrawNode(TestDrawData& data, ModelLoaderNode& node, WVPMatrix transformMatrix) {
-//	transformMatrix.World = node.transform * transformMatrix.World;
-//	transformMatrix.WVP = node.transform * transformMatrix.WVP;
-//
-//    if (!node.meshes.empty()) {
-//        VertexConstantBuffer cBufferData;
-//        transformMatrix.Apply(cBufferData);
-//        data.vertexConstantBuffer.UpdateWithData(data.core, &cBufferData);
-//    }
-//
-//    for (auto& m : node.meshes) {
-//		m.GetVertexBuffer().Bind(data.core, 0);
-//		m.BindTextures(data.core);
-//
-//        if (m.ContainsTextures()) {
-//			data.texturedProgram.Bind(data.core);
-//        }
-//        else {
-//			data.nonTexturedProgram.Bind(data.core);
-//        }
-//
-//        if (m.ContainsIndices()) {
-//            m.GetIndexBuffer().Bind(data.core, 0);
-//
-//            data.core.GetContext()->DrawIndexed(m.GetIndicesCount(), 0, 0);
-//        }
-//        else {
-//			m.GetVertexBuffer().Bind(data.core, 0);
-//            data.core.GetContext()->Draw(m.GetVerticesCount(), 0);
-//        }
-//    }
-//
-//	for (auto& child : node.children) {
-//		TestDrawNode(data, child, transformMatrix);
-//	}
-//}
 void TestDrawMesh(TestDrawData& data, PixelConstantBuffer pcb, std::weak_ptr<URM::Scene::SceneMesh> mesh, WVPMatrix transformMatrix) {
     auto nodeWorldMatrix = mesh.lock()->GetTransform().GetWorldSpaceMatrix();
     VertexConstantBuffer cBufferData;
