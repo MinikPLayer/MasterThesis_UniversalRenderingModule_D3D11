@@ -84,12 +84,28 @@ namespace URM::Engine {
 
     // ============================================================
 
+    void Engine::Update() {
+        core.GetWindow().PollEvents();
+
+        timer.Update();
+        if (OnUpdate)
+            this->OnUpdate(*this);
+    }
+
     void Engine::Present(int vsyncInterval) {
         core.Present(vsyncInterval);
 	}
 
+    bool Engine::ShouldClose() {
+        return this->core.GetWindow().IsDestroyed();
+    }
+
     void Engine::Clear(URM::Core::Color color) {
         core.Clear(color.ToXM());
+    }
+
+    void Engine::Clear() {
+        this->Clear(RenderParameters.clearColor);
     }
 
     void Engine::Draw(RenderingParams params, std::vector<std::weak_ptr<URM::Scene::SceneMesh>> meshes) {
@@ -189,11 +205,7 @@ namespace URM::Engine {
 
     void Engine::RunLoop() {
         while (!core.GetWindow().IsDestroyed()) {
-            core.GetWindow().PollEvents();
-
-            timer.Update();
-            if (OnUpdate)
-                this->OnUpdate(*this);
+            this->Update();
 
             this->Clear(RenderParameters.clearColor);
             this->Draw(RenderParameters);

@@ -7,11 +7,11 @@ namespace URM::Engine {
         if (!this->startTime.has_value()) {
             this->startTime = now;
         }
-        this->elapsedTime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - this->startTime.value()).count() / 1000000.0f;
+        this->elapsedTime = std::chrono::duration<float>(now - this->startTime.value()).count();
 
         float newDeltaTime = 0;
         if (this->lastUpdate.has_value()) {
-            newDeltaTime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - this->lastUpdate.value()).count() / 1000000.0f;
+            newDeltaTime = std::chrono::duration<float>(now - this->lastUpdate.value()).count();
         }
         this->lastUpdate = now;
         this->deltaTime = newDeltaTime;

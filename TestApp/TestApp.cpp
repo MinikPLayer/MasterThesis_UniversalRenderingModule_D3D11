@@ -20,6 +20,7 @@
 #include <URM/Scene/SceneMesh.h>
 
 #include <URM/Engine/Engine.h>
+#include <thread>
 
 using namespace DirectX;
 
@@ -62,26 +63,31 @@ struct VertexConstantBuffer
 };
 
 struct PixelConstantBuffer {
+    Vector4 viewPosition;
+
     struct Light {
-        XMFLOAT4 color;
-        XMFLOAT4 position;
+        Vector4 color;
+        Vector4 position;
         float ambientIntensity;
         float diffuseIntensity;
         float specularIntensity;
 
-		// Padding to align the structure to 16 bytes
-        float _;
+        int __padding__;
 
-        Light(float r, float g, float b, 
-            float x, float y, float z, 
-            float ambient, float diffuse, float specular) 
+        Light(float r, float g, float b,
+            float x, float y, float z,
+            float ambient, float diffuse, float specular)
             : color(r, g, b, 1.0f), position(x, y, z, 1.0f), ambientIntensity(ambient), diffuseIntensity(diffuse), specularIntensity(specular)
-        {}
+        {
+        }
     } light;
 
-    XMFLOAT4 viewPosition;
+    struct Material {
+        int useAlbedoTexture = 0;
+        Vector3 __padding__;
+    } material;
 
-	PixelConstantBuffer(Light light, XMFLOAT3 viewPos) : light(light), viewPosition(viewPos.x, viewPos.y, viewPos.z, 1.0f) {}
+    PixelConstantBuffer(Light light, Vector3 viewPos) : light(light), viewPosition(viewPos.x, viewPos.y, viewPos.z, 1.0f) {}
 };
 
 struct WVPMatrix {
@@ -146,9 +152,6 @@ struct TestDrawData {
     URM::Core::D3DViewport& viewport;
     URM::Core::D3DRasterizerState& rState;
     URM::Core::D3DSampler& sampler;
-    URM::Core::ShaderProgram& texturedProgram;
-    URM::Core::ShaderProgram& nonTexturedProgram;
-    URM::Core::D3DInputLayout<URM::Core::ModelLoaderVertexType>& iLayout;
     URM::Scene::Scene& scene;
 };
 
@@ -188,24 +191,29 @@ struct TestDrawData {
 //		TestDrawNode(data, child, transformMatrix);
 //	}
 //}
-void TestDrawMesh(TestDrawData& data, std::weak_ptr<URM::Scene::SceneMesh> mesh, WVPMatrix transformMatrix) {
+void TestDrawMesh(TestDrawData& data, PixelConstantBuffer pcb, std::weak_ptr<URM::Scene::SceneMesh> mesh, WVPMatrix transformMatrix) {
     auto nodeWorldMatrix = mesh.lock()->GetTransform().GetWorldSpaceMatrix();
     VertexConstantBuffer cBufferData;
 	transformMatrix.World = nodeWorldMatrix * transformMatrix.World;
 	transformMatrix.WVP = nodeWorldMatrix * transformMatrix.WVP;
     transformMatrix.Apply(cBufferData);
     data.vertexConstantBuffer.UpdateWithData(data.core, &cBufferData);
-    
+   
+    auto sceneMesh = mesh.lock();
+    sceneMesh->GetInputLayout()->Bind(data.core);
+    sceneMesh->GetShader()->Bind(data.core);
+
     auto m = mesh.lock()->GetMesh();
     m.GetVertexBuffer().Bind(data.core, 0);
-    m.BindTextures(data.core);
     
     if (m.ContainsTextures()) {
-    	data.texturedProgram.Bind(data.core);
+        m.BindTextures(data.core);
+        pcb.material.useAlbedoTexture = 1;
     }
     else {
-    	data.nonTexturedProgram.Bind(data.core);
+        pcb.material.useAlbedoTexture = 0;
     }
+    data.pixelConstantBuffer.UpdateWithData(data.core, &pcb);
     
     if (m.ContainsIndices()) {
         m.GetIndexBuffer().Bind(data.core, 0);
@@ -262,7 +270,6 @@ void TestDraw(TestDrawData data) {
     data.rState.Bind(data.core);
 
     data.core.SetPrimitiveTopology(URM::Core::PrimitiveTopologies::TRIANGLE_LIST);
-    data.iLayout.Bind(data.core);
 
     data.vertexConstantBuffer.Bind(data.core, 0);
 	data.pixelConstantBuffer.Bind(data.core, 1);
@@ -275,7 +282,7 @@ void TestDraw(TestDrawData data) {
 	auto rotationRad = rotation * XM_PI / 180.0f;
 
     const float lightDistance = 2.1f;
-	auto lightPosition = XMFLOAT3(
+	auto lightPosition = Vector3(
 		sin(rotationRad) * lightDistance,
 		lightDistance / 1.5f,
 		cos(rotationRad) * lightDistance
@@ -290,20 +297,9 @@ void TestDraw(TestDrawData data) {
     );
 	data.pixelConstantBuffer.UpdateWithData(data.core, &pixelBufferValue);
 
-	// TODO: Calc proj * view once. 
- //   auto WVP = TestDrawCreateWVP({ -2.0f, 0.0f, 0.0f }, windowSize, 0);
-	//TestDrawNode(data, data.mesh, WVP);
-
- //   WVP = TestDrawCreateWVP({ 2.0f, 0.0f, 0.0f }, windowSize, 0);
- //   TestDrawNode(data, data.secondMesh, WVP);
-
- //   // Light indicator
- //   WVP = TestDrawCreateWVP(lightPosition, windowSize, 0, 0.1f);
- //   TestDrawNode(data, data.secondMesh, WVP);
-
     auto WVP = TestDrawCreateWVP({ 0.0f, 0.0f, 0.0f }, windowSize, 0);
     for (auto& mesh : data.scene.GetMeshes()) {
-		TestDrawMesh(data, mesh, WVP);
+		TestDrawMesh(data, pixelBufferValue, mesh, WVP);
     }
 
     data.core.Present(0);
@@ -311,42 +307,64 @@ void TestDraw(TestDrawData data) {
 
 #pragma endregion
 
-#define ENGINE_MODE 1
+const bool ENGINE_MODE = true;
+const bool ENGINE_LOOP_MODE = false;
 
-#if ENGINE_MODE
-    int actualMainEngine(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow) {
-        UNREFERENCED_PARAMETER(hPrevInstance);
-        UNREFERENCED_PARAMETER(lpCmdLine);
-        UNREFERENCED_PARAMETER(nCmdShow);
+void FillScene(URM::Core::D3DCore& core, URM::Scene::Scene& scene) {
+    auto alternativeShader = URM::Core::ShaderProgram(core, L"SimpleVertexShader.cso", L"ColorOnlyPixelShader.cso");
+    auto alternativeLayout = URM::Core::ModelLoaderLayout(core, alternativeShader);
 
-        if (!XMVerifyCPUSupport())
-            return 1;
+    auto suzanne = new URM::Scene::SceneModel(
+        "suzanne.glb", 
+        std::make_shared<URM::Core::ShaderProgram>(alternativeShader), 
+        std::make_shared< URM::Core::ModelLoaderLayout>(alternativeLayout)
+    );
+    scene.GetRoot().lock()->AddChild(suzanne)->GetTransform().SetLocalPosition({ -2.0f, 0.0f, 0.0f });
 
-        HRESULT hr = CoInitializeEx(nullptr, COINITBASE_MULTITHREADED);
-        if (FAILED(hr))
-            return 1;
+    auto cube = new URM::Scene::SceneModel("cube_textured.glb");
+    scene.GetRoot().lock()->AddChild(cube)->GetTransform().SetLocalPosition({ 2.0f, 0.0f, 0.0f });
+}
 
-        URM::Engine::Engine engine(URM::Core::WindowCreationParams(1600, 1000, "UniversalRenderingModule", hInstance));
-        auto& scene = engine.GetScene();
+int actualMainEngine(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow) {
+    UNREFERENCED_PARAMETER(hPrevInstance);
+    UNREFERENCED_PARAMETER(lpCmdLine);
+    UNREFERENCED_PARAMETER(nCmdShow);
 
-        auto alternativeShader = URM::Core::ShaderProgram(engine.GetCore(), L"SimpleVertexShader.cso", L"ColorOnlyPixelShader.cso");
-        auto alternativeLayout = URM::Core::ModelLoaderLayout(engine.GetCore(), alternativeShader);
+    if (!XMVerifyCPUSupport())
+        return 1;
 
-        auto suzanne = new URM::Scene::SceneModel(
-            "suzanne.glb", 
-            std::make_shared<URM::Core::ShaderProgram>(alternativeShader), 
-            std::make_shared< URM::Core::ModelLoaderLayout>(alternativeLayout)
-        );
-        scene.GetRoot().lock()->AddChild(suzanne)->GetTransform().SetLocalPosition({ -2.0f, 0.0f, 0.0f });
+    HRESULT hr = CoInitializeEx(nullptr, COINITBASE_MULTITHREADED);
+    if (FAILED(hr))
+        return 1;
 
-        auto cube = new URM::Scene::SceneModel("cube_textured.glb");
-        scene.GetRoot().lock()->AddChild(cube)->GetTransform().SetLocalPosition({ 2.0f, 0.0f, 0.0f });
+    URM::Engine::Engine engine(URM::Core::WindowCreationParams(1600, 1000, "UniversalRenderingModule", hInstance));
+    auto& scene = engine.GetScene();
+    FillScene(engine.GetCore(), scene);
 
+    if (ENGINE_LOOP_MODE) {
         engine.RunLoop();
-
-        return 0;
     }
-#endif
+    else {
+        float deltaCounter = 0;
+        const float drawInterval = 1.0;
+        while (!engine.ShouldClose()) {
+            engine.Update();
+
+            auto deltaTime = engine.GetTimer().GetDeltaTime();
+            deltaCounter += engine.GetTimer().GetDeltaTime();
+            if (deltaCounter > drawInterval) {
+                engine.Clear();
+                engine.Draw(engine.RenderParameters, scene.GetMeshes());
+                engine.Present(0);
+                
+                deltaCounter -= drawInterval;
+            }
+        }
+    }
+
+
+    return 0;
+}
 
 int actualMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow) {
     UNREFERENCED_PARAMETER(hPrevInstance);
@@ -361,21 +379,11 @@ int actualMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ 
         return 1;
 
     URM::Core::D3DCore core(URM::Core::WindowCreationParams(1600, 1000, "UniversalRenderingModule", hInstance));
-
     URM::Scene::Scene scene(core);
-	auto suzanne = new URM::Scene::SceneModel("suzanne.glb");
-	scene.GetRoot().lock()->AddChild(suzanne)->GetTransform().SetLocalPosition({ -2.0f, 0.0f, 0.0f });
-
-    auto cube = new URM::Scene::SceneModel("cube_textured.glb");
-    scene.GetRoot().lock()->AddChild(cube)->GetTransform().SetLocalPosition({ 2.0f, 0.0f, 0.0f });
-
-    URM::Core::ShaderProgram nonTexturedProgram(core, L"SimpleVertexShader.cso", L"SimplePixelShader.cso");
-    URM::Core::ShaderProgram texturedProgram(core, L"SimpleVertexShader.cso", L"TexturedPixelShader.cso");
+    FillScene(core, scene);
 
     URM::Core::D3DConstantBuffer vertexConstantBuffer = URM::Core::D3DConstantBuffer::Create<VertexConstantBuffer>(core, URM::Core::ShaderStages::VERTEX);
     URM::Core::D3DConstantBuffer pixelConstantBuffer = URM::Core::D3DConstantBuffer::Create<PixelConstantBuffer>(core, URM::Core::ShaderStages::PIXEL);
-
-    URM::Core::D3DInputLayout<URM::Core::ModelLoaderVertexType> inputLayout(core, texturedProgram);
     URM::Core::D3DViewport viewport(URM::Core::D3DViewportData(core.GetWindow().GetSize()));
 
     auto rStateData = URM::Core::D3DRasterizerStateData();
@@ -391,9 +399,6 @@ int actualMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ 
         viewport,
         rState,
         sampler,
-        texturedProgram,
-        nonTexturedProgram,
-        inputLayout,
         scene
     };
 
@@ -442,11 +447,9 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     URM::Core::Logger::InitLogger();
     int returnCode = 123456;
     try {
-#if ENGINE_MODE
-        returnCode = actualMainEngine(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
-#else
-        returnCode = actualMain(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
-#endif
+        returnCode = ENGINE_MODE ? 
+            actualMainEngine(hInstance, hPrevInstance, lpCmdLine, nCmdShow) :
+            actualMain(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
     }
     catch (std::exception e) {
         spdlog::critical("Exception: {}", e.what());

@@ -34,7 +34,6 @@ namespace URM::Engine {
 		URM::Core::D3DConstantBuffer vertexConstantBuffer;
 		URM::Core::D3DConstantBuffer pixelConstantBuffer;
 
-		void Clear(URM::Core::Color color);
 	public:
 		int VSyncInterval = 0;
 		RenderingParams RenderParameters;
@@ -53,9 +52,15 @@ namespace URM::Engine {
 			return scene;
 		}
 
+		void Update();
+
+		void Clear(URM::Core::Color color);
+		void Clear();
 		void Draw(RenderingParams params, std::vector<std::weak_ptr<URM::Scene::SceneMesh>> meshes);
 		void Draw(RenderingParams params);
 		void Present(int verticalSyncInterval);
+
+		bool ShouldClose();
 
 		// Disable copy constructor and assignment operator
 		Engine(const Engine&) = delete;
