@@ -26,6 +26,7 @@ namespace URM::Scene {
 		return Matrix((XMMATRIX)matScaling * (XMMATRIX)matRotation * (XMMATRIX)matTranslation);
 	}
 
+	// TODO: Compute inverse matrix together with a normal one
 	void Transform::UpdateMatrix(Matrix localMatrix, bool updateLocalValues) {
 		if (updateLocalValues) {
 			auto decomp = localMatrix.Decompose(this->localScale, this->localRotation, this->localPosition);

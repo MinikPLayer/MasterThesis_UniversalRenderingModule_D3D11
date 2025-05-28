@@ -11,10 +11,4 @@ namespace URM::Scene {
 		rootObject->__PrintHierarchy__(0);
 		spdlog::info("\n\n");
 	}
-
-	Scene::Scene(URM::Core::D3DCore& core) : core(core) {
-		this->rootObject = std::make_shared<SceneObject>();
-		this->rootObject->scene = *this;
-		this->rootObject->self = this->rootObject;
-	}
 }

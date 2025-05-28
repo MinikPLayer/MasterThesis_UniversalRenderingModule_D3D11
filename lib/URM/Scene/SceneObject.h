@@ -4,7 +4,7 @@
 #include <memory>
 #include <functional>
 #include <optional>
-#include "Scene.h"
+#include <URM/Core/Utils.h>
 
 namespace URM::Scene {
 	class SceneObject {
@@ -23,7 +23,7 @@ namespace URM::Scene {
 		bool _hasParent = false;
 
 		std::weak_ptr<SceneObject> self;
-		size_t hash = -1;
+		size_t typeCode = -1;
 
 		Transform transform;
 
@@ -39,7 +39,7 @@ namespace URM::Scene {
 			static_assert(std::is_base_of<SceneObject, T>::value, "T must derive from GameObject");
 
 			object->self = object;
-			object->hash = typeid(T).hash_code();
+			object->typeCode = URM::Core::TypeUtils::GetTypeCode<T>();
 			object->scene = scene;
 			parent->__AddChild__(object);
 
@@ -62,7 +62,7 @@ namespace URM::Scene {
 
 		template<typename T>
 		bool IsType() {
-			return hash == typeid(T).hash_code();
+			return typeCode == URM::Core::TypeUtils::GetTypeCode<T>();
 		}
 
 		std::weak_ptr<SceneObject> GetSelfPtr();

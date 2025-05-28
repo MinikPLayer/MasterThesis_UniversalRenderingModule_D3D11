@@ -389,6 +389,24 @@ void TestDraw(TestDrawData data) {
     data.core.Present(0);
 }
 
+class TestData {
+public:
+    virtual void Hello() {
+        spdlog::info("World!");
+    }
+};
+
+class InheritedFromTestData : public TestData {
+public:
+    void Hello() override {
+        spdlog::info("Not today!");
+    }
+};
+
+void Test(TestData& t) {
+    t.Hello();
+}
+
 int actualMainEngine(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow) {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
@@ -402,6 +420,13 @@ int actualMainEngine(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
         return 1;
 
     URM::Engine::Engine engine(URM::Core::WindowCreationParams(1600, 1000, "UniversalRenderingModule", hInstance));
+
+    spdlog::info("Testing memory leaks...");
+    int counter = 0;
+    InheritedFromTestData tt;
+    Test(tt);
+    while (true);
+
     auto& scene = engine.GetScene();
     Init(engine.GetCore(), scene);
     engine.OnUpdate = Update;

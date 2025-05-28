@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Engine.h"
+#include "EngineSceneData.h"
 #include <URM/Scene/SceneMesh.h>
 #include <directxtk/SimpleMath.h>
 
@@ -69,10 +70,15 @@ namespace URM::Engine {
     )
     {
         // 2. View Matrix
-        auto vecCameraPosition = DirectX::XMLoadFloat3(&cameraPosition);
-        auto vecCameraTarget = DirectX::XMLoadFloat3(&cameraTarget);
-        auto vecCameraUp = DirectX::XMLoadFloat3(&cameraUp);
-        auto matView = DirectX::XMMatrixLookAtLH(vecCameraPosition, vecCameraTarget, vecCameraUp);
+        //auto vecCameraPosition = DirectX::XMLoadFloat3(&cameraPosition);
+        //auto vecCameraTarget = DirectX::XMLoadFloat3(&cameraTarget);
+        //auto vecCameraUp = DirectX::XMLoadFloat3(&cameraUp);
+        //auto matView = DirectX::XMMatrixLookAtLH(vecCameraPosition, vecCameraTarget, vecCameraUp);
+        URM::Scene::SceneObject cameraObject;
+        cameraObject.GetTransform().SetLocalPosition(cameraPosition);
+        cameraObject.GetTransform().SetLocalRotation(Quaternion::Identity);
+        cameraObject.GetTransform().SetLocalScale(Vector3(1, 1, 1));
+        auto matView = cameraObject.GetTransform().GetWorldSpaceMatrix().Invert();
 
         // 3. Projection Matrix (Orthographic)
         DirectX::XMMATRIX matProjection = DirectX::XMMatrixPerspectiveFovLH(
@@ -231,6 +237,8 @@ namespace URM::Engine {
             scene(core), 
             vertexConstantBuffer(URM::Core::D3DConstantBuffer::Create<VertexConstantBuffer>(core, URM::Core::ShaderStages::VERTEX)),
             pixelConstantBuffer(URM::Core::D3DConstantBuffer::Create<PixelConstantBuffer>(core, URM::Core::ShaderStages::PIXEL))
-    {}
+    {
+
+    }
 
 }

@@ -21,6 +21,25 @@ namespace URM::Core {
 		const static Size2i ZERO;
 	};
 
+	class TypeUtils {
+		TypeUtils() = delete;
+	public:
+		template <typename T>
+		static inline size_t GetTypeCode() {
+			return typeid(T).hash_code();
+		}
+
+		template <typename T>
+		static inline std::string GetTypeName() {
+			return typeid(T).name();
+		}
+
+		template <typename T>
+		static inline bool IsType(const std::size_t typeCode) {
+			return TypeUtils::GetTypeCode<T>() == typeCode;
+		}
+	};
+
 	class FloatUtils {
 	public:
 		template <typename T>
