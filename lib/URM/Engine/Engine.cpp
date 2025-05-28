@@ -131,7 +131,7 @@ namespace URM::Engine {
         // TODO: Add dynamic lights with separate type.
         auto rotation = this->timer.GetElapsedTime() * 90.0f;
         auto rotationRad = rotation * DirectX::XM_PI / 180.0f;
-        auto cameraPos = Vector3(0.0f, 15.0f, -20.0f);
+        auto cameraPos = Vector3(0.0f, 4.0f, -8.0f);
         const float lightDistance = 2.1f;
         auto lightPosition = Vector3(
             sin(rotationRad) * lightDistance,
@@ -148,12 +148,12 @@ namespace URM::Engine {
             0.03f, 0.9f, 1.0f
         );
         pixelBufferValue.lights[1] = PixelConstantBuffer::Light(
-            Vector3(sin(rotationRad + 2.1) * lightDistance, lightDistance / 1.5f, cos(rotationRad + 2.1) * lightDistance),
+            Vector3(sin(rotationRad + 2.1f) * lightDistance, lightDistance / 1.5f, cos(rotationRad + 2.1f) * lightDistance),
             Color(1, 0, 0),
             0.02f, 0.9f, 1.0f
         );
         pixelBufferValue.lights[2] = PixelConstantBuffer::Light(
-            Vector3(sin(rotationRad + 4.2) * lightDistance, lightDistance / 1.5f, cos(rotationRad + 4.2) * lightDistance),
+            Vector3(sin(rotationRad + 4.2f) * lightDistance, lightDistance / 1.5f, cos(rotationRad + 4.2f) * lightDistance),
             Color(0, 1, 0),
             0.01f, 0.9f, 1.0f
         );

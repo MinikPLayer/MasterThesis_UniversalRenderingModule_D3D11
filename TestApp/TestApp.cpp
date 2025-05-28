@@ -322,7 +322,7 @@ public:
 
     void Update(URM::Engine::Engine& engine) override {
         // TODO: Change light position
-        engine.GetScene().GetRoot().lock()->GetTransform().SetLocalRotation(Quaternion::CreateFromAxisAngle(Vector3::Up, sin(engine.GetTimer().GetElapsedTime()) / 2));
+        //engine.GetScene().GetRoot().lock()->GetTransform().SetLocalRotation(Quaternion::CreateFromAxisAngle(Vector3::Up, sin(engine.GetTimer().GetElapsedTime()) / 2));
     }
 };
 
