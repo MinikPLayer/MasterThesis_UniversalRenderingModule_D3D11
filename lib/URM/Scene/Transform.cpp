@@ -34,7 +34,7 @@ namespace URM::Scene {
 		auto parentMatrix = (sceneObject.HasParent()) ? sceneObject.GetParent().lock()->GetTransform().GetWorldSpaceMatrix() : Matrix::Identity;
 		worldSpaceModelMatrix = Matrix((XMMATRIX)localMatrix * (XMMATRIX)parentMatrix);
 
-		// TODO: Find a faster way to do this? 
+		// PLAN: Find a faster way to do this? 
 		// Decompose is probably not the fastest way to do this
 		// But should work for now
 		worldSpaceModelMatrix.Decompose(this->globalScale, this->globalRotation, this->globalPosition);
@@ -68,7 +68,6 @@ namespace URM::Scene {
 		return ss.str();
 	}
 
-	// TODO: Test if matrix * parentInverse is the correct order!
 	void Transform::SetWorldSpaceMatrix(Matrix matrix) {
 		auto parentMatrix = (sceneObject.HasParent()) ? sceneObject.GetParent().lock()->GetTransform().GetWorldSpaceMatrix() : Matrix::Identity;
 		auto parentInverse = parentMatrix.Invert();
@@ -82,7 +81,7 @@ namespace URM::Scene {
 		return worldSpaceModelMatrix;
 	}
 
-	// TODO: Optimize to avoid decomposing matrix every time
+	// PLAN: Optimize to avoid decomposing matrix every time
 	void Transform::SetPosition(Vector3 position) {
 		if (sceneObject.HasParent()) {
 			auto parentMatrix = sceneObject.GetParent().lock()->GetTransform().GetWorldSpaceMatrix();
@@ -99,7 +98,7 @@ namespace URM::Scene {
 		UpdateMatrix();
 	}
 
-	// TODO: Fix incorrect behaviour
+	// PLAN: Fix incorrect behaviour
 	//void Transform::set_scale(Vector3<float> scale) {
 	//	if (gameObject.HasParent()) {
 	//		auto parentMatrix = gameObject.GetParent().lock()->GetTransform().GetWorldSpaceMatrix();

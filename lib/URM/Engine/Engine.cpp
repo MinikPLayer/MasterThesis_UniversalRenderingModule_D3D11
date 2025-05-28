@@ -141,7 +141,7 @@ namespace URM::Engine {
             PixelConstantBuffer::Light(
                 1.0f, 1.0f, 1.0f,
                 lightPosition.x, lightPosition.y, lightPosition.z,
-                0.05f, 0.9f, 1.0f
+                0.1f, 0.9f, 1.0f
             ),
             cameraPos
         );

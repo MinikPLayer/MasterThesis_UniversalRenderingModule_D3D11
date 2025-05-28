@@ -148,16 +148,14 @@ namespace URM::Core {
         {
             // TODO: Add OnKeyPressed().
 
-
             // Toggle fullscreen on ALT+ENTER
-            //     if (wParam == VK_RETURN && (lParam & 0x60000000) == 0x20000000) {
-            //          this->SetFullscreen(!this->IsFullscreen());
-            //     }
+            //if (wParam == VK_RETURN && (lParam & 0x60000000) == 0x20000000) {
+            //    this->SetFullscreen(!this->IsFullscreen());
+            //}
 
             break;
         }
 
-        // TODO: Allow for multiple windows to be created, so WM_DESTROY shouldn't close the app when other windows are opened.
         case WM_CLOSE:
             if (this->OnCloseRequested) {
                 auto preventClosing = this->OnCloseRequested(*this);

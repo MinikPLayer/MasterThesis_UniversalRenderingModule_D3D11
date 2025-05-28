@@ -45,7 +45,7 @@ namespace URM::Scene {
 		this->inputLayout = layout;
 	}
 
-	// TODO: Async loading
+	// PLAN: Async loading
 	SceneModel::SceneModel(std::string path) {
 		this->path = path;
 	}

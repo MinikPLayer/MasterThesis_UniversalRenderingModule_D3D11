@@ -22,7 +22,6 @@ namespace URM::Scene {
 		std::weak_ptr<SceneObject> parent;
 		bool _hasParent = false;
 
-		// TODO: This should be initialized before add component
 		std::weak_ptr<SceneObject> self;
 		size_t hash = -1;
 

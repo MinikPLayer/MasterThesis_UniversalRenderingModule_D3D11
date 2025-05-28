@@ -47,7 +47,6 @@ namespace URM::Core {
                 D3D11_MESSAGE_ID hide[] =
                 {
                     D3D11_MESSAGE_ID_SETPRIVATEDATA_CHANGINGPARAMS,
-                    // TODO: Add more message IDs here as needed.
                 };
                 D3D11_INFO_QUEUE_FILTER filter = {};
                 filter.DenyList.NumIDs = static_cast<UINT>(std::size(hide));
@@ -152,8 +151,6 @@ namespace URM::Core {
         DX::ThrowIfFailed(this->device->CreateTexture2D(&depthStencilDesc, nullptr, depthStencil.GetAddressOf()));
 
         DX::ThrowIfFailed(this->device->CreateDepthStencilView(depthStencil.Get(), nullptr, this->depthStencilView.ReleaseAndGetAddressOf()));
-
-        // TODO: Initialize windows-size dependent objects here.
     }
 
     void D3DCore::OnDeviceLost() {

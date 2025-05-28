@@ -94,7 +94,7 @@ namespace URM::Core {
 		switch (prop->mType) {
 		case aiPTI_String:
 			// Skip first 4 bytes, which are the length of the string + 1 byte for the null terminator
-			// TODO: Verify prop->mDataLength vs first 4 bytes
+			// [TEST]: Verify prop->mDataLength vs first 4 bytes
 			return MaterialProperty::CreateString(nameString, prop->mData + 4, prop->mDataLength - 4 - 1);
 
 		case aiPTI_Float:

@@ -53,8 +53,6 @@ void Clear(URM::Core::D3DCore& core) {
     core.Clear(DirectX::Colors::Black);
 }
 
-#pragma region ConstantBufferTest
-
 struct VertexConstantBuffer
 {
     DirectX::XMMATRIX WVP;
@@ -219,12 +217,94 @@ WVPMatrix TestDrawCreateWVP(XMFLOAT3 positionOffset, URM::Core::Size2i windowSiz
     return WVP;
 }
 
+class ITest {
+public:
+    virtual void Init(URM::Core::D3DCore& core, URM::Scene::Scene& scene) = 0;
+    virtual void Update(URM::Engine::Engine& engine) = 0;
+};
+
+class SceneRelativeTransformationsTest : public ITest {
+public:
+    void Init(URM::Core::D3DCore& core, URM::Scene::Scene& scene) override {
+        auto cubeModel = new URM::Scene::SceneModel("cube_textured.glb");
+        auto cube = scene.GetRoot().lock()->AddChild(cubeModel);
+        cube->GetTransform().SetLocalPosition({ 0.0f, 0.0f, 0.0f });
+
+        cube = cube->AddChild(new URM::Scene::SceneModel("cube_textured.glb"));
+        cube->GetTransform().SetLocalPosition({ 3.0f, 0.0f, 0.0f });
+        cube->GetTransform().SetLocalScale({ 0.5f, 0.5f, 0.5f });
+
+        cube = cube->AddChild(new URM::Scene::SceneModel("cube_textured.glb"));
+        cube->GetTransform().SetLocalPosition({ 3.0f, 0.0f, 0.0f });
+        cube->GetTransform().SetLocalScale({ 0.5f, 0.5f, 0.5f });
+
+        cube = cube->AddChild(new URM::Scene::SceneModel("cube_textured.glb"));
+        cube->GetTransform().SetLocalPosition({ 3.0f, 0.0f, 0.0f });
+        cube->GetTransform().SetLocalScale({ 0.5f, 0.5f, 0.5f });
+
+        auto staticPosObject = cube->AddChild(new URM::Scene::SceneModel("suzanne.glb"));
+        staticPosObject->GetTransform().SetLocalPosition({ 6.0f, 0.0f, 0.0f });
+        staticPosObject->GetTransform().SetLocalScale({ 3.0f, 3.0f, 3.0f });
+    }
+
+    void Update(URM::Engine::Engine& engine) override {
+        auto root = engine.GetScene().GetRoot();
+        auto cubeObject = root.lock()->GetChildren()[0];
+        auto smallCubeObject = cubeObject->GetChildren()[1];
+        auto superSmallCube = smallCubeObject->GetChildren()[1];
+        auto staticPosObject = superSmallCube->GetChildren()[1]->GetChildren()[1];
+
+        cubeObject->GetTransform().SetLocalRotation(Quaternion::CreateFromAxisAngle(Vector3::Up, engine.GetTimer().GetElapsedTime() * 1.0f));
+        smallCubeObject->GetTransform().SetLocalRotation(Quaternion::CreateFromAxisAngle(Vector3::Forward, engine.GetTimer().GetElapsedTime() * 1.7f));
+        superSmallCube->GetTransform().SetLocalRotation(Quaternion::CreateFromAxisAngle(Vector3::Up, engine.GetTimer().GetElapsedTime() * 2.3f));
+
+        staticPosObject->GetTransform().SetPosition(Vector3(2, 2, 2));
+    }
+};
+
+class MultipleShadersTest : public ITest {
+public:
+    void Init(URM::Core::D3DCore& core, URM::Scene::Scene& scene) override {
+        auto alternativeShader = URM::Core::ShaderProgram(core, L"SimpleVertexShader.cso", L"ColorOnlyPixelShader.cso");
+        auto alternativeLayout = URM::Core::ModelLoaderLayout(core, alternativeShader);
+
+        auto suzanneModel = new URM::Scene::SceneModel(
+            "suzanne.glb",
+            std::make_shared<URM::Core::ShaderProgram>(alternativeShader),
+            std::make_shared< URM::Core::ModelLoaderLayout>(alternativeLayout)
+        );
+        auto suzanne = scene.GetRoot().lock()->AddChild(suzanneModel);
+        suzanne->GetTransform().SetLocalPosition({ -2.0f, 0.0f, 0.0f });
+
+        auto cubeModel = new URM::Scene::SceneModel("cube_textured.glb");
+        auto cube = scene.GetRoot().lock()->AddChild(cubeModel);
+        cube->GetTransform().SetLocalPosition({ 2.0f, 0.0f, 0.0f });
+    }
+
+    void Update(URM::Engine::Engine& engine) override {
+        // TODO: Change light position
+    }
+};
+
+const bool ENGINE_MODE = true;
+const bool ENGINE_LOOP_MODE = true;
+std::unique_ptr<ITest> SELECTED_TEST = std::unique_ptr<ITest>(new SceneRelativeTransformationsTest());
+
+void Init(URM::Core::D3DCore& core, URM::Scene::Scene& scene) {
+    SELECTED_TEST->Init(core, scene);
+}
+
+void Update(URM::Engine::Engine& engine) {
+    SELECTED_TEST->Update(engine);
+}
+
+
 template<URM::Core::VertexTypeConcept V>
 void TestDraw(TestDrawData data) {
     auto context = data.core.GetContext();
 
     // Aktualizacja stałej buforowej
-	auto elapsedTime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - programStartTime).count() / 1000000.0f;
+    auto elapsedTime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - programStartTime).count() / 1000000.0f;
 
     auto vp = data.viewport.GetData();
     vp.size = data.core.GetWindow().GetSize();
@@ -236,57 +316,37 @@ void TestDraw(TestDrawData data) {
     data.core.SetPrimitiveTopology(URM::Core::PrimitiveTopologies::TRIANGLE_LIST);
 
     data.vertexConstantBuffer.Bind(data.core, 0);
-	data.pixelConstantBuffer.Bind(data.core, 1);
+    data.pixelConstantBuffer.Bind(data.core, 1);
 
     // Bind the default sampler
     data.sampler.Bind(data.core, 0);
 
-	auto windowSize = data.core.GetWindow().GetSize();
-	auto rotation = elapsedTime * 90.0f;
-	auto rotationRad = rotation * XM_PI / 180.0f;
+    auto windowSize = data.core.GetWindow().GetSize();
+    auto rotation = elapsedTime * 90.0f;
+    auto rotationRad = rotation * XM_PI / 180.0f;
 
     const float lightDistance = 2.1f;
-	auto lightPosition = Vector3(
-		sin(rotationRad) * lightDistance,
-		lightDistance / 1.5f,
-		cos(rotationRad) * lightDistance
-	);
+    auto lightPosition = Vector3(
+        sin(rotationRad) * lightDistance,
+        lightDistance / 1.5f,
+        cos(rotationRad) * lightDistance
+    );
     auto pixelBufferValue = PixelConstantBuffer(
         PixelConstantBuffer::Light(
             1.0f, 1.0f, 1.0f,
-			lightPosition.x, lightPosition.y, lightPosition.z,
+            lightPosition.x, lightPosition.y, lightPosition.z,
             0.05f, 0.9f, 1.0f
         ),
         camPos
     );
-	data.pixelConstantBuffer.UpdateWithData(data.core, &pixelBufferValue);
+    data.pixelConstantBuffer.UpdateWithData(data.core, &pixelBufferValue);
 
     auto WVP = TestDrawCreateWVP({ 0.0f, 0.0f, 0.0f }, windowSize, 0);
     for (auto& mesh : data.scene.GetMeshes()) {
-		TestDrawMesh(data, pixelBufferValue, mesh, WVP);
+        TestDrawMesh(data, pixelBufferValue, mesh, WVP);
     }
 
     data.core.Present(0);
-}
-
-#pragma endregion
-
-const bool ENGINE_MODE = true;
-const bool ENGINE_LOOP_MODE = false;
-
-void FillScene(URM::Core::D3DCore& core, URM::Scene::Scene& scene) {
-    auto alternativeShader = URM::Core::ShaderProgram(core, L"SimpleVertexShader.cso", L"ColorOnlyPixelShader.cso");
-    auto alternativeLayout = URM::Core::ModelLoaderLayout(core, alternativeShader);
-
-    auto suzanne = new URM::Scene::SceneModel(
-        "suzanne.glb", 
-        std::make_shared<URM::Core::ShaderProgram>(alternativeShader), 
-        std::make_shared< URM::Core::ModelLoaderLayout>(alternativeLayout)
-    );
-    scene.GetRoot().lock()->AddChild(suzanne)->GetTransform().SetLocalPosition({ -2.0f, 0.0f, 0.0f });
-
-    auto cube = new URM::Scene::SceneModel("cube_textured.glb");
-    scene.GetRoot().lock()->AddChild(cube)->GetTransform().SetLocalPosition({ 2.0f, 0.0f, 0.0f });
 }
 
 int actualMainEngine(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow) {
@@ -303,7 +363,8 @@ int actualMainEngine(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
     URM::Engine::Engine engine(URM::Core::WindowCreationParams(1600, 1000, "UniversalRenderingModule", hInstance));
     auto& scene = engine.GetScene();
-    FillScene(engine.GetCore(), scene);
+    Init(engine.GetCore(), scene);
+    engine.OnUpdate = Update;
 
     if (ENGINE_LOOP_MODE) {
         engine.RunLoop();
@@ -344,7 +405,14 @@ int actualMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ 
 
     URM::Core::D3DCore core(URM::Core::WindowCreationParams(1600, 1000, "UniversalRenderingModule", hInstance));
     URM::Scene::Scene scene(core);
-    FillScene(core, scene);
+
+    auto suzanneModel = new URM::Scene::SceneModel("suzanne.glb");
+    auto suzanne = scene.GetRoot().lock()->AddChild(suzanneModel);
+    suzanne->GetTransform().SetLocalPosition({ -2.0f, 0.0f, 0.0f });
+
+    auto cubeModel = new URM::Scene::SceneModel("cube_textured.glb");
+    auto cube = scene.GetRoot().lock()->AddChild(cubeModel);
+    cube->GetTransform().SetLocalPosition({ 2.0f, 0.0f, 0.0f });
 
     URM::Core::D3DConstantBuffer vertexConstantBuffer = URM::Core::D3DConstantBuffer::Create<VertexConstantBuffer>(core, URM::Core::ShaderStages::VERTEX);
     URM::Core::D3DConstantBuffer pixelConstantBuffer = URM::Core::D3DConstantBuffer::Create<PixelConstantBuffer>(core, URM::Core::ShaderStages::PIXEL);

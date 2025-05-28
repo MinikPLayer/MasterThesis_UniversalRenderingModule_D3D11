@@ -20,7 +20,7 @@ namespace URM::Core {
 		std::vector<unsigned int> indices;
 		std::vector<D3DTexture2D> textures;
 
-		// TODO: Test
+		// [TEST]
 		void UpdateBuffer(D3DCore& core);
 
 		size_t GetVertexTypeHashCode() override {
@@ -59,7 +59,6 @@ namespace URM::Core {
 			return 0;
 		}
 
-		// TODO: Add index buffer support
 		Mesh(D3DCore& core, std::vector<VertexType> data, std::vector<D3DTexture2D> textures = {})
 			: vertexBuffer(D3DVertexBuffer<VertexType>::Create(core, data))
 		{
