@@ -1,5 +1,7 @@
 #include "SimpleShaderCommonTypes.hlsl"
 
+static const int MAX_LIGHTS_COUNT = 8;
+
 struct Light
 {
     float4 color; // 16B
@@ -16,18 +18,24 @@ struct Material
     bool secondParam; // 4B
 };
 
-cbuffer ConstantBuffer : register(b1)
+struct PixelUniformData
 {
     float4 viewPosition; // 16B
-    Light light; // 48B
     Material material; // 16B
+    int activeLightsCount;
+    Light lights[MAX_LIGHTS_COUNT]; // 48B
 };
 
-float3 CalculateLighting(PS_INPUT input, float3 lightPosition, float3 lightColor)
+cbuffer CB : register(b1)
+{
+    PixelUniformData data;
+}
+
+float3 CalculateLighting(PS_INPUT input, Light light, float3 lightPosition, float3 lightColor)
 {   
     float3 norm = normalize(input.normal);
     float3 lightDir = normalize(lightPosition - input.fragPosition);
-    float3 viewDir = normalize(viewPosition.xyz - input.fragPosition);
+    float3 viewDir = normalize(data.viewPosition.xyz - input.fragPosition);
     float3 reflectDir = reflect(-lightDir, norm);
  
     float ambient = light.ambientIntensity;
@@ -38,7 +46,7 @@ float3 CalculateLighting(PS_INPUT input, float3 lightPosition, float3 lightColor
     return ((diff + ambient + specular) * light.color).xyz;
 }
 
-float3 CalculateLighting(PS_INPUT input)
+float3 CalculateLighting(PS_INPUT input, Light light)
 {
-    return CalculateLighting(input, light.position.xyz, light.color.xyz);
+    return CalculateLighting(input, light, light.position.xyz, light.color.xyz);
 }

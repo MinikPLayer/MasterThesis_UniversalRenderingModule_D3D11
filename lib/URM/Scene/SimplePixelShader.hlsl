@@ -5,7 +5,13 @@ SamplerState sampleType : register(s0);
 
 float4 main(PS_INPUT input) : SV_TARGET
 {
-    float4 textureColor = material.useAlbedoTexture ? diffuseTexture.Sample(sampleType, input.textureUV) : float4(1.0, 0.0, 1.0, 1.0);
-    float3 diffuse = CalculateLighting(input);
-    return textureColor * float4(diffuse, 1.0f);
+    float4 textureColor = data.material.useAlbedoTexture ? diffuseTexture.Sample(sampleType, input.textureUV) : float4(1.0, 0.0, 1.0, 1.0);
+    
+    float3 lightColor = float3(0.0, 0.0, 0.0);
+    for (int i = 0; i < data.activeLightsCount; i++)
+    {
+        lightColor += CalculateLighting(input, data.lights[i]);
+    }
+        
+    return textureColor * float4(lightColor, 1.0f);
 }

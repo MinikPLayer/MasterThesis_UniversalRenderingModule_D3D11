@@ -182,7 +182,6 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Color.h" />
     <ClInclude Include="D3DIndexBuffer.h" />
     <ClInclude Include="D3DRasterizerState.h" />
     <ClInclude Include="D3DSampler.h" />

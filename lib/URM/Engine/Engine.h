@@ -4,7 +4,6 @@
 #include <URM/Core/D3DCore.h>
 #include <URM/Scene/Scene.h>
 #include <URM/Core/D3DViewport.h>
-#include <URM/Core/Color.h>
 #include <URM/Core/D3DRasterizerState.h>
 #include <URM/Core/D3DConstantBuffer.h>
 
@@ -16,7 +15,7 @@
 
 namespace URM::Engine {
 	struct RenderingParams {
-		URM::Core::Color clearColor;
+		Color clearColor;
 		URM::Core::PrimitiveTopologies toplogy = URM::Core::PrimitiveTopologies::TRIANGLE_LIST;
 		URM::Core::D3DRasterizerState rasterizerState;
 		URM::Core::D3DViewport viewport;
@@ -54,7 +53,7 @@ namespace URM::Engine {
 
 		void Update();
 
-		void Clear(URM::Core::Color color);
+		void Clear(Color color);
 		void Clear();
 		void Draw(RenderingParams params, std::vector<std::weak_ptr<URM::Scene::SceneMesh>> meshes);
 		void Draw(RenderingParams params);

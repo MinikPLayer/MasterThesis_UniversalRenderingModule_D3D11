@@ -76,9 +76,6 @@
     <ClInclude Include="Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Color.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="D3DCore.cpp">

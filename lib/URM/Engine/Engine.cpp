@@ -100,8 +100,8 @@ namespace URM::Engine {
         return this->core.GetWindow().IsDestroyed();
     }
 
-    void Engine::Clear(URM::Core::Color color) {
-        core.Clear(color.ToXM());
+    void Engine::Clear(Color color) {
+        core.Clear(color);
     }
 
     void Engine::Clear() {

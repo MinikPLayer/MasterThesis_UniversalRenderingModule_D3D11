@@ -50,7 +50,7 @@ void Clear(URM::Core::D3DCore& core) {
 
     auto elapsedTime = std::chrono::duration_cast<std::chrono::microseconds>(now - programStartTime).count() / 1000000.0f;
 
-    core.Clear(DirectX::Colors::Black);
+    core.Clear(Color(Colors::Black));
 }
 
 struct VertexConstantBuffer

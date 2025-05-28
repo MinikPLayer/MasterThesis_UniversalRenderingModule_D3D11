@@ -62,7 +62,7 @@ namespace URM::Core {
 		Window& GetWindow() { return *this->window; }
 
 		void SetPrimitiveTopology(PrimitiveTopologies topology);
-		void Clear(DirectX::XMVECTORF32 color);
+		void Clear(DirectX::SimpleMath::Color color);
 		void Present(int syncInterval);
 
 		D3DCore(const D3DCore&) = delete;

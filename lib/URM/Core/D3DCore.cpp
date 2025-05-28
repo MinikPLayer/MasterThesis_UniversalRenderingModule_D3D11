@@ -14,7 +14,7 @@ namespace URM::Core {
         creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif 
 
-        static const D3D_FEATURE_LEVEL allowedFeatureLevels[] = { D3D_FEATURE_LEVEL_11_0 };
+        static const D3D_FEATURE_LEVEL allowedFeatureLevels[] = { D3D_FEATURE_LEVEL_11_1 };
 
         ComPtr<ID3D11Device> newDevice;
         ComPtr<ID3D11DeviceContext> newContext;
@@ -201,7 +201,7 @@ namespace URM::Core {
         context->IASetPrimitiveTopology(static_cast<D3D11_PRIMITIVE_TOPOLOGY>(topology));
     }
 
-    void D3DCore::Clear(XMVECTORF32 color) {
+    void D3DCore::Clear(Color color) {
         // Clear the views.
         context->ClearRenderTargetView(this->renderTargetView.Get(), color);
         context->ClearDepthStencilView(this->depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
