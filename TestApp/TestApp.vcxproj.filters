@@ -39,9 +39,6 @@
     </Manifest>
   </ItemGroup>
   <ItemGroup>
-    <None Include="vcpkg.json" />
-  </ItemGroup>
-  <ItemGroup>
     <CopyFileToFolders Include="cube.fbx">
       <Filter>Assets\Models</Filter>
     </CopyFileToFolders>

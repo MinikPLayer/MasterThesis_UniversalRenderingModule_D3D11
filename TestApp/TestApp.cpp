@@ -463,7 +463,7 @@ namespace {
 				deltaCounter += engine.GetTimer().GetDeltaTime();
 				if (deltaCounter > drawInterval) {
 					engine.Clear();
-					engine.Draw(engine.renderParameters, scene.GetMeshes(), scene.GetLights());
+					engine.Draw(engine.renderParameters, scene.GetMainCamera(), scene.GetMeshes(), scene.GetLights());
 					engine.Present(0);
 
 					deltaCounter -= drawInterval;
