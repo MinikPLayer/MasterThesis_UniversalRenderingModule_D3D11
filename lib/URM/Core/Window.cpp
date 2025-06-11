@@ -88,6 +88,10 @@ namespace URM::Core {
 
 	LRESULT Window::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
 		switch (message) {
+			case WM_LBUTTONDOWN:
+				spdlog::info("Left mouse button down at ({}, {})", LOWORD(lParam), HIWORD(lParam));
+				break;
+
 			case WM_PAINT:
 				if (isResizing) {
 					if (this->OnPaint)

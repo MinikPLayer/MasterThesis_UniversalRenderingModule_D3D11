@@ -2,7 +2,7 @@
 #include "Engine.h"
 #include "SceneMesh.h"
 
-#include <directxtk/SimpleMath.h>
+// #include <directxtk/SimpleMath.h>
 
 namespace URM::Engine {
 	// TODO: Move these structs to another file.
@@ -15,6 +15,8 @@ namespace URM::Engine {
 
 	// Alignment rules: https://maraneshi.github.io/HLSL-ConstantBufferLayoutVisualizer/
 	struct PixelConstantBuffer {
+		static const constexpr int MAX_LIGHTS_COUNT = 8;
+		
 		struct Material {
 			alignas(4) int useAlbedoTexture = 0;
 		};
@@ -39,7 +41,7 @@ namespace URM::Engine {
 
 		alignas(4) Vector4 viewPosition;
 		alignas(16) Material material;
-		alignas(4) int activeLightsCount = 0;
+		alignas(4) unsigned int activeLightsCount = 0;
 		alignas(16) Light lights[8];
 
 
@@ -120,7 +122,13 @@ namespace URM::Engine {
 		this->Clear(renderParameters.clearColor);
 	}
 
-	void Engine::Draw(RenderingParams& params, std::vector<std::weak_ptr<SceneMesh>>& meshes) {
+	void Engine::Draw(RenderingParams& params, std::weak_ptr<CameraObject> mainCamera, std::vector<std::weak_ptr<SceneMesh>>& meshes, std::vector<std::weak_ptr<Light>>& lights) {
+		if (mainCamera.expired()) {
+			spdlog::error("Main camera is not set. Cannot draw the scene.");
+			return;
+		}
+		
+		auto cameraPtr = mainCamera.lock();
 		auto context = this->mCore.GetContext();
 
 		auto vp = params.viewport.GetData();
@@ -138,35 +146,26 @@ namespace URM::Engine {
 		this->mPixelConstantBuffer.Bind(this->mCore, 1);
 
 		// TODO: Add dynamic lights with separate type.
-		auto rotation = this->mTimer.GetElapsedTime() * 90.0f;
-		auto rotationRad = rotation * DirectX::XM_PI / 180.0f;
 		auto cameraPos = Vector3(0.0f, 4.0f, -8.0f);
-		constexpr float lightDistance = 2.1f;
 
 		// TODO: Add support for custom PixelConstantBuffer types.
 		auto pixelBufferValue = PixelConstantBuffer(cameraPos);
-		pixelBufferValue.activeLightsCount = 3;
-		pixelBufferValue.lights[0] = PixelConstantBuffer::Light(
-			Vector3(sin(rotationRad) * lightDistance, lightDistance / 1.5f, cos(rotationRad) * lightDistance),
-			Color(0, 0, 1),
-			0.03f,
-			0.9f,
-			1.0f
-		);
-		pixelBufferValue.lights[1] = PixelConstantBuffer::Light(
-			Vector3(sin(rotationRad + 2.1f) * lightDistance, lightDistance / 1.5f, cos(rotationRad + 2.1f) * lightDistance),
-			Color(1, 0, 0),
-			0.02f,
-			0.9f,
-			1.0f
-		);
-		pixelBufferValue.lights[2] = PixelConstantBuffer::Light(
-			Vector3(sin(rotationRad + 4.2f) * lightDistance, lightDistance / 1.5f, cos(rotationRad + 4.2f) * lightDistance),
-			Color(0, 1, 0),
-			0.01f,
-			0.9f,
-			1.0f
-		);
+		size_t lightsCount = lights.size();
+		if (lightsCount > PixelConstantBuffer::MAX_LIGHTS_COUNT) {
+			spdlog::warn("Too many lights in the scene. Max supported: {}, current: {}. Truncating to the max value.", PixelConstantBuffer::MAX_LIGHTS_COUNT, lightsCount);
+			lightsCount = PixelConstantBuffer::MAX_LIGHTS_COUNT;
+		}
+		pixelBufferValue.activeLightsCount = lightsCount;
+		for (size_t i = 0; i < lightsCount; i++) {
+			auto l = lights[i].lock();
+			pixelBufferValue.lights[i] = PixelConstantBuffer::Light(
+				l->GetTransform().GetPosition(),
+				l->color,
+				l->ambientIntensity,
+				l->diffuseIntensity,
+				l->specularIntensity
+			);
+		}
 
 		this->mPixelConstantBuffer.UpdateWithData(this->mCore, &pixelBufferValue);
 
@@ -225,8 +224,12 @@ namespace URM::Engine {
 		}
 	}
 
+	void Engine::Draw(RenderingParams& params, Scene& scene) {
+		this->Draw(params, mScene.GetMainCamera(), mScene.GetMeshes(), scene.GetLights());
+	}
+	
 	void Engine::Draw(RenderingParams& params) {
-		this->Draw(params, mScene.GetMeshes());
+		this->Draw(params, mScene);
 	}
 
 	void Engine::RunLoop() {

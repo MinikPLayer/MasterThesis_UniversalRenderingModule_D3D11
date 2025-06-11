@@ -22,7 +22,7 @@
 
 #include <URM/Engine/Engine.h>
 
-#include <DirectXMath.h>
+// #include <DirectXMath.h>
 
 using namespace DirectX;
 
@@ -278,6 +278,8 @@ namespace {
 	};
 
 	class MultipleShadersTest : public ITest {
+		std::vector<std::weak_ptr<URM::Engine::Light>> mLights;
+		
 	public:
 		void Init(URM::Core::D3DCore& core, URM::Engine::Scene& scene) override {
 			auto alternativeShader = std::make_shared<URM::Core::ShaderProgram>(URM::Core::ShaderProgram(core, L"SimpleVertexShader.cso", L"ColorOnlyPixelShader.cso"));
@@ -333,11 +335,36 @@ namespace {
 			);
 			rightWallCube->GetTransform().SetLocalPosition({5.0f, 3.0f, 0.0f});
 			rightWallCube->GetTransform().SetLocalScale({1.0f, 5.0f, 5.0f});
+
+			// Lights
+			auto newLight = scene.GetRoot().lock()->AddChild(
+				std::make_shared<URM::Engine::Light>()
+			);
+			newLight->color = Color(1, 0, 0);
+			mLights.push_back(newLight);
+
+			newLight = scene.GetRoot().lock()->AddChild(
+				std::make_shared<URM::Engine::Light>()
+			);
+			newLight->color = Color(0, 1, 0);
+			mLights.push_back(newLight);
+
+			newLight = scene.GetRoot().lock()->AddChild(
+				std::make_shared<URM::Engine::Light>()
+			);
+			newLight->color = Color(0, 0, 1);
+			mLights.push_back(newLight);
 		}
 
 		void Update(URM::Engine::Engine& engine) override {
-			// TODO: Change light position
-			//engine.GetScene().GetRoot().lock()->GetTransform().SetLocalRotation(Quaternion::CreateFromAxisAngle(Vector3::Up, sin(engine.GetTimer().GetElapsedTime()) / 2));
+			constexpr float lightDistance = 2.1f;
+			
+			auto rotation = engine.GetTimer().GetElapsedTime() * 90.0f;
+			auto rotationRad = rotation * DirectX::XM_PI / 180.0f;
+
+			mLights[0].lock()->GetTransform().SetPosition(Vector3(sin(rotationRad) * lightDistance, lightDistance / 1.5f, cos(rotationRad) * lightDistance));
+			mLights[1].lock()->GetTransform().SetPosition(Vector3(sin(rotationRad + 2.1f) * lightDistance, lightDistance / 1.5f, cos(rotationRad + 2.1f) * lightDistance));
+			mLights[2].lock()->GetTransform().SetPosition(Vector3(sin(rotationRad + 4.2f) * lightDistance, lightDistance / 1.5f, cos(rotationRad + 4.2f) * lightDistance));
 		}
 	};
 
@@ -436,7 +463,7 @@ namespace {
 				deltaCounter += engine.GetTimer().GetDeltaTime();
 				if (deltaCounter > drawInterval) {
 					engine.Clear();
-					engine.Draw(engine.renderParameters, scene.GetMeshes());
+					engine.Draw(engine.renderParameters, scene.GetMeshes(), scene.GetLights());
 					engine.Present(0);
 
 					deltaCounter -= drawInterval;

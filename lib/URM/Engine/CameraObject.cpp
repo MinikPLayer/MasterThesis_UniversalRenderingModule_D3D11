@@ -3,11 +3,21 @@
 
 #include "Scene.h"
 
-bool URM::Engine::CameraObject::IsMainCamera() {
-	return false;
+bool URM::Engine::CameraObject::IsMainCamera() const {
+	auto mainCamera = this->GetScene().GetMainCamera();
+	if (mainCamera.expired()) {
+		return false;
+	}
+
+	return mainCamera.lock().get() == this;
 }
 
-void URM::Engine::CameraObject::SetAsMainCamera() {}
+void URM::Engine::CameraObject::SetAsMainCamera() {
+	const auto selfPtr = this->GetSelfPtr().lock();
+	const auto cameraSelfPtr = std::dynamic_pointer_cast<CameraObject>(selfPtr);
+	
+	this->GetScene().SetMainCamera(cameraSelfPtr);
+}
 
 Matrix URM::Engine::CameraObject::CalculateProjectionMatrix(Core::Size2i viewSize) const {
 	return Matrix::CreatePerspectiveFieldOfView(

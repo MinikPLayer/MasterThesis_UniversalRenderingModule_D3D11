@@ -35,8 +35,8 @@ namespace URM::Engine {
 			this->mFarPlane = newFarPlane;
 		}
 
-		static bool IsMainCamera();
-		static void SetAsMainCamera();
+		bool IsMainCamera() const;
+		void SetAsMainCamera();
 
 		// PLAN: Add caching
 		Matrix CalculateProjectionMatrix(Core::Size2i viewSize) const;

@@ -13,5 +13,7 @@ namespace URM::Engine {
 		float diffuseIntensity = 0.9f;
 		float specularIntensity = 1.0f;
 
+		void OnAdded() override;
+		void OnDestroyed() override;
 	};
 }

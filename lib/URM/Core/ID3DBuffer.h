@@ -1,7 +1,6 @@
 #pragma once
 
 #include <d3d11.h>
-#include <vector>
 #include "D3DCore.h"
 
 namespace URM::Core {
