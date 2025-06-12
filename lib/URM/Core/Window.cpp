@@ -4,7 +4,7 @@
 #include "Log.h"
 
 namespace URM::Core {
-	LRESULT CALLBACK WndProdDispatcher(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
+	LRESULT CALLBACK WndProdDispatcher(const HWND hwnd, const UINT message, const WPARAM wParam, const LPARAM lParam) {
 		Window* window;
 		if (message == WM_NCCREATE) {
 			window = static_cast<Window*>(reinterpret_cast<LPCREATESTRUCT>(lParam)->lpCreateParams);
@@ -25,7 +25,7 @@ namespace URM::Core {
 		return DefWindowProc(hwnd, message, wParam, lParam);
 	}
 
-	static std::wstring FindUnusedClassName(HINSTANCE hInstance, std::string base) {
+	static std::wstring FindUnusedClassName(const HINSTANCE hInstance, std::string base) {
 		auto className = std::wstring(base.begin(), base.end());
 
 		constexpr int triesCount = 10000;
@@ -44,7 +44,7 @@ namespace URM::Core {
 	}
 
 	bool Window::Create(WindowCreationParams p) {
-		auto className = FindUnusedClassName(p.hInstance, p.title);
+		const auto className = FindUnusedClassName(p.hInstance, p.title);
 		spdlog::trace("Using class name \"{}\"", StringUtils::WStringToString(className));
 
 		WNDCLASSEXW wcex = {};
