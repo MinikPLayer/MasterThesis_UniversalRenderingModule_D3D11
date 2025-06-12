@@ -242,10 +242,10 @@ namespace {
 	public:
 		void Init(URM::Core::D3DCore& core, URM::Engine::Scene& scene) override {
 			auto cubeModel = new URM::Engine::SceneModel("cube_textured.glb");
-			auto cube = scene.GetRoot().lock()->AddChild(cubeModel);
-			cube->GetTransform().SetLocalPosition({0.0f, 0.0f, 0.0f});
-
-			cube = cube->AddChild(new URM::Engine::SceneModel("cube_textured.glb"));
+			auto parentCube = scene.GetRoot().lock()->AddChild(cubeModel);
+			parentCube->GetTransform().SetLocalPosition({0.0f, 0.0f, 0.0f});
+			
+			auto cube = parentCube->AddChild(new URM::Engine::SceneModel("cube_textured.glb"));
 			cube->GetTransform().SetLocalPosition({3.0f, 0.0f, 0.0f});
 			cube->GetTransform().SetLocalScale({0.5f, 0.5f, 0.5f});
 
@@ -260,6 +260,21 @@ namespace {
 			auto staticPosObject = cube->AddChild(new URM::Engine::SceneModel("suzanne.glb"));
 			staticPosObject->GetTransform().SetLocalPosition({6.0f, 0.0f, 0.0f});
 			staticPosObject->GetTransform().SetLocalScale({3.0f, 3.0f, 3.0f});
+
+			auto light = parentCube->AddChild(
+				new URM::Engine::Light()
+			);
+			light->GetTransform().SetLocalPosition(Vector3(0, 3, 0));
+			
+			light = cube->AddChild(
+				new URM::Engine::Light()
+			);
+			light->color = Color(1, 0, 0);
+			
+			auto camera = scene.GetRoot().lock()->AddChild(new URM::Engine::CameraObject(60.0f));
+			camera->GetTransform().SetPosition(Vector3(8.0f, 8.0f, -8.0f));
+			camera->GetTransform().LookAt(Vector3(0.0f, 0.0f, 0.0f));
+			scene.SetMainCamera(camera);
 		}
 
 		void Update(URM::Engine::Engine& engine) override {
@@ -269,11 +284,22 @@ namespace {
 			auto superSmallCube = smallCubeObject->GetChildByIndex(1);
 			auto staticPosObject = superSmallCube->GetChildByIndex(1)->GetChildByIndex(1);
 
-			cubeObject->GetTransform().SetLocalRotation(Quaternion::CreateFromAxisAngle(Vector3::Up, engine.GetTimer().GetElapsedTime() * 1.0f));
-			smallCubeObject->GetTransform().SetLocalRotation(Quaternion::CreateFromAxisAngle(Vector3::Forward, engine.GetTimer().GetElapsedTime() * 1.7f));
-			superSmallCube->GetTransform().SetLocalRotation(Quaternion::CreateFromAxisAngle(Vector3::Up, engine.GetTimer().GetElapsedTime() * 2.3f));
-
+			cubeObject->GetTransform().SetLocalRotation(Vector3(0, engine.GetTimer().GetElapsedTime() * 90.0f, 0));
+			smallCubeObject->GetTransform().SetLocalRotation(Vector3(0, 0, engine.GetTimer().GetElapsedTime() * 1.7f * 90.0f));
+			superSmallCube->GetTransform().SetLocalRotation(Vector3(0, engine.GetTimer().GetElapsedTime() * 2.3f * 90.0f, 0));
+			
 			staticPosObject->GetTransform().SetPosition(Vector3(2, 2, 2));
+
+			auto camera = engine.GetScene().GetMainCamera();
+			auto& timer = engine.GetTimer();
+			auto& cameraTransform = camera.lock()->GetTransform();
+			auto scaledTime = timer.GetElapsedTime() * 2.0f;
+			
+			auto distance = 10.0f;
+			cameraTransform.SetLocalPosition({distance * sin(scaledTime), distance * sin(scaledTime * 0.7f), distance * cos(scaledTime)});
+			cameraTransform.LookAt(Vector3(0, 0, 0));
+
+			staticPosObject->GetTransform().LookAt(cameraTransform.GetPosition());
 		}
 	};
 
@@ -354,6 +380,11 @@ namespace {
 			);
 			newLight->color = Color(0, 0, 1);
 			mLights.push_back(newLight);
+
+			// Camera
+			auto camera = scene.GetRoot().lock()->AddChild(new URM::Engine::CameraObject());
+			camera->GetTransform().SetPosition(Vector3(0.0f, 4.0f, -8.0f));
+			scene.SetMainCamera(camera);
 		}
 
 		void Update(URM::Engine::Engine& engine) override {
@@ -365,12 +396,17 @@ namespace {
 			mLights[0].lock()->GetTransform().SetPosition(Vector3(sin(rotationRad) * lightDistance, lightDistance / 1.5f, cos(rotationRad) * lightDistance));
 			mLights[1].lock()->GetTransform().SetPosition(Vector3(sin(rotationRad + 2.1f) * lightDistance, lightDistance / 1.5f, cos(rotationRad + 2.1f) * lightDistance));
 			mLights[2].lock()->GetTransform().SetPosition(Vector3(sin(rotationRad + 4.2f) * lightDistance, lightDistance / 1.5f, cos(rotationRad + 4.2f) * lightDistance));
+
+			// auto camera = engine.GetScene().GetMainCamera();
+			// camera.lock()->GetTransform().SetRotation(
+			// 	Quaternion::Rot
+			// );
 		}
 	};
 
 	constexpr bool ENGINE_MODE = true;
 	constexpr bool ENGINE_LOOP_MODE = true;
-	auto SelectedTest = std::unique_ptr<ITest>(std::make_unique<MultipleShadersTest>());
+	auto SelectedTest = std::unique_ptr<ITest>(std::make_unique<SceneRelativeTransformationsTest>());
 
 	void Init(URM::Core::D3DCore& core, URM::Engine::Scene& scene) {
 		SelectedTest->Init(core, scene);

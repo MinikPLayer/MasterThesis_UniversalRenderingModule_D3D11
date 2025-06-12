@@ -4,10 +4,11 @@
 #include <d3d11.h>
 
 namespace URM::Core {
+	// Back and front inverted because of RH coordinate system, while D3D11 assumes LH.
 	enum class CullModes {
 		NONE  = D3D11_CULL_NONE,
-		FRONT = D3D11_CULL_FRONT,
-		BACK  = D3D11_CULL_BACK,
+		FRONT = D3D11_CULL_BACK,
+		BACK  = D3D11_CULL_FRONT,
 	};
 
 	enum class FillModes {
@@ -33,15 +34,15 @@ namespace URM::Core {
 	};
 
 	class D3DRasterizerState {
-		ComPtr<ID3D11RasterizerState> state;
-		D3DRasterizerStateData data;
+		ComPtr<ID3D11RasterizerState> mState;
+		D3DRasterizerStateData mData;
 
-		bool dataChanged = false;
+		bool mDataChanged = false;
 	public:
 		void Bind(const D3DCore& core);
 		void SetData(const D3DRasterizerStateData& data);
 		D3DRasterizerStateData GetData() {
-			return this->data;
+			return this->mData;
 		}
 
 		D3DRasterizerState(const D3DRasterizerStateData& data = D3DRasterizerStateData());

@@ -17,6 +17,9 @@ namespace URM::Engine {
 		Vector3 mGlobalScale;
 
 		Matrix CalculateLocalModelMatrix() const;
+
+		static Quaternion EulerToQuatRadians(Vector3 eulerAngles);
+		static Quaternion EulerToQuatAngles(Vector3 eulerAngles);
 	public:
 		void UpdateMatrix();
 		void UpdateMatrix(Matrix localMatrix, bool updateLocalValues = true);
@@ -26,10 +29,13 @@ namespace URM::Engine {
 
 		void SetPosition(Vector3 position);
 		void SetRotation(Quaternion quat);
-
+		void SetRotation(Vector3 eulerAngles);
+		void LookAt(Vector3 target, Vector3 upVector = Vector3::Up);
+		
 		void SetLocalPosition(Vector3 position);
 		void SetLocalScale(Vector3 scale);
 		void SetLocalRotation(Quaternion quat);
+		void SetLocalRotation(Vector3 eulerAngles);
 
 		Vector3 GetForwardVector() const;
 		Vector3 GetUpVector() const;

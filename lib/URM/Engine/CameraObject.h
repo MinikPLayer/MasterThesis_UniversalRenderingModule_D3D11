@@ -7,8 +7,13 @@
 
 namespace URM::Engine {
 	class CameraObject : public SceneObject {
+		// Field of view in degrees
 		float mFov = 60.0f;
+
+		// Near cutoff plane
 		float mNearPlane = 0.1f;
+
+		// Far cutoff plane
 		float mFarPlane = 1000.0f;
 	public:
 		float GetFov() const {
@@ -34,13 +39,10 @@ namespace URM::Engine {
 		void SetFarPlane(float newFarPlane) {
 			this->mFarPlane = newFarPlane;
 		}
-
-		bool IsMainCamera() const;
-		void SetAsMainCamera();
-
+		
 		// PLAN: Add caching
-		Matrix CalculateProjectionMatrix(Core::Size2i viewSize) const;
-		Matrix CalculateViewMatrix();
+		virtual Matrix CalculateProjectionMatrix(Core::Size2i viewSize) const;
+		virtual Matrix CalculateViewMatrix();
 
 		CameraObject(float fov = 60.0f, float nearPlane = 0.1f, float farPlane = 1000.0f);
 	};

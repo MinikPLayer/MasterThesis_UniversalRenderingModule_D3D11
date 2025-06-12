@@ -26,6 +26,22 @@ namespace URM::Engine {
 
 		return Matrix(static_cast<XMMATRIX>(matScaling) * static_cast<XMMATRIX>(matRotation) * static_cast<XMMATRIX>(matTranslation));
 	}
+	
+	Quaternion Transform::EulerToQuatRadians(Vector3 eulerAngles) {
+		return Quaternion::CreateFromYawPitchRoll(
+			eulerAngles.y,
+			eulerAngles.x,
+			eulerAngles.z
+		);
+	}
+
+	Quaternion Transform::EulerToQuatAngles(Vector3 eulerAngles) {
+		return Quaternion::CreateFromYawPitchRoll(
+			XMConvertToRadians(eulerAngles.y),
+			XMConvertToRadians(eulerAngles.x),
+			XMConvertToRadians(eulerAngles.z)
+		);
+	}
 
 	// TODO: Compute inverse matrix together with a normal one
 	void Transform::UpdateMatrix(Matrix localMatrix, bool updateLocalValues) {
@@ -135,6 +151,37 @@ namespace URM::Engine {
 
 		UpdateMatrix();
 	}
+	void Transform::SetRotation(Vector3 eulerAngles) {
+		this->SetRotation(EulerToQuatAngles(eulerAngles));
+	}
+
+	// Source: https://gamedev.stackexchange.com/questions/15070/orienting-a-model-to-face-a-target
+	void Transform::LookAt(Vector3 target, Vector3 upVector) {
+		auto pos = GetPosition();
+		auto newForward = (target - pos);
+		newForward.Normalize();
+
+		auto source = Vector3::Forward;
+		auto dest = newForward;
+		
+		float dot = source.Dot(dest);
+
+		if (abs(dot - (-1.0f)) < 0.000001f) {
+			// Facing the opposite direction
+			SetRotation(Quaternion::CreateFromAxisAngle(upVector, 180.0f));
+			return;
+		}
+
+		if (abs(dot - 1.0f) < 0.000001f) {
+			// Facing the target
+			return;
+		}
+
+		float rotAngle = (float)acos(dot);
+		auto rotAxis = source.Cross(dest);
+		rotAxis.Normalize();
+		SetRotation(Quaternion::CreateFromAxisAngle(rotAxis, rotAngle));
+	}
 
 	void Transform::SetLocalPosition(Vector3 position) {
 		this->mLocalPosition = position;
@@ -152,6 +199,10 @@ namespace URM::Engine {
 		this->mLocalRotation = quat;
 
 		UpdateMatrix();
+	}
+
+	void Transform::SetLocalRotation(Vector3 eulerAngles) {
+		this->SetLocalRotation(EulerToQuatAngles(eulerAngles));
 	}
 
 	Vector3 Transform::GetForwardVector() const {

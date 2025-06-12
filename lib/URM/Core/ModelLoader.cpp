@@ -200,9 +200,7 @@ namespace URM::Core {
 	std::shared_ptr<ModelLoaderNode> Load(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, const std::string& filePath) {
 		Assimp::Importer importer;
 
-		const aiScene* pScene = importer.ReadFile(filePath,
-		                                          aiProcess_Triangulate |
-		                                          aiProcess_ConvertToLeftHanded);
+		const aiScene* pScene = importer.ReadFile(filePath, aiProcess_Triangulate);
 
 		if (pScene == nullptr)
 			return nullptr;

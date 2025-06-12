@@ -64,6 +64,14 @@ namespace URM::Engine {
 	};
 
 	namespace {
+		WVPMatrix CreateTransformationMatrix(CameraObject* camera, Core::Size2i windowSize) {
+			auto proj = camera->CalculateProjectionMatrix(windowSize);
+			auto view = camera->CalculateViewMatrix();
+			auto world = Matrix::Identity;
+
+			return {proj, view, world};
+		}
+		
 		WVPMatrix CreateTransformationMatrix(
 			Vector3 cameraPosition,
 			Vector3 cameraTarget,
@@ -124,7 +132,7 @@ namespace URM::Engine {
 
 	void Engine::Draw(RenderingParams& params, std::weak_ptr<CameraObject> mainCamera, std::vector<std::weak_ptr<SceneMesh>>& meshes, std::vector<std::weak_ptr<Light>>& lights) {
 		if (mainCamera.expired()) {
-			spdlog::error("Main camera is not set. Cannot draw the scene.");
+			throw std::runtime_error("Main camera is not set. Cannot draw the scene.");
 			return;
 		}
 		
@@ -179,6 +187,7 @@ namespace URM::Engine {
 			100.0f,
 			windowSize
 		);
+		renderMatrix = CreateTransformationMatrix(cameraPtr.get(), windowSize);
 
 		// TODO: Group meshes by shaders and input layouts.
 		for (auto& mesh : meshes) {

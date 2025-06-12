@@ -3,25 +3,10 @@
 
 #include "Scene.h"
 
-bool URM::Engine::CameraObject::IsMainCamera() const {
-	auto mainCamera = this->GetScene().GetMainCamera();
-	if (mainCamera.expired()) {
-		return false;
-	}
-
-	return mainCamera.lock().get() == this;
-}
-
-void URM::Engine::CameraObject::SetAsMainCamera() {
-	const auto selfPtr = this->GetSelfPtr().lock();
-	const auto cameraSelfPtr = std::dynamic_pointer_cast<CameraObject>(selfPtr);
-	
-	this->GetScene().SetMainCamera(cameraSelfPtr);
-}
-
 Matrix URM::Engine::CameraObject::CalculateProjectionMatrix(Core::Size2i viewSize) const {
-	return Matrix::CreatePerspectiveFieldOfView(
-		this->mFov,
+	auto fovInRadians = DirectX::XMConvertToRadians(this->mFov);
+	return DirectX::XMMatrixPerspectiveFovRH(
+		fovInRadians,
 		static_cast<float>(viewSize.width) / static_cast<float>(viewSize.height),
 		this->mNearPlane,
 		this->mFarPlane
@@ -29,7 +14,14 @@ Matrix URM::Engine::CameraObject::CalculateProjectionMatrix(Core::Size2i viewSiz
 }
 
 Matrix URM::Engine::CameraObject::CalculateViewMatrix() {
-	return this->GetTransform().GetWorldSpaceMatrix().Invert();
+	auto& transform = this->GetTransform();
+	// return this->GetTransform().GetWorldSpaceMatrix().Invert();
+	return DirectX::XMMatrixLookToRH(
+		this->GetTransform().GetPosition(),
+		this->GetTransform().GetForwardVector(),
+		Vector3::Up
+	);
+	// return DirectX::XMMatrixLookAtRH(transform.GetPosition(), Vector3(0, 0, 0), Vector3::Up);
 }
 
 URM::Engine::CameraObject::CameraObject(float fov, float nearPlane, float farPlane) {
