@@ -31,6 +31,7 @@ namespace URM::Engine {
 		void SetRotation(Quaternion quat);
 		void SetRotation(Vector3 eulerAngles);
 		void LookAt(Vector3 target, Vector3 upVector = Vector3::Up);
+		void LookAtFast(Vector3 target, Vector3 upVector = Vector3::Up);
 		
 		void SetLocalPosition(Vector3 position);
 		void SetLocalScale(Vector3 scale);

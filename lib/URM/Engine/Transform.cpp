@@ -155,28 +155,37 @@ namespace URM::Engine {
 		this->SetRotation(EulerToQuatAngles(eulerAngles));
 	}
 
-	// Source: https://gamedev.stackexchange.com/questions/15070/orienting-a-model-to-face-a-target
 	void Transform::LookAt(Vector3 target, Vector3 upVector) {
+		// Only LH works, idk why xd
+		auto viewMatrix = DirectX::XMMatrixLookAtLH(GetPosition(), target, upVector);
+		auto worldMatrix = DirectX::XMMatrixInverse(nullptr, viewMatrix);
+		
+		auto rotationMatrix = Quaternion::CreateFromRotationMatrix(worldMatrix);
+		SetRotation(rotationMatrix);
+	}
+	
+	// Source: https://gamedev.stackexchange.com/questions/15070/orienting-a-model-to-face-a-target
+	void Transform::LookAtFast(Vector3 target, Vector3 upVector) {
 		auto pos = GetPosition();
 		auto newForward = (target - pos);
 		newForward.Normalize();
-
+		
 		auto source = Vector3::Forward;
 		auto dest = newForward;
 		
 		float dot = source.Dot(dest);
-
+		
 		if (abs(dot - (-1.0f)) < 0.000001f) {
 			// Facing the opposite direction
 			SetRotation(Quaternion::CreateFromAxisAngle(upVector, 180.0f));
 			return;
 		}
-
+		
 		if (abs(dot - 1.0f) < 0.000001f) {
 			// Facing the target
 			return;
 		}
-
+		
 		float rotAngle = (float)acos(dot);
 		auto rotAxis = source.Cross(dest);
 		rotAxis.Normalize();

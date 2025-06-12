@@ -297,8 +297,15 @@ namespace {
 			
 			auto distance = 10.0f;
 			cameraTransform.SetLocalPosition({distance * sin(scaledTime), distance * sin(scaledTime * 0.7f), distance * cos(scaledTime)});
-			cameraTransform.LookAt(Vector3(0, 0, 0));
-
+			int counter = 0;
+			for (int i = 0; i < 1000; i++) {
+				cameraTransform.LookAt(Vector3(1000 - i, 1000 - i, 0));
+				counter += cameraTransform.GetRotation().x;
+			}
+			if (counter > 100) {
+				spdlog::warn("Camera rotation is too high: {}", counter);
+			}
+			
 			staticPosObject->GetTransform().LookAt(cameraTransform.GetPosition());
 		}
 	};
