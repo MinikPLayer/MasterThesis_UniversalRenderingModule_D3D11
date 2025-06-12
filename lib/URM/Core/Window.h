@@ -24,15 +24,15 @@ namespace URM::Core {
 		friend class D3DCore;
 		friend LRESULT WndProdDispatcher(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-		HWND handle = nullptr;
+		HWND mHandle = nullptr;
 
-		Size2i oldSize = {-1, -1};
-		bool isResizing = false;
+		Size2i mOldSize = {-1, -1};
+		bool mIsResizing = false;
 
-		int width = -1;
-		int height = -1;
+		int mWidth = -1;
+		int mHeight = -1;
 
-		bool isDestroyed = false;
+		bool mIsDestroyed = false;
 
 		std::function<void(Window&)> OnPaint = {};
 		std::function<void(Window& window, Size2i oldSize, Size2i newSize)> OnResize = {};
@@ -49,11 +49,11 @@ namespace URM::Core {
 		static void PollEvents();
 
 		HWND GetHandle() const {
-			return this->handle;
+			return this->mHandle;
 		}
 
 		bool IsDestroyed() const {
-			return isDestroyed;
+			return mIsDestroyed;
 		}
 
 		void Show() const;
@@ -61,7 +61,7 @@ namespace URM::Core {
 		void Close(bool ignoreOnCloseRequested = false);
 
 		Size2i GetSize() const {
-			return Size2i(this->width, this->height);
+			return Size2i(this->mWidth, this->mHeight);
 		}
 
 		Window(const WindowCreationParams& params, bool show = true);

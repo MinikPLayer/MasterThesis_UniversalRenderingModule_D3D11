@@ -41,7 +41,7 @@ namespace URM::Core {
 	public:
 		void Bind(const D3DCore& core);
 		void SetData(const D3DRasterizerStateData& data);
-		D3DRasterizerStateData GetData() {
+		D3DRasterizerStateData GetData() const {
 			return this->mData;
 		}
 

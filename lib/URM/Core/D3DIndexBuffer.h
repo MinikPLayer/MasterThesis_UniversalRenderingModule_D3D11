@@ -7,13 +7,13 @@ namespace URM::Core {
 	class D3DIndexBuffer : public ID3DBuffer {
 		using IndexBufferType = unsigned int;
 
-		D3DIndexBuffer(D3DCore& core, const D3D11_BUFFER_DESC& desc, D3D11_SUBRESOURCE_DATA* initData) : ID3DBuffer(core, desc, initData) {}
+		D3DIndexBuffer(const D3DCore& core, const D3D11_BUFFER_DESC& desc, const D3D11_SUBRESOURCE_DATA* initData) : ID3DBuffer(core, desc, initData) {}
 	public:
 		void Bind(D3DCore& core, UINT offset) override {
 			core.GetContext()->IASetIndexBuffer(this->mBuffer.Get(), DXGI_FORMAT_R32_UINT, offset);
 		}
 
-		static D3DIndexBuffer Create(D3DCore& core, const std::vector<IndexBufferType>& data, UINT cpuAccessFlags = 0, D3D11_USAGE usage = D3D11_USAGE_DEFAULT) {
+		static D3DIndexBuffer Create(const D3DCore& core, const std::vector<IndexBufferType>& data, UINT cpuAccessFlags = 0, D3D11_USAGE usage = D3D11_USAGE_DEFAULT) {
 			D3D11_BUFFER_DESC desc = {};
 			desc.Usage = usage;
 			desc.BindFlags = D3D11_BIND_INDEX_BUFFER;

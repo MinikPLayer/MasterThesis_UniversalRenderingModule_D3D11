@@ -41,7 +41,7 @@ namespace URM::Core {
 		void OnDeviceLost();
 		void FreeResources();
 
-		void WindowResized(Window& window, Size2i oldSize, Size2i newSize);
+		void WindowResized(const Window& window, Size2i oldSize, Size2i newSize);
 		void WindowFocusChanged(Window& window, bool isFocused);
 		bool WindowCloseRequested(Window& window);
 		void WindowPaint(Window& window);

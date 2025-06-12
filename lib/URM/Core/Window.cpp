@@ -61,13 +61,13 @@ namespace URM::Core {
 		if (!RegisterClassExW(&wcex))
 			return false;
 
-		this->width = p.width;
-		this->height = p.height;
+		this->mWidth = p.width;
+		this->mHeight = p.height;
 		RECT rc = {0, 0, static_cast<LONG>(p.width), static_cast<LONG>(p.height)};
 		AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
 
 		auto wTitle = std::wstring(p.title.begin(), p.title.end());
-		this->handle = CreateWindowExW(0,
+		this->mHandle = CreateWindowExW(0,
 		                               className.c_str(),
 		                               wTitle.c_str(),
 		                               WS_OVERLAPPEDWINDOW,
@@ -80,7 +80,7 @@ namespace URM::Core {
 		                               p.hInstance,
 		                               this);
 
-		if (!this->handle)
+		if (!this->mHandle)
 			return false;
 
 		return true;
@@ -93,7 +93,7 @@ namespace URM::Core {
 				break;
 
 			case WM_PAINT:
-				if (isResizing) {
+				if (mIsResizing) {
 					if (this->OnPaint)
 						this->OnPaint(*this);
 				}
@@ -106,33 +106,33 @@ namespace URM::Core {
 				break;
 
 			case WM_SIZE: {
-				this->oldSize = Size2i(this->width, this->height);
+				this->mOldSize = Size2i(this->mWidth, this->mHeight);
 				if (wParam == SIZE_MINIMIZED) {
-					if (!this->width && !this->height) {
-						this->width = LOWORD(lParam);
-						this->height = HIWORD(lParam);
+					if (!this->mWidth && !this->mHeight) {
+						this->mWidth = LOWORD(lParam);
+						this->mHeight = HIWORD(lParam);
 					}
 				}
 				else {
-					this->width = LOWORD(lParam);
-					this->height = HIWORD(lParam);
+					this->mWidth = LOWORD(lParam);
+					this->mHeight = HIWORD(lParam);
 				}
 
 				if (this->OnResize)
-					this->OnResize(*this, this->oldSize, Size2i(this->width, this->height));
+					this->OnResize(*this, this->mOldSize, Size2i(this->mWidth, this->mHeight));
 
 				break;
 			}
 
 			case WM_ENTERSIZEMOVE:
-				this->isResizing = true;
-				this->oldSize = Size2i(this->width, this->height);
+				this->mIsResizing = true;
+				this->mOldSize = Size2i(this->mWidth, this->mHeight);
 				break;
 
 			case WM_EXITSIZEMOVE:
-				this->isResizing = false;
+				this->mIsResizing = false;
 				if (this->OnResize)
-					this->OnResize(*this, this->oldSize, Size2i(this->width, this->height));
+					this->OnResize(*this, this->mOldSize, Size2i(this->mWidth, this->mHeight));
 				break;
 
 			case WM_ACTIVATEAPP: {
@@ -165,7 +165,7 @@ namespace URM::Core {
 				break;
 
 			case WM_DESTROY:
-				this->isDestroyed = true;
+				this->mIsDestroyed = true;
 				break;
 			
 			default: break;
@@ -176,13 +176,13 @@ namespace URM::Core {
 	}
 
 	void Window::Show() const {
-		ShowWindow(this->handle, SW_SHOWNORMAL);
-		UpdateWindow(this->handle);
+		ShowWindow(this->mHandle, SW_SHOWNORMAL);
+		UpdateWindow(this->mHandle);
 	}
 
 	void Window::Hide() const {
-		ShowWindow(this->handle, SW_HIDE);
-		UpdateWindow(this->handle);
+		ShowWindow(this->mHandle, SW_HIDE);
+		UpdateWindow(this->mHandle);
 	}
 
 	void Window::Close(bool ignoreOnCloseRequested) {
@@ -191,8 +191,8 @@ namespace URM::Core {
 				return;
 		}
 
-		if (this->handle) {
-			DestroyWindow(this->handle);
+		if (this->mHandle) {
+			DestroyWindow(this->mHandle);
 		}
 	}
 
@@ -221,9 +221,9 @@ namespace URM::Core {
 	}
 
 	Window::~Window() {
-		if (this->handle) {
-			DestroyWindow(this->handle);
-			this->handle = nullptr;
+		if (this->mHandle) {
+			DestroyWindow(this->mHandle);
+			this->mHandle = nullptr;
 		}
 	}
 }

@@ -13,12 +13,12 @@ namespace URM::Core {
 	};
 
 	class D3DViewport {
-		D3DViewportData data;
+		D3DViewportData mData;
 	public:
 		void Bind(const D3DCore& core) const;
 
 		D3DViewportData GetData() const {
-			return this->data;
+			return this->mData;
 		}
 		void SetData(const D3DViewportData& data);
 

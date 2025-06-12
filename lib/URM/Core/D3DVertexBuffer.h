@@ -6,7 +6,7 @@
 namespace URM::Core {
 	template<VertexTypeConcept VertexType>
 	class D3DVertexBuffer : public ID3DBuffer {
-		D3DVertexBuffer(D3DCore& core, const D3D11_BUFFER_DESC& desc, D3D11_SUBRESOURCE_DATA* initData) : ID3DBuffer(core, desc, initData) {}
+		D3DVertexBuffer(const D3DCore& core, const D3D11_BUFFER_DESC& desc, const D3D11_SUBRESOURCE_DATA* initData) : ID3DBuffer(core, desc, initData) {}
 	public:
 		void Bind(D3DCore& core, UINT slot) override {
 			UINT stride = sizeof(VertexType);

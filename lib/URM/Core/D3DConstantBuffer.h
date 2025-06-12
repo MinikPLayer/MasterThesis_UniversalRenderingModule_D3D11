@@ -5,14 +5,14 @@
 
 namespace URM::Core {
 	class D3DConstantBuffer : public ID3DBuffer {
-		ShaderStages stage;
+		ShaderStages mStage;
 
-		D3DConstantBuffer(D3DCore& core, const D3D11_BUFFER_DESC& desc, D3D11_SUBRESOURCE_DATA* initData, ShaderStages newStage) : ID3DBuffer(core, desc, initData) {
-			this->stage = newStage;
+		D3DConstantBuffer(const D3DCore& core, const D3D11_BUFFER_DESC& desc, const D3D11_SUBRESOURCE_DATA* initData, ShaderStages newStage) : ID3DBuffer(core, desc, initData) {
+			this->mStage = newStage;
 		}
 	public:
 		void Bind(D3DCore& core, UINT slot) override {
-			switch (stage) {
+			switch (mStage) {
 				case VERTEX:
 					core.GetContext()->VSSetConstantBuffers(slot, 1, this->mBuffer.GetAddressOf());
 					break;

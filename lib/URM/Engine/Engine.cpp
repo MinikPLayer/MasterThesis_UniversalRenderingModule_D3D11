@@ -41,7 +41,7 @@ namespace URM::Engine {
 
 		alignas(4) Vector4 viewPosition;
 		alignas(16) Material material;
-		alignas(4) unsigned int activeLightsCount = 0;
+		alignas(4) uint32_t activeLightsCount = 0;
 		alignas(16) Light lights[8];
 
 
@@ -163,7 +163,7 @@ namespace URM::Engine {
 			spdlog::warn("Too many lights in the scene. Max supported: {}, current: {}. Truncating to the max value.", PixelConstantBuffer::MAX_LIGHTS_COUNT, lightsCount);
 			lightsCount = PixelConstantBuffer::MAX_LIGHTS_COUNT;
 		}
-		pixelBufferValue.activeLightsCount = lightsCount;
+		pixelBufferValue.activeLightsCount = (uint32_t)lightsCount;
 		for (size_t i = 0; i < lightsCount; i++) {
 			auto l = lights[i].lock();
 			pixelBufferValue.lights[i] = PixelConstantBuffer::Light(
