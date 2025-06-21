@@ -146,10 +146,7 @@ namespace URM::Engine {
 		// TODO: Group meshes by shaders and input layouts.
 		for (auto& mesh : meshes) {
 			auto sceneMesh = mesh.lock();
-			if (sceneMesh == nullptr) {
-				spdlog::error("What");
-			}
-
+			
 			VertexConstantBuffer vcb;
 			auto worldMatrix = sceneMesh->GetTransform().GetWorldSpaceMatrix();
 			auto meshRenderMatrix = renderMatrix;
