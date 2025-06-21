@@ -12,6 +12,41 @@
 #include "Scene.h"
 
 namespace URM::Engine {
+	// Alignment rules: https://maraneshi.github.io/HLSL-ConstantBufferLayoutVisualizer/
+	struct PixelConstantBuffer {
+		static constexpr int MAX_LIGHTS_COUNT = 8;
+		
+		struct Material {
+			alignas(4) int useAlbedoTexture = 0;
+		};
+
+		struct alignas(16) Light {
+			alignas(16) Vector3 color;
+			alignas(16) Vector3 position;
+			alignas(4) float ambientIntensity;
+			alignas(4) float diffuseIntensity;
+			alignas(4) float specularIntensity;
+
+			// ReSharper disable once CppInconsistentNaming
+			int _padding_;
+
+			// ReSharper disable once CppPossiblyUninitializedMember
+			Light(Vector3 position = Vector3::Zero,
+				  Color color = Color(1, 1, 1),
+				  float ambient = 0.05f,
+				  float diffuse = 0.9f,
+				  float specular = 1.0f) : color(color.ToVector3()), position(position), ambientIntensity(ambient), diffuseIntensity(diffuse), specularIntensity(specular) {}
+		};
+
+		alignas(4) Vector4 viewPosition;
+		alignas(16) Material material;
+		alignas(4) uint32_t activeLightsCount = 0;
+		alignas(16) Light lights[8];
+
+
+		PixelConstantBuffer(Vector3 viewPos) : viewPosition(viewPos.x, viewPos.y, viewPos.z, 1.0f) {}
+	};
+	
 	struct RenderingParams {
 		Color clearColor;
 		Core::PrimitiveTopologies topology = Core::PrimitiveTopologies::TRIANGLE_LIST;
@@ -30,6 +65,7 @@ namespace URM::Engine {
 
 		Core::D3DConstantBuffer mVertexConstantBuffer;
 		Core::D3DConstantBuffer mPixelConstantBuffer;
+		
 	public:
 		int vSyncInterval = 0;
 		RenderingParams renderParameters;
@@ -62,5 +98,6 @@ namespace URM::Engine {
 		explicit Engine(const Core::WindowCreationParams& windowParams);
 
 		void RunLoop();
+		void RunLoopTrace();
 	};
 }

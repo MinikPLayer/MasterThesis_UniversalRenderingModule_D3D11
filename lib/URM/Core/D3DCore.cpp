@@ -75,7 +75,7 @@ namespace URM::Core {
 
 		// If the swap chain already exists, resize it, otherwise create one.
 		if (this->mSwapChain) {
-			HRESULT hr = this->mSwapChain->ResizeBuffers(backBufferCount, backBufferWidth, backBufferHeight, backBufferFormat, 0);
+			HRESULT hr = this->mSwapChain->ResizeBuffers(backBufferCount, backBufferWidth, backBufferHeight, backBufferFormat, DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING);
 
 			if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET) {
 				// If the device was removed for any reason, a new device and swap chain will need to be created.
@@ -110,6 +110,7 @@ namespace URM::Core {
 			swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 			swapChainDesc.BufferCount = backBufferCount;
 			swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+			swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
 
 			DXGI_SWAP_CHAIN_FULLSCREEN_DESC fsSwapChainDesc = {};
 			fsSwapChainDesc.Windowed = TRUE;
@@ -206,8 +207,12 @@ namespace URM::Core {
 		mContext->RSSetViewports(1, &viewport);
 	}
 
-	void D3DCore::Present(int syncInterval) {
-		HRESULT hr = this->mSwapChain->Present(syncInterval, 0);
+	void D3DCore::Present(const int syncInterval) {
+		UINT flags = 0;
+		if (syncInterval > 0) {
+			flags |= DXGI_PRESENT_ALLOW_TEARING;
+		}
+		HRESULT hr = this->mSwapChain->Present(syncInterval, flags);
 
 		// If the device was reset we must completely reinitialize the renderer.
 		if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET) {

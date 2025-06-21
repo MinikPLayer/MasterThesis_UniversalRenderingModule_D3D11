@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Engine.h"
 #include "SceneMesh.h"
+#include <URM/Core/Stopwatch.h>
 
 namespace URM::Engine {
 	// TODO: Move these structs to another file.
@@ -9,41 +10,6 @@ namespace URM::Engine {
 		Matrix WVP;
 		Matrix worldMatrix;
 		Matrix inverseWorldMatrix;
-	};
-
-	// Alignment rules: https://maraneshi.github.io/HLSL-ConstantBufferLayoutVisualizer/
-	struct PixelConstantBuffer {
-		static constexpr int MAX_LIGHTS_COUNT = 8;
-		
-		struct Material {
-			alignas(4) int useAlbedoTexture = 0;
-		};
-
-		struct alignas(16) Light {
-			alignas(16) Vector3 color;
-			alignas(16) Vector3 position;
-			alignas(4) float ambientIntensity;
-			alignas(4) float diffuseIntensity;
-			alignas(4) float specularIntensity;
-
-			// ReSharper disable once CppInconsistentNaming
-			int _padding_;
-
-			// ReSharper disable once CppPossiblyUninitializedMember
-			Light(Vector3 position = Vector3::Zero,
-			      Color color = Color(1, 1, 1),
-			      float ambient = 0.05f,
-			      float diffuse = 0.9f,
-			      float specular = 1.0f) : color(color.ToVector3()), position(position), ambientIntensity(ambient), diffuseIntensity(diffuse), specularIntensity(specular) {}
-		};
-
-		alignas(4) Vector4 viewPosition;
-		alignas(16) Material material;
-		alignas(4) uint32_t activeLightsCount = 0;
-		alignas(16) Light lights[8];
-
-
-		PixelConstantBuffer(Vector3 viewPos) : viewPosition(viewPos.x, viewPos.y, viewPos.z, 1.0f) {}
 	};
 
 	struct WVPMatrix {
@@ -71,7 +37,7 @@ namespace URM::Engine {
 		}
 	}
 	// ============================================================
-
+	
 	void Engine::Update() {
 		mCore.GetWindow().PollEvents();
 
@@ -191,7 +157,36 @@ namespace URM::Engine {
 	void Engine::Draw(RenderingParams& params) {
 		this->Draw(params, mScene);
 	}
+	
+	void Engine::RunLoopTrace() {
+		Core::Stopwatch stopwatch;
+		auto lastUpdate = 0.0f;
 
+		stopwatch.PreallocateTimePoints(4);
+		while (!mCore.GetWindow().IsDestroyed()) {
+			stopwatch.Reset();
+			
+			this->Update();
+			stopwatch.AddPoint("Engine::Update");
+
+			this->Clear(renderParameters.clearColor);
+			stopwatch.AddPoint("Engine::Clear");
+			
+			this->Draw(renderParameters);
+			stopwatch.AddPoint("Engine::Draw");
+	
+			this->Present(vSyncInterval);
+			stopwatch.AddPoint("Engine::Present");
+
+			auto now = mTimer.GetElapsedTime();
+			if (now - lastUpdate > 1.0f) {
+				auto result = stopwatch.GetResult();
+				spdlog::trace(result.ToString("Engine::RunLoop()"));
+				lastUpdate = now;
+			}
+		}
+	}
+	
 	void Engine::RunLoop() {
 		while (!mCore.GetWindow().IsDestroyed()) {
 			this->Update();

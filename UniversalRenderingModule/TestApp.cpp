@@ -47,39 +47,39 @@ struct VertexConstantBuffer {
 	Matrix inverseWorldMatrix;
 };
 
-struct PixelConstantBuffer {
-	Vector4 viewPosition;
-
-	struct Light {
-		Vector4 color;
-		Vector4 position;
-		float ambientIntensity;
-		float diffuseIntensity;
-		float specularIntensity;
-
-		// ReSharper disable once CppInconsistentNaming
-		int _padding_;
-
-		// ReSharper disable once CppPossiblyUninitializedMember
-		Light(float r,
-		      float g,
-		      float b,
-		      float x,
-		      float y,
-		      float z,
-		      float ambient,
-		      float diffuse,
-		      float specular) : color(r, g, b, 1.0f), position(x, y, z, 1.0f), ambientIntensity(ambient), diffuseIntensity(diffuse), specularIntensity(specular) {}
-	} light;
-
-	struct Material {
-		int useAlbedoTexture = 0;
-		// ReSharper disable once CppInconsistentNaming
-		Vector3 _padding_;
-	} material;
-
-	PixelConstantBuffer(const Light& light, Vector3 viewPos) : viewPosition(viewPos.x, viewPos.y, viewPos.z, 1.0f), light(light) {}
-};
+// struct PixelConstantBuffer {
+// 	Vector4 viewPosition;
+//
+// 	struct Light {
+// 		Vector4 color;
+// 		Vector4 position;
+// 		float ambientIntensity;
+// 		float diffuseIntensity;
+// 		float specularIntensity;
+//
+// 		// ReSharper disable once CppInconsistentNaming
+// 		int _padding_;
+//
+// 		// ReSharper disable once CppPossiblyUninitializedMember
+// 		Light(float r,
+// 		      float g,
+// 		      float b,
+// 		      float x,
+// 		      float y,
+// 		      float z,
+// 		      float ambient,
+// 		      float diffuse,
+// 		      float specular) : color(r, g, b, 1.0f), position(x, y, z, 1.0f), ambientIntensity(ambient), diffuseIntensity(diffuse), specularIntensity(specular) {}
+// 	} light;
+//
+// 	struct Material {
+// 		int useAlbedoTexture = 0;
+// 		// ReSharper disable once CppInconsistentNaming
+// 		Vector3 _padding_;
+// 	} material;
+//
+// 	PixelConstantBuffer(const Light& light, Vector3 viewPos) : viewPosition(viewPos.x, viewPos.y, viewPos.z, 1.0f), light(light) {}
+// };
 
 // ReSharper disable once CppInconsistentNaming
 struct WVPMatrix {
@@ -135,10 +135,10 @@ namespace {
 		auto vecCameraPosition = DirectX::XMLoadFloat3(&cameraPosition);
 		auto vecCameraTarget = DirectX::XMLoadFloat3(&cameraTarget);
 		auto vecCameraUp = DirectX::XMLoadFloat3(&cameraUpDirection);
-		auto matView = DirectX::XMMatrixLookAtLH(vecCameraPosition, vecCameraTarget, vecCameraUp);
+		auto matView = DirectX::XMMatrixLookAtRH(vecCameraPosition, vecCameraTarget, vecCameraUp);
 
 		// 3. Projection Matrix (Orthographic)
-		Matrix matProjection = XMMatrixPerspectiveFovLH(
+		Matrix matProjection = XMMatrixPerspectiveFovRH(
 			XMConvertToRadians(fov),
 			static_cast<float>(windowSize.width) / static_cast<float>(windowSize.height),
 			nearPlane,
@@ -159,7 +159,7 @@ namespace {
 		URM::Engine::Scene& scene;
 	};
 
-	void TestDrawMesh(TestDrawData& data, PixelConstantBuffer pcb, std::weak_ptr<URM::Engine::SceneMesh> mesh, WVPMatrix transformMatrix) {
+	void TestDrawMesh(TestDrawData& data, URM::Engine::PixelConstantBuffer pcb, std::weak_ptr<URM::Engine::SceneMesh> mesh, WVPMatrix transformMatrix) {
 		auto nodeWorldMatrix = mesh.lock()->GetTransform().GetWorldSpaceMatrix();
 		VertexConstantBuffer cBufferData;
 		transformMatrix.world = nodeWorldMatrix * transformMatrix.world;
@@ -407,8 +407,9 @@ namespace {
 		}
 	};
 
-	constexpr bool ENGINE_MODE = true;
+	constexpr bool ENGINE_MODE = false;
 	constexpr bool ENGINE_LOOP_MODE = true;
+	constexpr bool ENGINE_TRACE_MODE = true;
 	auto SelectedTest = std::unique_ptr<ITest>(std::make_unique<SceneRelativeTransformationsTest>());
 
 	void Init(URM::Core::D3DCore& core, URM::Engine::Scene& scene) {
@@ -449,20 +450,12 @@ namespace {
 			lightDistance / 1.5f,
 			cos(rotationRad) * lightDistance
 		);
-		auto pixelBufferValue = PixelConstantBuffer(
-			PixelConstantBuffer::Light(
-				1.0f,
-				1.0f,
-				1.0f,
-				lightPosition.x,
-				lightPosition.y,
-				lightPosition.z,
-				0.05f,
-				0.9f,
-				1.0f
-			),
+		auto pixelBufferValue = URM::Engine::PixelConstantBuffer(
 			CAM_POS
 		);
+		pixelBufferValue.activeLightsCount = 1;
+		pixelBufferValue.lights[0] = URM::Engine::PixelConstantBuffer::Light();
+		pixelBufferValue.lights[0].position = lightPosition;
 		data.pixelConstantBuffer.UpdateWithData(data.core, &pixelBufferValue);
 
 		auto wvp = TestDrawCreateWvp({0.0f, 0.0f, 0.0f}, windowSize, 0);
@@ -489,9 +482,10 @@ namespace {
 		auto& scene = engine.GetScene();
 		Init(engine.GetCore(), scene);
 		engine.onUpdate = Update;
+		engine.vSyncInterval = 0;
 
 		if (ENGINE_LOOP_MODE) {
-			engine.RunLoop();
+			ENGINE_TRACE_MODE ? engine.RunLoopTrace() : engine.RunLoop();
 		}
 		else {
 			float deltaCounter = 0;
@@ -538,7 +532,7 @@ namespace {
 		cube->GetTransform().SetLocalPosition({2.0f, 0.0f, 0.0f});
 
 		URM::Core::D3DConstantBuffer vertexConstantBuffer = URM::Core::D3DConstantBuffer::Create<VertexConstantBuffer>(core, URM::Core::ShaderStages::VERTEX);
-		URM::Core::D3DConstantBuffer pixelConstantBuffer = URM::Core::D3DConstantBuffer::Create<PixelConstantBuffer>(core, URM::Core::ShaderStages::PIXEL);
+		URM::Core::D3DConstantBuffer pixelConstantBuffer = URM::Core::D3DConstantBuffer::Create<URM::Engine::PixelConstantBuffer>(core, URM::Core::ShaderStages::PIXEL);
 		URM::Core::D3DViewport viewport(URM::Core::D3DViewportData(core.GetWindow().GetSize()));
 
 		auto rStateData = URM::Core::D3DRasterizerStateData();
