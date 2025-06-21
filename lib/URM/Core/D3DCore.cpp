@@ -209,7 +209,7 @@ namespace URM::Core {
 
 	void D3DCore::Present(const int syncInterval) {
 		UINT flags = 0;
-		if (syncInterval > 0) {
+		if (syncInterval == 0) {
 			flags |= DXGI_PRESENT_ALLOW_TEARING;
 		}
 		HRESULT hr = this->mSwapChain->Present(syncInterval, flags);
