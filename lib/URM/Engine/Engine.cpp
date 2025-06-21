@@ -2,8 +2,6 @@
 #include "Engine.h"
 #include "SceneMesh.h"
 
-// #include <directxtk/SimpleMath.h>
-
 namespace URM::Engine {
 	// TODO: Move these structs to another file.
 	struct VertexConstantBuffer {
@@ -15,7 +13,7 @@ namespace URM::Engine {
 
 	// Alignment rules: https://maraneshi.github.io/HLSL-ConstantBufferLayoutVisualizer/
 	struct PixelConstantBuffer {
-		static const constexpr int MAX_LIGHTS_COUNT = 8;
+		static constexpr int MAX_LIGHTS_COUNT = 8;
 		
 		struct Material {
 			alignas(4) int useAlbedoTexture = 0;
@@ -71,54 +69,23 @@ namespace URM::Engine {
 
 			return {proj, view, world};
 		}
-		
-		WVPMatrix CreateTransformationMatrix(
-			Vector3 cameraPosition,
-			Vector3 cameraTarget,
-			Vector3 cameraUp,
-			float fov, // Degrees
-			float nearPlane,
-			float farPlane,
-			Core::Size2i windowSize
-		) {
-			// 2. View Matrix
-			auto vecCameraPosition = DirectX::XMLoadFloat3(&cameraPosition);
-			auto vecCameraTarget = DirectX::XMLoadFloat3(&cameraTarget);
-			auto vecCameraUp = DirectX::XMLoadFloat3(&cameraUp);
-			auto matView = DirectX::XMMatrixLookAtLH(vecCameraPosition, vecCameraTarget, vecCameraUp);
-			//URM::Engine::SceneObject cameraObject;
-			//cameraObject.GetTransform().SetLocalPosition(cameraPosition);
-			//cameraObject.GetTransform().SetLocalRotation(Quaternion::Identity);
-			//cameraObject.GetTransform().SetLocalScale(Vector3(1, 1, 1));
-			//auto matView = cameraObject.GetTransform().GetWorldSpaceMatrix().Invert();
-
-			// 3. Projection Matrix (Orthographic)
-			Matrix matProjection = DirectX::XMMatrixPerspectiveFovLH(
-				DirectX::XMConvertToRadians(fov),
-				static_cast<float>(windowSize.width) / static_cast<float>(windowSize.height),
-				nearPlane,
-				farPlane
-			);
-
-			return {matProjection, matView, DirectX::XMMatrixIdentity()};
-		}
 	}
-
 	// ============================================================
 
 	void Engine::Update() {
 		mCore.GetWindow().PollEvents();
 
 		mTimer.Update();
-		if (onUpdate)
+		if (onUpdate) {
 			this->onUpdate(*this);
+		}
 	}
 
 	void Engine::Present(int verticalSyncInterval) {
 		mCore.Present(verticalSyncInterval);
 	}
 
-	bool Engine::ShouldClose() {
+	bool Engine::ShouldClose() const {
 		return this->mCore.GetWindow().IsDestroyed();
 	}
 
@@ -133,7 +100,6 @@ namespace URM::Engine {
 	void Engine::Draw(RenderingParams& params, std::weak_ptr<CameraObject> mainCamera, std::vector<std::weak_ptr<SceneMesh>>& meshes, std::vector<std::weak_ptr<Light>>& lights) {
 		if (mainCamera.expired()) {
 			throw std::runtime_error("Main camera is not set. Cannot draw the scene.");
-			return;
 		}
 		
 		auto cameraPtr = mainCamera.lock();
@@ -161,7 +127,7 @@ namespace URM::Engine {
 			spdlog::warn("Too many lights in the scene. Max supported: {}, current: {}. Truncating to the max value.", PixelConstantBuffer::MAX_LIGHTS_COUNT, lightsCount);
 			lightsCount = PixelConstantBuffer::MAX_LIGHTS_COUNT;
 		}
-		pixelBufferValue.activeLightsCount = (uint32_t)lightsCount;
+		pixelBufferValue.activeLightsCount = static_cast<uint32_t>(lightsCount);
 		for (size_t i = 0; i < lightsCount; i++) {
 			auto l = lights[i].lock();
 			pixelBufferValue.lights[i] = PixelConstantBuffer::Light(

@@ -23,7 +23,6 @@ namespace URM::Engine {
 		}
 	}
 
-	// TODO: Add model load caching.
 	void SceneModel::OnAdded() {
 		if (this->mShader == nullptr) {
 			this->mShader = GetDefaultShader(this->GetScene().GetCore());

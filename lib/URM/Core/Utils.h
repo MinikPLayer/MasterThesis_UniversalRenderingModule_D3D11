@@ -70,7 +70,7 @@ namespace URM::Core {
 		static void TraceExecTimeMs(std::string name, const std::function<void()>& func) {
 			const auto execResult = MeasureExecTime(func);
 			const auto execTimeMs = std::chrono::duration_cast<std::chrono::microseconds>(execResult) / 1000.0f;
-			spdlog::trace("[{}]: {} ms", name, execTimeMs.count());
+			spdlog::trace("{} took: {} ms", name, execTimeMs.count());
 		}
 	};
 	

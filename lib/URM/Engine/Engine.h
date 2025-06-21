@@ -57,7 +57,7 @@ namespace URM::Engine {
 		void Draw(RenderingParams& params);
 		void Present(int verticalSyncInterval);
 
-		bool ShouldClose();
+		bool ShouldClose() const;
 
 		explicit Engine(const Core::WindowCreationParams& windowParams);
 
