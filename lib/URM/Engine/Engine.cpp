@@ -147,15 +147,13 @@ namespace URM::Engine {
 
 		params.albedoTextureSampler.Bind(mCore, 0);
 
-		this->mCore.SetPrimitiveTopology(params.toplogy);
+		this->mCore.SetPrimitiveTopology(params.topology);
 		params.rasterizerState.Bind(this->mCore);
 
 		this->mVertexConstantBuffer.Bind(this->mCore, 0);
 		this->mPixelConstantBuffer.Bind(this->mCore, 1);
 
-		// TODO: Add dynamic lights with separate type.
-		auto cameraPos = Vector3(0.0f, 4.0f, -8.0f);
-
+		auto cameraPos = cameraPtr->GetTransform().GetPosition();
 		// TODO: Add support for custom PixelConstantBuffer types.
 		auto pixelBufferValue = PixelConstantBuffer(cameraPos);
 		size_t lightsCount = lights.size();
@@ -176,18 +174,8 @@ namespace URM::Engine {
 		}
 
 		this->mPixelConstantBuffer.UpdateWithData(this->mCore, &pixelBufferValue);
-
-		// TODO: Add dynamic camera.
-		WVPMatrix renderMatrix = CreateTransformationMatrix(
-			cameraPos,
-			Vector3(0.0f, 0.0f, 0.0f),
-			Vector3::Up,
-			45.0f,
-			1.0f,
-			100.0f,
-			windowSize
-		);
-		renderMatrix = CreateTransformationMatrix(cameraPtr.get(), windowSize);
+		
+		auto renderMatrix = CreateTransformationMatrix(cameraPtr.get(), windowSize);
 
 		// TODO: Group meshes by shaders and input layouts.
 		for (auto& mesh : meshes) {

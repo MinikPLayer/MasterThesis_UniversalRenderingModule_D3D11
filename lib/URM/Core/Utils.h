@@ -2,6 +2,9 @@
 #include <string>
 #include <vector>
 #include <locale>
+#include <chrono>
+#include <functional>
+#include <spdlog/spdlog.h>
 
 class NonCopyable {
 public:
@@ -28,6 +31,49 @@ namespace URM::Core {
 		const static Size2i ZERO;
 	};
 
+	class TimeUtils {
+	public:
+		template<typename T>
+		struct MeasureExecTimeResult {
+			std::chrono::duration<long long, std::ratio<1, 1000000000>> duration;
+			T result;
+		};
+		
+		template<typename T>
+		static MeasureExecTimeResult<T> MeasureExecTime(const std::function<T()>& func) {
+			const auto now = std::chrono::high_resolution_clock::now();
+			auto t = func();
+			const auto end = std::chrono::high_resolution_clock::now();
+
+			auto duration = end - now;
+			return {duration, t};
+		}
+
+		template<typename T>
+		static T TraceExecTimeMs(std::string name, const std::function<T()>& func) {
+			const auto execResult = MeasureExecTime(func);
+			const auto execTimeMs = std::chrono::duration_cast<std::chrono::microseconds>(execResult.duration) / 1000.0f;
+			spdlog::trace("[{}]: {} ms", name, execTimeMs.count());
+
+			return execResult.result;
+		}
+
+		static std::chrono::duration<long long, std::ratio<1, 1000000000>> MeasureExecTime(const std::function<void()>& func) {
+			const auto now = std::chrono::high_resolution_clock::now();
+			func();
+			const auto end = std::chrono::high_resolution_clock::now();
+
+			const auto duration = end - now;
+			return duration;
+		}
+
+		static void TraceExecTimeMs(std::string name, const std::function<void()>& func) {
+			const auto execResult = MeasureExecTime(func);
+			const auto execTimeMs = std::chrono::duration_cast<std::chrono::microseconds>(execResult) / 1000.0f;
+			spdlog::trace("[{}]: {} ms", name, execTimeMs.count());
+		}
+	};
+	
 	class TypeUtils {
 		TypeUtils() = delete;
 	public:

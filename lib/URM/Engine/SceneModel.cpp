@@ -24,7 +24,6 @@ namespace URM::Engine {
 	}
 
 	// TODO: Add model load caching.
-	// Maybe something like "AssetManager"
 	void SceneModel::OnAdded() {
 		if (this->mShader == nullptr) {
 			this->mShader = GetDefaultShader(this->GetScene().GetCore());
@@ -35,7 +34,9 @@ namespace URM::Engine {
 		}
 
 		auto& scene = GetScene();
-		auto model = Core::ModelLoader::LoadFromFile(scene.GetCore(), scene.GetAssetManager().texturePool, this->mPath);
+		const auto model = Core::TimeUtils::TraceExecTimeMs<std::shared_ptr<Core::ModelLoaderNode>>(fmt::format("Load model: {}", this->mPath), [&]() {
+			return scene.GetAssetManager().GetModel(this->mPath);
+		});
 
 		AddMeshRecursive(model, this->GetSelfPtr());
 	}

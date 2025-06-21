@@ -32,7 +32,7 @@ namespace URM::Engine {
 		std::vector<std::weak_ptr<Light>> mLights;
 
 		AssetManager mAssetManager;
-		Core::D3DCore& mCore;
+		std::reference_wrapper<Core::D3DCore> mCore;
 	public:
 		void PrintObjectsHierarchy() const;
 
@@ -54,7 +54,7 @@ namespace URM::Engine {
 			return this->mRootObject;
 		}
 
-		Scene(Core::D3DCore& core) : mCore(core) {
+		Scene(Core::D3DCore& core) :  mAssetManager(*this), mCore(core) {
 			this->mRootObject = std::make_shared<SceneObject>();
 			this->mRootObject->mScene = *this;
 			this->mRootObject->mSelf = this->mRootObject;

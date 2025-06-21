@@ -14,7 +14,7 @@
 namespace URM::Engine {
 	struct RenderingParams {
 		Color clearColor;
-		Core::PrimitiveTopologies toplogy = Core::PrimitiveTopologies::TRIANGLE_LIST;
+		Core::PrimitiveTopologies topology = Core::PrimitiveTopologies::TRIANGLE_LIST;
 		Core::D3DRasterizerState rasterizerState;
 		Core::D3DViewport viewport;
 		Core::D3DSampler albedoTextureSampler;
@@ -59,7 +59,7 @@ namespace URM::Engine {
 
 		bool ShouldClose();
 
-		Engine(const Core::WindowCreationParams& windowParams);
+		explicit Engine(const Core::WindowCreationParams& windowParams);
 
 		void RunLoop();
 	};

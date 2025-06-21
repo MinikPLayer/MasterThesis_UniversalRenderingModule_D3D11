@@ -264,6 +264,7 @@ namespace {
 			auto light = parentCube->AddChild(
 				new URM::Engine::Light()
 			);
+			light->ambientIntensity = 0.2f;
 			light->GetTransform().SetLocalPosition(Vector3(0, 3, 0));
 			
 			light = cube->AddChild(
@@ -290,10 +291,10 @@ namespace {
 			
 			staticPosObject->GetTransform().SetPosition(Vector3(2, 2, 2));
 
-			auto camera = engine.GetScene().GetMainCamera();
-			auto& timer = engine.GetTimer();
+			const auto camera = engine.GetScene().GetMainCamera();
+			const auto& timer = engine.GetTimer();
 			auto& cameraTransform = camera.lock()->GetTransform();
-			auto scaledTime = timer.GetElapsedTime() * 2.0f;
+			const auto scaledTime = timer.GetElapsedTime() * 2.0f;
 			
 			auto distance = 10.0f;
 			cameraTransform.SetLocalPosition({distance * sin(scaledTime), distance * sin(scaledTime * 0.7f), distance * cos(scaledTime)});
@@ -318,6 +319,7 @@ namespace {
 			);
 			auto suzanne = scene.GetRoot().lock()->AddChild(suzanneModel);
 			suzanne->GetTransform().SetLocalPosition({-2.0f, 0.0f, 0.0f});
+			suzanne->GetTransform().SetLocalRotation({0.0f, 180.0f, 0.0f});
 
 			auto cube = scene.GetRoot().lock()->AddChild(new URM::Engine::SceneModel("cube_textured.glb"));
 			cube->GetTransform().SetLocalPosition({2.0f, 0.0f, 0.0f});
@@ -382,8 +384,9 @@ namespace {
 			mLights.push_back(newLight);
 
 			// Camera
-			auto camera = scene.GetRoot().lock()->AddChild(new URM::Engine::CameraObject());
-			camera->GetTransform().SetPosition(Vector3(0.0f, 4.0f, -8.0f));
+			const auto camera = scene.GetRoot().lock()->AddChild(new URM::Engine::CameraObject());
+			camera->GetTransform().SetPosition(Vector3(0.0f, 3.0f, -6.0f));
+			camera->GetTransform().LookAt(Vector3(0.0f, 0.0f, 0.0f));
 			scene.SetMainCamera(camera);
 		}
 
