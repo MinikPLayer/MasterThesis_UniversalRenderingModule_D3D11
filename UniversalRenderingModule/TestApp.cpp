@@ -407,7 +407,7 @@ namespace {
 		}
 	};
 
-	constexpr bool ENGINE_MODE = false;
+	constexpr bool ENGINE_MODE = true;
 	constexpr bool ENGINE_LOOP_MODE = true;
 	constexpr bool ENGINE_TRACE_MODE = true;
 	auto SelectedTest = std::unique_ptr<ITest>(std::make_unique<SceneRelativeTransformationsTest>());
@@ -482,7 +482,6 @@ namespace {
 		auto& scene = engine.GetScene();
 		Init(engine.GetCore(), scene);
 		engine.onUpdate = Update;
-		engine.vSyncInterval = 0;
 
 		if (ENGINE_LOOP_MODE) {
 			ENGINE_TRACE_MODE ? engine.RunLoopTrace() : engine.RunLoop();
