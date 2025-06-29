@@ -106,7 +106,7 @@ namespace {
 		UNREFERENCED_PARAMETER(deltaTime);
 		LastTime = now;
 
-		core.Clear(Color(Colors::Black));
+		core.ClearFramebuffer(Color(Colors::Black));
 	}
 
 	WVPMatrix CreateTransformationMatrix(
@@ -600,6 +600,8 @@ namespace {
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow) {
 	URM::Core::Logger::InitLogger();
 	int returnCode = 123456;
+
+#ifdef NDEBUG
 	try {
 		returnCode = ENGINE_MODE ? ActualMainEngine(hInstance, hPrevInstance, lpCmdLine, nCmdShow) : ActualMain(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
 	}
@@ -607,6 +609,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 		spdlog::critical("Exception: {}", e.what());
 
 		std::wstring msgBoxMessage = L"Unrecoverable error: \n" + std::wstring(e.what(), e.what() + strlen(e.what()));
+
 		if (GetLastError() != 0) {
 			auto lastWinApiErrorString = GetLastErrorAsString();
 			msgBoxMessage += L"\n\nLast WinAPI error: " + std::wstring(lastWinApiErrorString.begin(), lastWinApiErrorString.end());
@@ -615,6 +618,9 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 		MessageBox(nullptr, std::wstring(e.what(), e.what() + strlen(e.what())).c_str(), L"Unrecoverable general error.", MB_OK | MB_ICONERROR);
 		PostQuitMessage(0);
 	}
+#else
+	returnCode = ENGINE_MODE ? ActualMainEngine(hInstance, hPrevInstance, lpCmdLine, nCmdShow) : ActualMain(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
+#endif
 	URM::Core::Logger::DisposeLogger();
 
 	return returnCode;

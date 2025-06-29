@@ -56,7 +56,7 @@ namespace URM::Engine {
 	}
 
 	void Engine::Clear(Color color) {
-		mCore.Clear(color);
+		mCore.ClearFramebuffer(color);
 	}
 
 	void Engine::Clear() {
@@ -170,7 +170,7 @@ namespace URM::Engine {
 			stopwatch.AddPoint("Engine::Update");
 
 			this->Clear(renderParameters.clearColor);
-			stopwatch.AddPoint("Engine::Clear");
+			stopwatch.AddPoint("Engine::ClearFramebuffer");
 			
 			this->Draw(renderParameters);
 			stopwatch.AddPoint("Engine::Draw");

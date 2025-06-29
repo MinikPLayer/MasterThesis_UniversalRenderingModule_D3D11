@@ -59,7 +59,7 @@ namespace URM::Core {
 	}
 
 	void D3DCore::CreateResources() {
-		// Clear the previous window size specific context.
+		// ClearFramebuffer the previous window size specific context.
 		this->mContext->OMSetRenderTargets(0, nullptr, nullptr);
 		this->mRenderTargetView.Reset();
 		this->mDepthStencilView.Reset();
@@ -194,8 +194,8 @@ namespace URM::Core {
 		mContext->IASetPrimitiveTopology(static_cast<D3D11_PRIMITIVE_TOPOLOGY>(topology));
 	}
 
-	void D3DCore::Clear(Color color) {
-		// Clear the views.
+	void D3DCore::ClearFramebuffer(Color color) {
+		// ClearFramebuffer the views.
 		mContext->ClearRenderTargetView(this->mRenderTargetView.Get(), color);
 		mContext->ClearDepthStencilView(this->mDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 

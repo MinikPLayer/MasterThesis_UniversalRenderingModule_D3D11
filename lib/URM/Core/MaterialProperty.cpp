@@ -13,7 +13,7 @@ namespace URM::Core {
 		this->type = Types::STRING;
 		this->mDataLength = data.length();
 		this->mBufferSize = data.length();
-		new(&this->stringData) std::string(data);
+		this->data = std::string(data);
 	}
 
 	void MaterialProperty::CopyFrom(const MaterialProperty& other) {
@@ -22,11 +22,11 @@ namespace URM::Core {
 		this->mDataLength = other.mDataLength;
 		this->mBufferSize = other.mBufferSize;
 		if (type == Types::STRING) {
-			new(&this->stringData) std::string(other.stringData);
+			this->data = std::string(std::get<std::string>(other.data));
 		}
 		else {
-			rawData = new BYTE[other.mBufferSize];
-			memcpy(rawData, other.rawData, other.mBufferSize);
+			data = new BYTE[other.mBufferSize];
+			memcpy(std::get<BYTE*>(data), std::get<BYTE*>(other.data), other.mBufferSize);
 		}
 	}
 
@@ -39,8 +39,8 @@ namespace URM::Core {
 			throw std::runtime_error("MaterialProperty array type constructor used for String data.");
 		}
 
-		rawData = new BYTE[bufferSize];
-		memcpy(rawData, data, bufferSize);
+		this->data = new BYTE[bufferSize];
+		memcpy(std::get<BYTE*>(this->data), data, bufferSize);
 	}
 
 	MaterialProperty::MaterialProperty(const MaterialProperty& other) {
@@ -48,42 +48,39 @@ namespace URM::Core {
 	}
 
 	MaterialProperty MaterialProperty::operator=(const MaterialProperty& other) const {
-		auto prop = MaterialProperty(other.name, other.type, other.rawData, other.mBufferSize, other.mDataLength);
+		auto prop = MaterialProperty(other.name, other.type, std::get<BYTE*>(other.data), other.mBufferSize, other.mDataLength);
 		return prop;
 	}
 
 	MaterialProperty::~MaterialProperty() {
-		if (type == Types::STRING) {
-			this->stringData.~basic_string();
-		}
-		else {
-			delete[] rawData;
+		if (type != Types::STRING) {
+			delete[] std::get<BYTE*>(this->data);
 		}
 	}
 
 	MaterialProperty::PropertyValue<float> MaterialProperty::GetFloatArray() const {
 		ThrowIfNotValidType(Types::FLOAT);
-		return PropertyValue<float>(rawData, mDataLength);
+		return PropertyValue<float>(std::get<BYTE*>(this->data), mDataLength);
 	}
 
 	MaterialProperty::PropertyValue<double> MaterialProperty::GetDoubleArray() const {
 		ThrowIfNotValidType(Types::DOUBLE);
-		return PropertyValue<double>(rawData, mDataLength);
+		return PropertyValue<double>(std::get<BYTE*>(this->data), mDataLength);
 	}
 
 	std::string MaterialProperty::GetString() {
 		ThrowIfNotValidType(Types::STRING);
-		return stringData;
+		return std::get<std::string>(this->data);
 	}
 
 	MaterialProperty::PropertyValue<int> MaterialProperty::GetIntegerArray() const {
 		ThrowIfNotValidType(Types::INTEGER);
-		return PropertyValue<int>(rawData, mDataLength);
+		return PropertyValue<int>(std::get<BYTE*>(this->data), mDataLength);
 	}
 
 	MaterialProperty::PropertyValue<void> MaterialProperty::GetBuffer() const {
 		ThrowIfNotValidType(Types::BUFFER);
-		return PropertyValue<void>(rawData, mDataLength);
+		return PropertyValue<void>(std::get<BYTE*>(this->data), mDataLength);
 	}
 
 	template<typename T>
@@ -101,7 +98,7 @@ namespace URM::Core {
 	std::string MaterialProperty::GetValueAsString() {
 		switch (type) {
 			case Types::STRING:
-				return stringData;
+				return std::get<std::string>(this->data);
 
 			case Types::FLOAT:
 				return ValueArrayToString(GetFloatArray());
@@ -115,7 +112,7 @@ namespace URM::Core {
 			case Types::BUFFER: {
 				std::string result = "{";
 				for (size_t i = 0; i < mDataLength; i++) {
-					result += std::to_string(rawData[i]);
+					result += std::to_string(std::get<BYTE*>(this->data)[i]);
 					if (i < mDataLength - 1) {
 						result += ", ";
 					}

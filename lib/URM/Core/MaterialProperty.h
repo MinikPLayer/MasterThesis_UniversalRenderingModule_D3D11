@@ -2,13 +2,11 @@
 
 #include <string>
 #include <stdexcept>
+#include <variant>
 
 namespace URM::Core {
 	class MaterialProperty {
-		union {
-			BYTE* rawData = nullptr;
-			std::string stringData;
-		};
+		std::variant<BYTE*, std::string> data;
 
 		size_t mDataLength;
 		size_t mBufferSize;
