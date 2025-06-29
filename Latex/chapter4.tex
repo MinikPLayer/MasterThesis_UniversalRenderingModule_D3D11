@@ -1,0 +1,751 @@
+\chapter{Decyzje projektowe, wybór API}
+
+% % Definicja kolorów dla listingu kodu
+% \definecolor{codegreen}{rgb}{0,0.6,0}
+% \definecolor{codegray}{rgb}{0.5,0.5,0.5}
+% \definecolor{codepurple}{rgb}{0.58,0,0.82}
+% \definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+% \definecolor{keywordblue}{rgb}{0,0,1}
+
+% % Definicja stylu C++ dla pakietu listings
+% % Używamy mathescape=true, aby oryginalne komendy LaTeX w kodzie (np. \emph) były renderowane
+% \lstdefinestyle{cppstyle}{
+% 	language=C++,
+% 	backgroundcolor=\color{backcolour},
+% 	commentstyle=\color{codegreen},
+% 	keywordstyle=\color{magenta},
+% 	numberstyle=\tiny\color{codegray},
+% 	stringstyle=\color{codepurple},
+% 	basicstyle=\ttfamily\footnotesize,
+% 	breakatwhitespace=false,
+% 	breaklines=true,
+% 	captionpos=b,
+% 	keepspaces=true,
+% 	numbers=left,
+% 	numbersep=5pt,
+% 	showspaces=false,
+% 	showstringspaces=false,
+% 	showtabs=false,
+% 	tabsize=2,
+% 	mathescape=true, % Pozwala na używanie $...$ do wstawiania komend LaTeX w kodzie
+% 	morekeywords={*,ComPtr,hwnd,message,wParam,lParam,uint,LRESULT,CALLBACK,HWND,UINT,IDirect3D9,Direct3DCreate9,D3D_SDK_VERSION,D3DPRESENT_PARAMETERS,Windowed,SwapEffect,D3DSWAPEFFECT_DISCARD,hDeviceWindow,BackBufferFormat,D3DFMT_UNKNOWN,EnableAutoDepthStencil,AutoDepthStencilFormat,D3DFMT_D16,IDirect3DDevice9,CreateDevice,D3DADAPTER_DEFAULT,D3DDEVTYPE_HAL,D3DCREATE_SOFTWARE_VERTEXPROCESSING,D3DCREATE_HARDWARE_VERTEXPROCESSING,D3DDEVTYPE_REF,E_FAIL,HRESULT,FAILED,SUCCEEDED,S_OK,Vertex,DWORD,D3DFVF_CUSTOMVERTEX,D3DFVF_XYZRHW,D3DFVF_DIFFUSE,IDirect3DVertexBuffer9,CreateVertexBuffer,D3DUSAGE_WRITEONLY,D3DPOOL_DEFAULT,Lock,memcpy,Unlock,SetRenderState,D3DRS_CULLMODE,D3DCULL_NONE,D3DRS_LIGHTING,FALSE,D3DRS_ZENABLE,TRUE,Clear,D3DCLEAR_TARGET,D3DCLEAR_ZBUFFER,D3DCOLOR_XRGB,BeginScene,SetFVF,SetStreamSource,sizeof,DrawPrimitive,D3DPT_TRIANGLELIST,EndScene,Present,D3DERR_DEVICELOST,D3DERR_DEVICENOTRESET,TestCooperativeLevel,Reset,ID3D11Device,ID3D11DeviceContext,IDXGISwapChain,ID3D11RenderTargetView,ID3D11DepthStencilView,ID3D11Texture2D,depthStencilBuffer,ID3D11VertexShader,ID3D11PixelShader,ID3D11InputLayout,ID3D11Buffer,windowWidth,windowHeight,DXGI_SWAP_CHAIN_DESC,BufferCount,BufferDesc,Width,Height,Format,DXGI_FORMAT_R8G8B8A8_UNORM,RefreshRate,Numerator,Denominator,BufferUsage,DXGI_USAGE_RENDER_TARGET_OUTPUT,OutputWindow,SampleDesc,Count,Quality,D3D_FEATURE_LEVEL,D3D_FEATURE_LEVEL_11_0,featureLevel,D3D11CreateDeviceAndSwapChain,D3D_DRIVER_TYPE_HARDWARE,D3D_DRIVER_TYPE_WARP,D3D11_CREATE_DEVICE_DEBUG,D3D11_SDK_VERSION,GetBuffer,__uuidof,LPVOID,CreateRenderTargetView,D3D11_TEXTURE2D_DESC,MipLevels,ArraySize,DXGI_FORMAT_D24_UNORM_S8_UINT,D3D11_USAGE_DEFAULT,BindFlags,D3D11_BIND_DEPTH_STENCIL,CPUAccessFlags,MiscFlags,CreateTexture2D,CreateDepthStencilView,OMSetRenderTargets,GetAddressOf,D3DCompile,strlen,nullptr,ID3DBlob,errorBlob,vs_5_0,ps_5_0,D3DCOMPILE_ENABLE_STRICTNESS,GetBufferPointer,GetBufferSize,CreateVertexShader,CreatePixelShader,D3D11_INPUT_ELEMENT_DESC,POSITION,COLOR,DXGI_FORMAT_R32G32B32_FLOAT,DXGI_FORMAT_R32G32B32A32_FLOAT,D3D11_INPUT_PER_VERTEX_DATA,D3D11_APPEND_ALIGNED_ELEMENT,ARRAYSIZE,CreateInputLayout,D3D11_BUFFER_DESC,Usage,D3D11_USAGE_IMMUTABLE,D3D11_BIND_VERTEX_BUFFER,D3D11_SUBRESOURCE_DATA,pSysMem,CreateBuffer,D3D11_VIEWPORT,MinDepth,MaxDepth,TopLeftX,TopLeftY,RSSetViewports,ClearRenderTargetView,ClearDepthStencilView,D3D11_CLEAR_DEPTH,D3D11_CLEAR_STENCIL,IASetVertexBuffers,stride,offset,IASetInputLayout,IASetPrimitiveTopology,D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,VSSetShader,PSSetShader,Draw,DXGI_ERROR_DEVICE_REMOVED,DXGI_ERROR_DEVICE_RESET,OnDeviceLost,ID3D12Device,IDXGIFactory6,ID3D12CommandQueue,IDXGISwapChain3,ID3D12DescriptorHeap,rtvDescriptorSize,ID3D12Resource,ID3D12CommandAllocator,ID3D12RootSignature,ID3D12PipelineState,ID3D12GraphicsCommandList,D3D12_VERTEX_BUFFER_VIEW,ID3D12Fence,UINT64,HANDLE,FrameCount,fenceValues,fenceEvent,exception,std,ThrowIfFailed,DXGI_CREATE_FACTORY_DEBUG,CreateDXGIFactory2,IDXGIAdapter1,GetHardwareAdapter,D3D12CreateDevice,D3D12_COMMAND_QUEUE_DESC,Type,D3D12_COMMAND_LIST_TYPE_DIRECT,Flags,D3D12_COMMAND_QUEUE_FLAG_NONE,CreateCommandQueue,DXGI_SWAP_CHAIN_DESC1,SwapEffect,DXGI_SWAP_EFFECT_FLIP_DISCARD,IDXGISwapChain1,CreateSwapChainForHwnd,MakeWindowAssociation,DXGI_MWA_NO_ALT_ENTER,As,GetCurrentBackBufferIndex,D3D12_DESCRIPTOR_HEAP_DESC,NumDescriptors,D3D12_DESCRIPTOR_HEAP_TYPE_RTV,D3D12_DESCRIPTOR_HEAP_FLAG_NONE,CreateDescriptorHeap,GetDescriptorHandleIncrementSize,D3D12_CPU_DESCRIPTOR_HANDLE,rtvHandle,GetCPUDescriptorHandleForHeapStart,ptr,CreateCommandAllocator,D3D12_ROOT_SIGNATURE_DESC,Init,D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT,D3D_ROOT_SIGNATURE_VERSION_1,D3D12SerializeRootSignature,CreateRootSignature,D3D12_INPUT_ELEMENT_DESC,D3D12_GRAPHICS_PIPELINE_STATE_DESC,InputLayout,pRootSignature,VS,PS,CD3DX12_SHADER_BYTECODE,CD3DX12_RASTERIZER_DESC,CD3DX12_BLEND_DESC,CD3DX12_DEPTH_STENCIL_DESC,PrimitiveTopologyType,D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE,NumRenderTargets,RTVFormats,DSVFormat,DXGI_FORMAT_D32_FLOAT,SampleMask,UINT_MAX,CreateGraphicsPipelineState,CreateCommandList,Close,vertexBufferSize,D3D12_HEAP_PROPERTIES,CD3DX12_HEAP_PROPERTIES,D3D12_HEAP_TYPE_DEFAULT,D3D12_RESOURCE_DESC,CD3DX12_RESOURCE_DESC,Buffer,CreateCommittedResource,D3D12_HEAP_FLAG_NONE,D3D12_RESOURCE_STATE_COPY_DEST,D3D12_HEAP_TYPE_UPLOAD,D3D12_RESOURCE_STATE_GENERIC_READ,Map,UINT8,pVertexDataBegin,reinterpret_cast,CD3DX12_RANGE,Unmap,Reset,CopyBufferRegion,D3D12_RESOURCE_BARRIER,CD3DX12_RESOURCE_BARRIER,Transition,D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,ResourceBarrier,ExecuteCommandLists,_countof,ppCommandLists,BufferLocation,GetGPUVirtualAddress,StrideInBytes,SizeInBytes,CreateFence,D3D12_FENCE_FLAG_NONE,CreateEvent,GetLastError,HRESULT_FROM_WIN32,WaitForGpu,PopulateCommandList,SetPipelineState,SetGraphicsRootSignature,SetDescriptorHeaps,CD3DX12_VIEWPORT,static_cast,CD3DX12_RECT,RSSetViewports,RSSetScissorRects,D3D12_RESOURCE_STATE_PRESENT,D3D12_RESOURCE_STATE_RENDER_TARGET,CD3DX12_CPU_DESCRIPTOR_HANDLE,OMSetRenderTargets,ClearRenderTargetView,IASetPrimitiveTopology,D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST,IASetVertexBuffers,DrawInstanced,Signal,GetCompletedValue,SetEventOnCompletion,WaitForSingleObjectEx,previousFrameIndex,CleanupD3D12,CloseHandle,stbi_load,stbi_image_free,stbi_failure_reason,vector,unsigned,char,data,resize,size_t,cerr,cout,wcout,wcerr,endl,hex,WICTextureLoader,CreateWICTextureFromFile,textureResource,textureView,GetDesc,Reset,EffectFactory,Model,CreateFromCMO,CreateFromSDKMESH,wcsstr,meshes,CommonStates,Draw,CXMMATRIX,Assimp,Importer,ReadFile,aiProcess_Triangulate,aiProcess_GenSmoothNormals,aiProcess_FlipUVs,aiProcess_JoinIdenticalVertices,aiProcess_CalcTangentSpace,aiProcess_OptimizeMeshes,aiProcess_OptimizeGraph,aiScene,mFlags,AI_SCENE_FLAGS_INCOMPLETE,mRootNode,GetErrorString,processNode,aiNode,mMeshes,mNumMeshes,push_back,processMesh,aiMesh,mNumChildren,mChildren,MeshData,materialIndex,name,C_Str,vertices,indices,reserve,mNumVertices,XMFLOAT3,XMFLOAT2,XMFLOAT4,mVertices,HasNormals,mNormals,mTextureCoords,mNumFaces,aiFace,mFaces,mNumIndices,substr,find_last_of,directory,processMaterials,ModelData,renderModelAssimp,DrawIndexed,Vector3,Matrix,Quaternion,XMVECTOR,XMMATRIX,SimpleMath}
+% }
+
+% % Definicja stylu C# dla pakietu listings
+% % Zmieniono tylko na C++, zgodnie z poleceniem, ale zachowujemy oryginalną treść
+% \lstdefinestyle{csharpstyle}{
+% 	language=C++, % Używamy C++ zgodnie z poleceniem, nawet dla kodu C#
+% 	backgroundcolor=\color{backcolour},
+% 	commentstyle=\color{codegreen},
+% 	keywordstyle=\color{keywordblue}, % Niebieski dla odróżnienia
+% 	numberstyle=\tiny\color{codegray},
+% 	stringstyle=\color{codepurple},
+% 	basicstyle=\ttfamily\footnotesize,
+% 	breakatwhitespace=false,
+% 	breaklines=true,
+% 	captionpos=b,
+% 	keepspaces=true,
+% 	numbers=left,
+% 	numbersep=5pt,
+% 	showspaces=false,
+% 	showstringspaces=false,
+% 	showtabs=false,
+% 	tabsize=2,
+% 	mathescape=true, % Pozwala na używanie $...$ do wstawiania komend LaTeX w kodzie
+% 	morekeywords={Device,VertexBuffer,Control,PresentParameters,SwapEffect,CreateFlags,CustomVertex,PositionColored,GraphicsStream,LockFlags,Usage,Pool,ClearFlags,System,Drawing,Color,PrimitiveType,Microsoft,DirectX,Direct3D,using,new,typeof,WriteOnly,Format,Default,Write,var,float,int,void,class,struct,enum,namespace,public,private,protected,static,readonly,get,set,true,false,null,return,if,else,for,foreach,while,do,switch,case,default,break,continue,try,catch,finally,throw,Form,ClientSize,Text,Show,DirectXException,MessageBox,Disposed,TestCooperativeLevel,DeviceLostException,Console,WriteLine,ToArgb,PaintEventHandler,PaintEventArgs,object,sender,Size,DepthFormat,D16,RenderState,CullMode,Cull,Lighting,ZBufferEnable,DeviceNotResetException}
+% }
+
+% \lstset{style=cppstyle} % Ustaw domyślny styl na C++
+
+% % Definicja \real (jeśli nie jest zdefiniowana gdzie indziej)
+% \providecommand{\real}[1]{#1}
+
+Przed przystąpieniem do pisania kodu konieczne jest zbadanie dostępnych
+na rynku API, które wejdą w skład projektowanego pakietu. Dla
+opisywanego programu koniecznym jest między innymi dobranie oraz
+przetestowanie różnych wersji API Direct3D, wybór języka programowania,
+bibliotek służących do zaawansowanych obliczeń matematycznych, wejścia z
+klawiatury i kontrolera, a także bibliotek pomocniczych do otwierania
+okna renderowania. Decyzja powinna być oparta o testy wydajności,
+wsparcie platformy docelowej, dostępną ilość informacji, jak i o bilans
+możliwości do złożoności API.
+
+% Usunięto błędną strukturę enumerate->enumerate
+\section{API obsługi okna}
+
+Zanim zostaną podjęte jakiekolwiek decyzje na temat rysowania grafiki,
+należy mieć otwarte oraz skonfigurowane okno w taki sposób, aby było na
+czym rysować. Testy tego aspektu polegały na stworzeniu minimalnego kodu otwierającego
+okno zdolne do rysowania grafiki z wykorzystaniem DirectX.
+
+\subsection{SDL2}
+
+Skrót od \emph{Simple DirectMedia Layer}. Jej drugie wydanie, napisane w
+języku C, to wieloplatformowa biblioteka abstrakcji nad niskopoziomowymi
+funkcjami API do obsługi audio, klawiatury, myszki, kontrolerów, czy
+akceleracji sprzętowej opartej o OpenGL, Direct3D, Metal, bądź Vulkan
+\cite{sdl:wiki:2024}. Oficjalnie wspiera systemy Windows, macOS, Linux, iOS oraz
+Android \cite{sdl:wiki:2024}. 
+
+Przy pomocy subsystemu okien SDL jest możliwe utworzenie okna, które
+następnie można wykorzystać jako powierzchnię rysowania dla zapytań
+Direct3D. Przykładowy sposób opisany pseudokodem został przedstawiony
+poniżej:
+
+\begin{lstlisting}[caption={Pseudokod inicjalizacji okna SDL2 (oryginalna treść)}, label={lst:sdl2_init}]
+	SDL_Init(); // Inicjalizacja biblioteki SDL
+	SDL_CreateWindow(); // Utworzenie okna
+	SDL_GetWindowWMInfo(); // Pobranie informacji o natywnym oknie
+	hwnd = info.info.win.window; // Pobranie natywnego HWND do okna.
+	
+	while (true) { // Główna pętla wykonywania programu
+		// Wyjście z pętli jeśli użytkownik zamknie okno
+		if (SDL_PollEvent() == SDL_QUIT)
+			break;
+	
+		draw(); // Kod rysujący
+	}
+		
+	SDL_DestroyWindow(); // Zamknięcie otwartego okna
+	SDL_Quit(); // Zamknięcie aplikacji
+\end{lstlisting}
+
+SDL jest biblioteką obszerną, ciężką, zawierającą bardzo dużo
+niepotrzebnych dla opisywanego projektu elementów. W związku z tym
+zastosowana została inna alternatywa.
+
+\subsection{WinAPI}
+
+DirectX został stworzony z myślą o systemie Windows i tylko na nim jest
+oficjalnie wspierany. W związku z tym użycie WinAPI, czyli zbioru API
+dla systemu Windows, jest najbliższym natywnemu sposobem otwarcia okna
+zdolnego do obsługi DirectX. Pozwala także na najwięcej możliwości
+związanych z bezpośrednim zarządzaniem oknem oraz zasobami specyficznymi
+dla systemu Windows. Wykorzystany sposób otwarcia okna przy pomocy WinAPI został opisany
+poniżej przy pomocy analogicznego do poprzedniego pseudokodu.
+
+\begin{lstlisting}[caption={Pseudokod inicjalizacji okna WinAPI (oryginalna treść)}, label={lst:winapi_init}]
+	RegisterClassEx(); // Zarejestrowanie klasy obiektu
+	CreateWindowEx(); // Utworzenie nowego okna
+	ShowWindow(); // Pokazanie nowego okna
+	
+	while(True) {
+		PeekMessage(); // Pobieranie następnej wiadomości
+		TranslateMessage(); // Przetwarzanie wiadomości
+		DispatchMessage(); // Wysłanie wiadomości do handlera okna
+	
+		if (message == WM_QUIT)
+			break;
+		
+		draw(); // Kod rysujący
+	}
+\end{lstlisting}
+
+Do poprawnego działania wymagane jest także stworzenie funkcji handlera
+dla okna \emph{WndProc}, która implementuje obsługę różnego rodzaju
+sygnałów, które okno może otrzymać. Do podstawowego działania
+obejmującego obsługę zamykania okna z poziomu przycisku
+\emph{\textbf{x}} można użyć następującej funkcji:
+
+\begin{lstlisting}[caption={Pseudokod funkcji WndProc dla WinAPI (oryginalna treść)}, label={lst:winapi_wndproc}]
+	void WndProc (hwnd, message, wParam, lParam) {
+		if (message == WM_DESTROY) {
+			// Wysłanie zapytania o zamknięcie okna
+			// oraz zwolnienie jego zasobów		
+			PostQuitMessage();	
+		}
+		else {
+			// Domyślna funkcja obsługi okna
+			DefWindowProc (hwnd, message, wParam, lParam);
+		}
+	}
+\end{lstlisting}
+
+Ze względu na jej użyteczność, stabilność oraz najlepsze wsparcie dla
+DirectX w dalszej części projektu do obsługi okna użyte zostanie WinAPI. Rozważana była natomiast jeszcze jedna opcja opisana poniżej.
+
+\subsection{UWP / Windows App SDK}
+
+Skrót od \emph{Universal Windows Platform}. UWP zostało utworzone jako
+zunifikowana platforma API aplikacji dla systemów Windows, konsol Xbox,
+czy urządzeń mobilnych opartych na Windows Phone. Platforma została
+opracowana z myślą o bezpieczeństwie poprzez użycia odizolowanego
+środowiska, wydajności, wygodzie oraz wieloplatformości. Microsoft
+stopniowo zaleca przejście ze standardu UWP do Windows App SDK o bardzo
+podobnym API oraz architekturze. DirectX 11 oraz DirectX 12 posiadają oficjalne wsparcie dla tego
+backendu \cite{ms:dxuwp:2024}, wraz z oficjalnymi szablonami projektów do programu
+Visual Studio \cite{ms:dxuwpui:2024}. UWP posiada jednak wyraźne wady w postaci zamkniętej architektury oraz
+problematycznej dystrybucji, gdyż do bezproblemowej instalacji wymagana
+jest publikacja w Microsoft Store celem uzyskania podpisanej wersji
+aplikacji \cite{ms:uwppackaging:2024}. Między innymi z tego względu po testach do projektu użyte zostało WinAPI
+zamiast standardu UWP.
+
+\section{Direct3D i język programowania}
+
+Kolejną podstawową decyzją jest wybór wersji Direct3D oraz idącego za
+nim języka programowania. Wybór ten będzie definiować dalszy wybór
+bibliotek pomocniczych, architektury modułu oraz możliwości
+implementacji bardziej złożonych funkcjonalności. Jako podstawę do testów w tej kategorii wybrany został prosty program
+wyświetlający trójkąt równoboczny na ekranie. Każdy wierzchołek figury
+zostaje pokolorowany innym kolorem, a wyświetlana jest ona na niebieskim
+tle. Porównanie zostało wykonane na tle wydajności, skomplikowania
+wymaganego kodu oraz potencjalnych możliwości rozwoju.
+
+\subsection{Direct3D 9}
+
+% Usunięto \begin{quote} i \end{quote}
+Wydany w 2002r. był jednym z najbardziej popularnych wyborów wśród
+twórców gier aż do wydania DirectX 11. Dzięki swojej prostocie użycia
+oraz wsparciu szerokiej gamy systemów operacyjnych od Windows 98 wzwyż
+\cite{falconfly:dxredist:2024} pozwalał na dotarcie do dużej grupy odbiorców niewielkim
+nakładem pracy. Pomagał w tym także fakt, że wydanie to było bazowym API
+graficznym konsoli Xbox 360 \cite{ms:xbox360bp:2024}. Preferowanym językiem obsługi DirectX 9 jest C++ i to w tym języku
+implementowany był program testowy. Program testowy został rozbity na 2 części -- inicjalizację wykonywaną
+raz oraz rysowanie wywoływane co klatkę obrazu. Taka organizacja pozwala
+na lepsze rozdzielenie poszczególnych fragmentów oraz uniknięcie
+problemów związanych z wyciekami pamięci. Poniżej przedstawione zostały
+opisane pseudokodem fragmenty kodu, potrzebnego do implementacji
+programu testowego.
+% Usunięto \end{quote}
+
+\subsubsection{Inicjalizacja}
+\begin{lstlisting}[caption={Pseudokod inicjalizacji Direct3D 9 (oryginalna treść)}, label={lst:d3d9_init}]
+	void init() {
+		// Własna funkcja tworząca okno przy pomocy WinAPI
+		CreateWindow();
+		d3d = Direct3DCreate9(); // Utworzenie uchwytu interfejsu
+		
+		// Utworzenie uchwytu do urządzenia GPU
+		dev = d3d->CreateDevice();
+		
+		// Utworzenie bufora wierzchołków, zawierającego informacje o położeniu 
+		// i kolorach poszczególnych Vertex'ów
+		verticesData = CreateVerticesData();
+		vBuff = dev->CreateVertexBuffer(verticesData);
+		memcpy(); // Przekopiowanie danych wierzchołków do bufora
+	}
+\end{lstlisting}
+
+\subsubsection{Rysowanie}
+\begin{lstlisting}[caption={Pseudokod rysowania Direct3D 9 (oryginalna treść)}, label={lst:d3d9_render}]
+	void render() {
+		dev->Clear(); // Czyszczenie bufora ekranu
+		dev->BeginScene(); // Rozpoczęcie rysowania sceny
+		
+		// Ustawienie macierzy jednostkowej jako macierzy transformacji sceny		
+		dev->SetTransform(VIEW, identityMatrix);
+		
+		// Ustawienie macierzy projekcji
+		dev->SetTransform(PROJECTION, projectionMatrix);
+		dev->SetFVF(); // Ustawienie formatu wierzchołków
+		
+		// Ustawienie bufora wierzchołków jako źródła danych.
+		dev->SetStreamSource(vBuff);
+		
+		// Ustawienie typu wielokątów -- trójkątów		
+		dev->DrawPrimitive(TRIANGLE_LIST);	
+		dev->EndScene(); // Zakończenie rysowania sceny		
+		dev->Present(); // Wyświetlenie wyrysowanego obrazu
+	}
+\end{lstlisting}
+
+Na opisanych fragmentach kodu widoczna jest wspomniana już wcześniej
+prostota obsługi tej wersji API. Większość operacji znajduje się za
+warstwą abstrakcji po stronie sterownika karty graficznej. Pozwala to na
+łatwiejsze pisanie kodu, ale daje programistom bardzo mało kontroli nad
+procesem rysowania. Częściowym rozwiązaniem tego problemu miał być
+wydany jako następca dziewiątki DirectX 11.
+
+\subsection{Managed DirectX}
+
+% Usunięto \begin{quote} i \end{quote}
+Managed DirectX jest wydaną w 2002r. biblioteką, mającą na celu
+przeniesienie API DirectX 9 do świata języka C\# i framework'u .NET,
+upraszczając w ten sposób proces pisania niskopoziomowych aplikacji
+akcelerowanych sprzętowo. Wydana została jedynie wersja pierwsza z planowaną drugą, która została
+wycofana na rzecz Microsoft XNA i nigdy nie została upubliczniona. Ze
+względu na to MDX posiada obsługę jedynie dla DirectX w wersji 9 oraz
+architektury x86, bez wsparcia dla x64. Przykładowy pseudokod przedstawiający implementację testowej aplikacji
+został przedstawiony poniżej:
+% Usunięto \end{quote}
+
+\subsubsection{Inicjalizacja}
+% Zmieniono styl na csharpstyle, zachowując oryginalną treść
+\begin{lstlisting}
+	
+	void init() {
+		CreateWindow();
+		
+		// Utworzenie uchwytu do urządzenia
+		dev = new Deivce();
+		
+		// Utworzenie i uzupełnienie bufora wierzchołków
+		vBuffer = new VertexBuffer();
+		
+		FillVertexBuffer();
+	}
+	
+\end{lstlisting}
+
+\subsubsection{Rysowanie}
+% Zmieniono styl na csharpstyle, zachowując oryginalną treść
+\begin{lstlisting}
+	
+	void render() {
+		// Czyszczenie ekranu
+		dev->Clear();
+		
+		// Rozpoczęcie rysowania
+		dev->BeginScene();
+		
+		// Ustawienie formatu wejściowego wierzchołków
+		dev->VertexFormat = CustomFormat;
+		
+		// Rysowanie wielokątów
+		dev->DrawPrimitives(TRIANGLE_LIST, 0, 1);
+		
+		// Zakończenie rysowania
+		dev->EndScene();
+		
+		// Wyświetlenie sceny
+		dev->Present();
+	}
+	
+\end{lstlisting}
+
+\subsection{Direct3D 11}
+
+Niebezpośredni następca DirectX 9. Pomiędzy nimi wydana została wersja
+10, ale nie zdobyła ona nadmiernej popularności i była jedynie iteracją,
+przygotowującą na wydanie jedenaste, które stało się de facto podstawą
+dla większości gier i programów wydanych w trakcie ósmej generacji
+konsol do gier. DirectX 11 jest także podstawowym API graficznym systemu
+Windows 8 / 8.1 oraz konsoli Xbox One \cite{ms:raisingbar:2024}. Pod względem architektury to wydanie jest krokiem w stronę
+niskopoziomowej obsługi akceleracji sprzętowej, oddając deweloperom do
+dyspozycji wyraźnie większą kontrolę nad sprzętem i jego
+funkcjonowaniem. Zmiany obejmują między innymi wsparcie wielowątkowości,
+programowalny pipeline graficzny z obsługą teselacji i compute shaders,
+czy bardziej zaawansowany model shader'ów w wydaniu Shader Model 5.0. Niestety odbywa się to kosztem złożoności obsługi nowego API, między
+innymi poprzez ręczne zarządzenie niektórymi elementami rysowania,
+takimi jak Swapchain czy Assembler Input Layout. Tak jak w poprzednim przypadku, uproszczony pseudokod podzielony został
+na 2 główne funkcje -- inicjalizacja i rysowanie. Wykorzystany został
+tryb rysowania Immediate do uproszczenia przykładu.
+
+\subsubsection{Inicjalizacja}
+\begin{lstlisting}[caption={Pseudokod inicjalizacji Direct3D 11 (oryginalna treść)}, label={lst:d3d11_init}]
+	
+	void init() {
+		CreateWindow();
+		
+		// Utworzenie uchwytu do wirtualnego urządzenia
+		dev = D3D11CreateDevice();
+		
+		// Utworzenie uchwytu do fizycznego urządzenia GPU
+		adapter = dev->GetAdapter();
+		
+		// Utworzenie swapchain -- obiektu odpowiedzialnego za przechowywanie}
+		// klatek wygenerowanych i w trakcie rysowania
+		swapchain = CreateSwapChainForHwnd();
+		
+		// Utworzenie obiektu RTV (Render Target View).
+		rtv = dev->CreateRenderTargetView();
+		
+		// Utworzenie bufora głębi, stencil oraz widoku
+		CreateDepthStencilView();
+		
+		// Utworzenie i skompilowanie shader'ów.
+		vShader = dev->CreateVertexShader();
+		pShader = dev->CreatePixelShader();
+		
+		// Utworzenie układu danych wejściowych
+		CreateInputLayout();
+		
+		// Utworzenie buforów danych wejściowych
+		CreateInputBuffers();
+	}
+	
+\end{lstlisting}
+
+\subsubsection{Rysowanie}
+\begin{lstlisting}[caption={Pseudokod rysowania Direct3D 11 (oryginalna treść)}, label={lst:d3d11_render}]
+	
+	void render() {
+		// Wyczyszczenie bufora rysowania
+		rtv->Clear();
+		
+		// Ustawienie macierzy projekcji, widoku i świata.
+		context->SetWorldViewProjectionMatrix();
+		
+		// Ustawienie oraz skonfigurowanie shaderów używanych w procesie
+		// rysowania
+		context->SetVertexShader(vShader);	
+		context->SetConstantBuffers();
+		context->SetFragmentShader(pShader);
+		
+		// Rysowanie i prezentowanie wygenerowanej klatki obrazu
+		context->Draw();
+		swapchain->Present();
+	}
+	
+\end{lstlisting}
+
+Opisany pseudokod nie oddaje w pełni złożoności oraz kontroli jaką
+oddaje w ręce programisty DirectX 11. Program wykonujący tą samą funkcję
+podwoił swoją objętość względem wersji 9, ale pozwala to na znacznie
+większą kontrolę nad pełnym procesem rysowania. Jest to nadal tylko
+ułamek kontroli, jaką oddaje jego następca.
+
+\subsection{Direct3D 12}
+
+Bezpośredni następca DirectX 11 całkowicie zmieniający sposób
+postrzegania i użytkowania API graficznego. Direct3D 12 oddaje w ręce
+programisty kontrolę nad większością części procesu rysowania grafiki
+3D. Wadą takiego podejścia jest zdecydowane zwiększenie nakładu pracy
+wymaganego do prawie każdej operacji. Szczególny nacisk po stronie
+programisty został położony na zarządzenie pamięcią, w tym zarządzanie
+używanymi zasobami i zwalnianie ich w odpowiednim czasie. Zwalnia to
+sterownik z konieczności pełnienia tej roli, co przekłada się na
+wyraźnie zwiększoną wydajność, ale może prowadzić do wycieków pamięci i
+bardziej złożonej architektury programu. Jak w poprzednich tak i w tym przypadku przykładowa aplikacja została
+podzielona na inicjalizację oraz rysowanie, opisane pseudokodem poniżej.
+
+\subsubsection{Inicjalizacja}
+\begin{lstlisting}[caption={Pseudokod inicjalizacji Direct3D 12 (oryginalna treść)}, label={lst:d3d12_init}]
+	
+	void init() {
+		CreateWindow();
+		
+		// Stworzenie "fabryki" obiektów DXGI
+		factory = CreateDXGIFactory();
+		
+		// Stworzenie uchwytu do wirtualnego urządzenia
+		dev = D3D12CreateDevice();
+		
+		// Stworzenie kolejki komend. Przy jej pomocy wysyłane będą polecenia do GPU.
+		queue = dev- $>$CreateCommandQueue();
+		swapchain = factory->CreateSwapChainForHwnd();
+		
+		// Utworzenie sterty deskryptora. Będzie ona zawierać wejściowe
+		descHeap = dev->CreateDescriptorHeap();
+		
+		// Tworzymy odpowiednią ilość widoków RTV. Każdy z osobna
+		// dla każdej klatki obrazu "w locie"
+		for(int i = 0; i < FrameCount; i++) {
+			rtv{[}i{]} = dev->CreateRenderTargetView();
+		}
+		
+		// Utworzenie alokatora dla listy komend
+		allocator = dev->CreateCommandAllocator();
+	
+		// Utworzenie sygnatury root'a. 
+		// Będzie zawierać opis formatu danych wejściowych
+		rootSignature = dev->CreateRootSignature();
+		
+		// Utworzenie i kompilacja shader'ów
+		vShader = CreateVertexShader();
+		pShader = CreatePixelShader();
+		
+		// Utworzenie stanu "linii produkcyjnej" rysowania grafiki
+		pipeline = dev->CreateGraphicsPipelineState();
+		
+		// Utworzenie listy komend wywoływanej na kolejce komend
+		cList = dev->CreateCommandList();
+		
+		// Utworzenie zasobów bufora wierzchołków oraz uzupełnienie go
+		vBuffer = dev->CreateCommitedResource();	
+		memcpy(vBuffer);
+		
+		// Utworzenie "płotka", będącego strukturą synchronizacji między GPU, a CPU
+		syncFence = dev->CreateFence();
+	}
+	
+\end{lstlisting}
+
+\subsubsection{Rysowanie}
+\begin{lstlisting}[caption={Pseudokod rysowania Direct3D 12 (oryginalna treść)}, label={lst:d3d12_render}]
+	
+	void render() {
+		// Uzupełnienie listy komend
+		allocator->Reset(); // Resetowanie alokatora oraz listy komend
+		cList->Reset(); // Resetowanie listy komend
+		
+		// Ustawienie bazowej sygnatury opisującej format danych wejściowych	
+		cList->SetRootSignature(rootSignature);
+		
+		// Stworzenie bariery, która jest elementem synchronizacji 
+		// i zmienia stan obiektu powierzchni rysowania na RENDER_TARGET
+		cList->ResourceBarrier(RESOURCE_STATE, RENDER_TARGET);
+		
+		// Wyczyszczenie powierzchni rysowania
+		cList->ClearRenderTargetView();
+		
+		// Polecenie rysowania
+		cList->DrawInstanced();
+		
+		// Ponowna bariera przywracająca stan powierzchni rysowania
+		cList->ResourceBarrier(RENDER_TARGET, RESOURCE_STATE);
+		
+		// Wysłanie listy komend i wyświetlenie klatki obrazu
+		queue->ExecuteCommandLists(cList);
+		swapchain->Present();
+		
+		// Synchronizacja poprzez oczekiwanie na ukończenie pracy GPU.
+		// Jest to wersja uproszczona. 
+		// Poprawnym jest utworzenie kilku klatek "w locie"
+		// i oczekiwanie na nie w odpowiedniej kolejności, a nie tylko na poprzednią
+		newValue = queue->Signal(syncFence);
+		
+		WaitForSingleObject(syncFenceEvent);
+	}
+	
+\end{lstlisting}
+
+API Direct3D 12 jest biblioteką bardziej zaawansowaną niż jest to
+wymagane dla tego projektu, szczególnie uwzględniając prowadzenie go w
+pojedynkę oraz złożoność wersji dwunastej. W związku z tym wykorzystane
+zostanie API Direct3D 11, będące wypośrodkowaniem między możliwościami i
+nowoczesnością, a złożonością dla programisty. Z tego względu w dalszych
+przykładach oraz finalnym projekcie użyty zostanie język C++ z IDE
+Microsoft Visual Studio oraz kompilatorem Microsoft Visual C++.
+
+\section{Wczytywanie tekstur}
+
+\subsection{stb\_image}
+
+Element pakietu STB, będącego zbiorem otwarto źródłowych bibliotek
+pomocniczych, zawierającym kod między innymi do obsługi wczytywania
+obrazów (stb\_image), generowania szumu (stb\_perlin), wczytywania
+czcionek (stb\_truetype), czy wykrywania wycieków pamięci
+(stb\_leakcheck) \cite{github:stb:2024}. Biblioteki te charakteryzują się prostym API,
+łatwym użyciem i brakiem kosztów licencyjnych. Stb\_image pozwala na proste wczytywanie i dekodowanie wielu popularnych
+formatów obrazów, między innymi JPG, PNG, TGA, czy BMP \cite{github:stb:2024}. Jego
+działanie nie jest uzależnione od żadnego API graficznego czy biblioteki
+UI, co pozwala na uniwersalne użycie do własnego modułu. Poniżej przedstawiony został przykład użycia biblioteki stb\_image do
+wczytania pliku cat.png w formacie ARGB.
+
+\begin{lstlisting}[caption={Przykład użycia stb\_image (oryginalna treść)}, label={lst:stb_image}]
+	
+	#include <stb_image.h>
+	
+	int main() {
+		int imgWidth;
+		int imgHeight;
+		int imgChannels;
+		
+		// Wczytanie pliku z użyciem funkcji stbi_load()
+		unsigned char *imgData = stbi_load(
+				"cat.png", 
+				&imgWidth, 
+				&imgHeight, 
+				&imgChannels, 
+				4
+		);
+		
+		processImage(imgData); // Użycie wczytanego obrazu
+		free(imgData); // Zwolnienie pamięci
+	}
+	
+\end{lstlisting}
+
+\subsection{DirectXTK}
+
+Skrót od nazwy „\emph{DirectX Tool Kit}'' - stworzony przez Chuck'a
+Walbourn'a pod kontrolą firmy Microsoft zestaw bibliotek,
+zaprojektowanych jako pomoc przy pisaniu programów wykorzystujących API
+DirectX 11 \cite{github:directxtk:2024}. Zaprojektowany jako następca wycofanej biblioteki
+D3DX \cite{walbourn:directxtk:2024}. Pakiet został później przeportowany do użycia z DirectX
+12 \cite{github:directxtk12:2024}. Zawiera między innymi moduły odpowiedzialne za rysowanie
+sprite'ów 2D (SpriteBatch), rysowanie tekstu 2D (SpriteFont),
+wczytywanie modeli 3D (Model), czy rozszerzenie o często używane typy
+wierzchołków (VertexTypes) \cite{walbourn:directxtk:2024}.
+
+Komponent WICTextureLoader odpowiedzialny jest za wczytywanie tekstur
+przy pomocy API Windows Imaging Component, w skrócie \emph{WIC}. Obsługuje zdecydowaną większość formatów graficznych, w tym także format
+DDS, którego obsługi brakuje w przypadku stb\_image. Wczytanie tekstury przy pomocy DirectXTK opisane jest przy okazji bardzo
+dobrej dokumentacji projektu \cite{github:directxtk:sprites:2024}.
+
+\begin{lstlisting}[caption={Przykład użycia DirectXTK WICTextureLoader (oryginalna treść)}, label={lst:directxtk_wic}]
+
+	#include <WICTextureLoader.h>
+	
+	// Utworzenie nowego zasobu
+	ComPtr<ID3D11Resource> resource;
+	
+	const wchar_t* path = L"cat.png";
+	
+	int main() {
+		// Wczytanie przy pomocy funkcji z DirectXTK
+		CreateWICTextureFromFile(
+				device, 
+				path, 
+				resource.GetAddressOf(),
+				m_texture.ReleaseAndGetAddressOf()
+		);
+		
+		// Konwersja typu na typ tekstury Direct3D
+		ComPtr<ID3D11Texture2D> cat;
+		DX::ThrowIfFailed(resource.As(&cat));
+	}
+	
+\end{lstlisting}
+
+Ze względu na świetną integrację z systemem DirectX jako bibliotekę
+obsługi tekstur w projekcie wybrany został DirectXTK.
+
+\section{Wczytywanie modeli 3D}
+
+Kolejnym po teksturach formatem często wykorzystywanym w silnikach 3D są
+trójwymiarowe modele obiektów. Mogą one przyjmować postać plików o
+formatach takich jak FBX, CMO, DAE, OBJ, czy glTF.
+
+\subsection{DirectXTK}
+
+Wspomniana już przy okazji wczytywania tekstur biblioteka pomocnicza
+DirectX Tool Kit zawiera także komponent odpowiedzialny za wczytywanie
+modeli. Jego użycie jest proste i intuicyjne, do tego dobrze pasowałoby
+do użycia razem z elementem tekstur. Przykład użycia przedstawiony
+został poniżej.
+
+\begin{lstlisting}[caption={Przykład użycia DirectXTK Model (oryginalna treść)}, label={lst:directxtk_model}]
+	
+	// Utworzenie "fabryki" efektów, wymaganej do użycia funkcji
+	m_fxFactory = std::make_unique<EffectFactory>(device);
+	
+	// Wczytanie modelu przy użyciu funkcji CreateFromCMO
+	auto teapot = Model::CreateFromCMO(device, L"teapot.cmo", *m_fxFactory);
+	
+	// Funkcja pomocnicza rysowania
+	teapot->Draw(...);
+	
+\end{lstlisting}
+
+Użycie DirectXTK posiada jednak znaczącą wadę, a jest nią ograniczenie
+do formatów CMO oraz SDKMESH \cite{github:directxtk:model:2024}. Brak wsparcia dla popularnych
+typów FBX, OBJ, czy DAE.
+
+\subsection{Assimp}
+
+W pełnej nazwie \emph{Open Asset Import Library}, jest otwarto źródłową
+biblioteką z funkcjonalnością wczytywania modeli z ponad 40 różnych
+formatów plików 3D \cite{github:assimp:2024}. Wśród narzędzi znajdują się także funkcje
+postprocessing'u modeli, takie jak wyliczanie wartości normalnych,
+triangulacji, czy optymalizacji wierzchołków.
+
+Użycie assimp jest bardziej złożone od DirectXTK, ale nadal dobrze
+opisane w licznych poradnikach oraz dokumentacji. Poniżej przedstawiony
+został uproszczony przykład wczytania przykładowego pliku teapot.fbx,
+który został sporządzony na podstawie pełnego dema dostępnego w
+dokumentacji projektu Assimp \cite{github:assimp:dx11sample:2024}.
+
+\begin{lstlisting}[caption={Przykład użycia Assimp (oryginalna treść)}, label={lst:assimp_load}]
+
+	void load() {
+		Assimp::Importer importer;
+		const aiScene* pScene = importer.ReadFile("teapot.fbx", ...);
+		processNode(pScene->mRootNode, pScene);
+	}
+	
+	void processNode(aiNode* node, const aiScene* scene) {
+		// Wczytanie modeli node'a z tablicy
+		// Dla uproszczenia pominięto pętle po mesh'ach
+		processMeshes(scene->mMeshes);
+		
+		// Rekursywne wczytanie gałęzi
+		for(uint i = 0; i < node->mNumChildren; i++) {
+			processNode(node->mChildren{[}i{]}, scene);		
+		}
+	}
+	
+	void processMesh(aiMesh* mesh, const aiScene* scene) {		
+		// Dla uproszczenia wczytywanie zostało przedstawione
+		// przy pomocy pseudofunkcji loadFrom o definicji
+		// loadFrom(data, n);
+		
+		vertices = loadFrom(mesh->mVertices, mesh->mNumVertices);
+		UVs = loadFrom(mesh->textcoord, mesh->mNumVertices);
+		faces = loadFrom(mesh->mFaces, mesh->mNumFaces);
+		
+		indices = loadFrom(mesh->mIndices, mesh->mNumFaces * face.mNumIndices);
+		materials = scene->mMaterials{[}mesh->mMaterialIndex{]};
+	}
+	
+\end{lstlisting}
+
+Ze względu na wsparcie większej ilości formatów oraz wyraźnie lepszą
+dokumentację jak i wsparcie społeczności, do projektu użyta zostanie
+biblioteka Assimp.
+
+\section{Biblioteka pomocnicza operacji matematycznych}
+
+Do wydajnego rysowania trójwymiarowego potrzebne jest wykonywanie dużej
+ilości złożonych operacji matematycznych, w szczególności operacji
+macierzowych oraz wektorowych. Większość z nich odbywa się po stronie
+API oraz karty graficznej i programista nie musi się nad nimi
+zastanawiać, lecz część z tych operacji musi być wykonywania także po
+stronie kodu przez niego pisanego. W celu uproszczenia oraz abstrakcji
+takich operacji powstało kilka bibliotek ułatwiających to zadanie.
+
+\subsection{DirectXMath}
+
+Podstawowa biblioteka pomocnicza używana przez większość projektów
+opartych o DirectX. Wykorzystuje rozszerzenia typu SIMD (\emph{Single
+Instruction Multiple Data}) do wydajnego wykonywania złożonych operacji
+opartych o algebrę liniową. Biblioteka wspiera architektury x86, x64
+oraz ARM/ARM64.
+
+Dzięki swojej konstrukcji oraz założeniom DXMath oddaje programiście
+bardzo dużą kontrolę nad swoim działaniem, co pozwala na lepsze
+zrozumienie działania oraz wyraźną poprawę wydajności. Odbywa się to
+niestety kosztem prostoty oraz czytelności kodu. Aby zaradzić na ten
+problem powstał wrapper SimpleMath.
+
+\subsection{SimpleMath}
+
+Wrapper nad DirectXMath. SimpleMath będący elementem DirectXTK upraszcza
+większość operacji DXMath i zwalnia programistę z konieczności myślenia
+w paradygmacie SIMD. Upraszcza to pracę z kodem oraz poprawia jego
+czytelność, kosztem niewielkiego kosztu wydajnościowego. Biblioteka
+skonstruowana jest w taki sposób, aby nadal możliwe było korzystanie z
+DirectXMath w krytycznych dla wydajności sekcjach kodu, więc większość
+kosztów wydajnościowych może zostać wyraźnie zredukowanych, bez straty
+na czytelności kodu \cite{github:directxtk:simplemath:2024}. Z tego względu SimpleMath został wybrany
+jako wykorzystana w projekcie biblioteka obsługi równań liniowych.
+
+\section{Podsumowanie}
+
+Poniżej przedstawione zostało podsumowanie użytych w projekcie
+bibliotek.
+
+% \begin{longtable}
+% \toprule
+
+% \begin{minipage}
+% 	\textbf{Kategoria}
+% \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+% 	\textbf{Wybrana biblioteka}
+% \end{minipage} \\
+% \midrule
+% \endhead
+% API systemu okien & WinAPI \\
+% API graficzne & DirectX 11 \\
+% Język programowania & C++ \\
+% Wczytywanie tekstur & DirectXTK / WICTextureLoader \\
+% Wczytywanie modeli & Assimp \\
+% Biblioteka pomocnicza do równań matematycznych & DirectXTK / SimpleMath \\
+% \bottomrule
+% \end{longtable}
+
+\begin{center}
+	\begin{tabular}{ |l r| }
+		\hline
+		\textbf{Kategoria} & \textbf{Biblioteka} \\
+		\hline
+		API systemu okien & WinAPI \\
+		API graficzne & Direct3D 11 \\
+		Język programowania & C++ \\ 
+		Wczytywanie tekstur & DirectXTK / WICTextureLoader \\
+		Wczytywanie modeli & Assimp \\
+		Biblioteka pomocnicza równań matematycznych & DirectXTK / SimpleMath \\
+		\hline
+	\end{tabular}
+\end{center}

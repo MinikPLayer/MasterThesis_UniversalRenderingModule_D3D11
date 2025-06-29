@@ -49,6 +49,20 @@ def scene_objects_uml_processor(lines_list: list[str]) -> list[str]:
 
     return processed_lines
 
+def utils_uml_processor(lines_list: list[str]) -> list[str]:
+    # Custom processing for Utils module
+    processed_lines = []
+    in_non_copyable = False
+    for line in lines_list:
+        if "class NonCopyable {" in line:
+            in_non_copyable = True
+        elif in_non_copyable and line.strip() == "}":
+            in_non_copyable = False
+        elif not in_non_copyable:
+            processed_lines.append(line)
+
+    return processed_lines
+
 ENABLE_PLANTUML_IMAGE_GENERATOR = True
 REMOVE_OLD_FILES = True
 MODULES = [
@@ -58,9 +72,9 @@ MODULES = [
     Module("Mesh", Direction.TOP_TO_BOTTOM, ["Core/IMesh.h", "Core/Mesh.h", "Core/MaterialProperty.h"]),
     Module("ModelLoader", Direction.LEFT_TO_RIGHT, ["Core/ModelLoader.h"]),
     Module("Texture", Direction.LEFT_TO_RIGHT, ["Core/D3DTexture2D.h", "Core/D3DSampler.h"]),
-    Module("Shader", Direction.LEFT_TO_RIGHT, ["Core/ShaderProgram.h",  "Core/D3DInputLayout.h"]),
+    Module("Shader", Direction.LEFT_TO_RIGHT, ["Core/ShaderPipeline.h",  "Core/D3DInputLayout.h"]),
     Module("VertexTypes", Direction.LEFT_TO_RIGHT, ["Core/StandardVertexTypes.h"]),
-    Module("Utils", Direction.LEFT_TO_RIGHT, ["Core/Utils.h"]),
+    Module("Utils", Direction.LEFT_TO_RIGHT, ["Core/Utils.h"], custom_uml_processor=utils_uml_processor),
     Module("Logging", Direction.LEFT_TO_RIGHT, ["Core/Log.h"]),
     Module("Stopwatch", Direction.LEFT_TO_RIGHT, ["Core/Stopwatch.h"]),
     Module("Engine", Direction.LEFT_TO_RIGHT, ["Engine/Engine.h", "Engine/Timer.h"]),

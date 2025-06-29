@@ -1,0 +1,44 @@
+\chapter{Architektura oraz założenia systemu}
+Przed faktyczym rozpoczęciem prac nad złożonym systemem programowym należy najpierw zastanowić się nad jego architekturą.
+Ułatwia to określenie wymagań, celów, a także potencjalnych trudności które można napotkać w trakcie prac. 
+Daje to możliwość zrewidowania architektury zanim poświęci się dużą ilość czasu na pisanie systemu z błędną architekturą.
+
+\section{Rodzaje systemów rysujących}
+Założeniem projektu jest stworzenie uniwersalnego, modularnego systemu rysującego.
+Systemy tego typu przyjmują najczęściej formę punktu między dwoma ekstremami. 
+
+Po jednej stronie spektrum znajduje się system prawie całkowicie niezależny. 
+System taki zbliżony jest swoim działaniem do alpikacji wyświetlającej trójwymiarowy model w przestrzeni.
+Moduł jest w takim przypadku odpowiedzialny za większość operacji związanych z rysowaniem, 
+    w tym za inicjalizację okna, ruch kamery w odpowiedzi na interakcje z użytkownikiem,
+    generowanie modelu 3D na podstawie pliku wejściowego, czy obliczanie zaawansowancyh efektów świetlnych.
+Aplikacja klienta w takim przypadku przekazuje jedynie ścieżkę do modelu oraz ogólne parametry sceny, takie jak pozycja oraz kierunek światła.
+
+Przeciwieństwem jest moduł będący niewiele więcej niż abstrakcją nad niskopoziomowymi API graficznymi.
+Udostępnia on uniwersalne API niezależne od systemu operacyjnego oraz końcowego API graficznego,
+    nie zabierając przy tym kontroli nad procesem renderowania.
+Wadą takiego rozwiązania jest zwiększony nakład pracy dla programisty aplikacji klienta,
+    a także wynikające z abstrakcji ograniczenia funkcji końcowych API graficznych, które mogłyby być zaimplementowane w systemie pierwszego typu.
+
+\section{Założenia projektowe - struktura warstwowa}
+Projektowany system przyjmuje formę hybrydową.
+Głównym założeniem wyróżniającym omawiany projekt względem innych, podobnych bibliotek, jest budowa warstwowa. 
+Składa się z kolejnych warstw abstrakcji, co pozwala na połączenie dobrych aspektów obu rodzajów silników renderujących.
+
+\subsection{\textbf{Core} - Warstwa rdzeniowa}
+Grupuje często używane funkcje oraz struktury z DirectX do łatwych w użyciu elementów obiektowych, takich jak Window, Shader, Framebuffer, czy Mesh.
+Udostępnia funkcjonalność wczytywania z dysku plików tesktur i modeli.
+Do zadań tej warstwy należy też zarządzenia pamięcią oraz cyklem życia obiektów.
+Obiekty automatycznie zarządzają swoją pamięcią stosując inteligentne wskaźniki ze standardu C++11 oraz ComPtr z biblitoek WinAPI.
+
+\subsection{\textbf{Scene} - Warstwa sceny}
+Na tym poziomie znajdują się wysokopoziomowe struktury oraz metody wczytywania i zarządzania sceną oraz jej komponentami.
+Automatyzowane jest tutaj między innymi wczytywanie z pliku pełnego modelu wraz z hierarchią, teksturami i parametrami materiałów.
+Udostępnione są także podstawowe funkcje rysowania sceny i znajdujących się w niej obiektów, a także metody do wczytywania i zapisu sceny do pliku.
+
+\subsection{\textbf{Engine} - Warstwa rysująca}
+Uproszczenie metod rysowania oraz implementacji efektów oświetlenia.
+Warstwa odpowiada za większość procesu renderowania.
+Aplikacja klienta przekazuje przy inicjalizacji parametry sceny - pozycje oraz ustawienia modeli, parametry wirtualnej kamery oraz oświetlenia.
+Wartości te modyfikowane są w przekazanej do modułu funkcji typu callback, wywoływanej automatycznie przed rysowaniem kolejnej klatki obrazu.
+Możliwe jest także przełączenie w tryb ręczny, w którym za wywoływanie funkcji rysowania oraz synchronizację odpowiedzialna jest aplikacja klienta.
