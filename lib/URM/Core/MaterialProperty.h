@@ -28,8 +28,9 @@ namespace URM::Core {
 		};
 
 		std::string name;
-		Types type;
 	private:
+		Types type;
+
 		void ThrowIfNotValidType(Types expectedType) const;
 
 		MaterialProperty(const std::string& name, Types type, const BYTE* data, size_t bufferSize, size_t dataLength);
@@ -37,6 +38,10 @@ namespace URM::Core {
 
 		void CopyFrom(const MaterialProperty& other);
 	public:
+		Types GetType() const {
+			return this->type;
+		}
+
 		MaterialProperty(const MaterialProperty& other);
 		MaterialProperty operator=(const MaterialProperty& other) const;
 		~MaterialProperty();

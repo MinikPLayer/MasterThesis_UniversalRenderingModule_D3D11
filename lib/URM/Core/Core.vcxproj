@@ -35,7 +35,7 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="ModelLoader.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="ShaderProgram.h" />
+    <ClInclude Include="ShaderPipeline.h" />
     <ClInclude Include="StandardVertexTypes.h" />
     <ClInclude Include="Stopwatch.h" />
     <ClInclude Include="Utils.h" />
@@ -58,7 +58,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="ShaderProgram.cpp" />
+    <ClCompile Include="ShaderPipeline.cpp" />
     <ClCompile Include="Stopwatch.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="Window.cpp" />

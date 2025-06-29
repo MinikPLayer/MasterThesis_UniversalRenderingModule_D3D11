@@ -2,7 +2,7 @@
 
 #include "VertexConcept.h"
 #include <d3d11.h>
-#include "ShaderProgram.h"
+#include "ShaderPipeline.h"
 #include "ModelLoader.h"
 
 namespace URM::Core {
@@ -18,11 +18,11 @@ namespace URM::Core {
 			return this->mInputLayout;
 		}
 
-		D3DInputLayout(const D3DCore& core, ShaderProgram program);
+		D3DInputLayout(const D3DCore& core, ShaderPipeline program);
 	};
 
 	template<VertexTypeConcept VertexType>
-	D3DInputLayout<VertexType>::D3DInputLayout(const D3DCore& core, ShaderProgram program) {
+	D3DInputLayout<VertexType>::D3DInputLayout(const D3DCore& core, ShaderPipeline program) {
 		auto layout = VertexType::GetInputLayout();
 
 		core.GetDevice()->CreateInputLayout(

@@ -8,7 +8,7 @@
 #include <URM/Core/Mesh.h>
 #include <URM/Core/StandardVertexTypes.h>
 #include <URM/Core/ID3DBuffer.h>
-#include <URM/Core/ShaderProgram.h>
+#include <URM/Core/ShaderPipeline.h>
 #include <URM/Core/D3DInputLayout.h>
 
 #include <URM/Core/D3DViewport.h>
@@ -309,7 +309,7 @@ namespace {
 		
 	public:
 		void Init(URM::Core::D3DCore& core, URM::Engine::Scene& scene) override {
-			auto alternativeShader = std::make_shared<URM::Core::ShaderProgram>(URM::Core::ShaderProgram(core, L"SimpleVertexShader.cso", L"ColorOnlyPixelShader.cso"));
+			auto alternativeShader = std::make_shared<URM::Core::ShaderPipeline>(URM::Core::ShaderPipeline(core, L"SimpleVertexShader.cso", L"ColorOnlyPixelShader.cso"));
 			auto alternativeLayout = std::make_shared<URM::Core::ModelLoaderLayout>(URM::Core::ModelLoaderLayout(core, *alternativeShader));
 
 			auto suzanneModel = new URM::Engine::ModelObject(

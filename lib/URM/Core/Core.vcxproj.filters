@@ -63,7 +63,7 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderProgram.h">
+    <ClInclude Include="ShaderPipeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="StandardVertexTypes.h">
@@ -113,7 +113,7 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderProgram.cpp">
+    <ClCompile Include="ShaderPipeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Utils.cpp">
@@ -125,11 +125,5 @@
     <ClCompile Include="Stopwatch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Core.cd" />
-    <None Include="Buffer.cd" />
-    <None Include="CoreFull.cd" />
-    <None Include="Model.cd" />
   </ItemGroup>
 </Project>

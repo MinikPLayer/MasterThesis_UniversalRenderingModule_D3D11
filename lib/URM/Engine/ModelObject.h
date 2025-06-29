@@ -3,7 +3,7 @@
 #include "SceneObject.h"
 #include <URM/Core/ModelLoader.h>
 #include <URM/Core/D3DInputLayout.h>
-#include <URM/Core/ShaderProgram.h>
+#include <URM/Core/ShaderPipeline.h>
 #include <string>
 
 namespace URM::Engine {
@@ -12,19 +12,19 @@ namespace URM::Engine {
 	// TODO: Add support for custom PixelConstantBuffer types.
 	class ModelObject : public SceneObject {
 		// TODO: Move defaults, VertexConstantBuffer and PixelConstantBuffer to a separate class.
-		static std::shared_ptr<Core::ShaderProgram> mDefaultShaderProgram;
+		static std::shared_ptr<Core::ShaderPipeline> mDefaultShaderProgram;
 		static std::shared_ptr<Core::ModelLoaderLayout> mDefaultInputLayout;
 
-		std::shared_ptr<Core::ShaderProgram> mShader = nullptr;
+		std::shared_ptr<Core::ShaderPipeline> mShader = nullptr;
 		std::shared_ptr<Core::ModelLoaderLayout> mInputLayout = nullptr;
 
 		std::string mPath;
 
 		void AddMeshRecursive(const std::shared_ptr<Core::ModelLoaderNode>& node, const std::weak_ptr<SceneObject>& parent);
 	public:
-		static std::shared_ptr<Core::ShaderProgram> GetDefaultShader(Core::D3DCore& core) {
+		static std::shared_ptr<Core::ShaderPipeline> GetDefaultShader(Core::D3DCore& core) {
 			if (!mDefaultShaderProgram) {
-				mDefaultShaderProgram = std::make_shared<Core::ShaderProgram>(core, L"SimpleVertexShader.cso", L"SimplePixelShader.cso");
+				mDefaultShaderProgram = std::make_shared<Core::ShaderPipeline>(core, L"SimpleVertexShader.cso", L"SimplePixelShader.cso");
 			}
 
 			return mDefaultShaderProgram;
@@ -41,7 +41,7 @@ namespace URM::Engine {
 
 		void OnAdded() override;
 
-		ModelObject(const std::string& path, const std::shared_ptr<Core::ShaderProgram>& shader, const std::shared_ptr<Core::ModelLoaderLayout>& layout);
+		ModelObject(const std::string& path, const std::shared_ptr<Core::ShaderPipeline>& shader, const std::shared_ptr<Core::ModelLoaderLayout>& layout);
 		ModelObject(const std::string& path);
 	};
 }

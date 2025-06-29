@@ -1,12 +1,12 @@
 ﻿#include "pch.h"
-#include "ShaderProgram.h"
+#include "ShaderPipeline.h"
 
 #include <d3dcompiler.h>
 
 #pragma comment(lib, "d3dcompiler.lib")
 
 namespace URM::Core {
-	ComPtr<ID3DBlob> ShaderProgram::LoadShaderBytecode(const std::wstring& fileName) {
+	ComPtr<ID3DBlob> ShaderPipeline::LoadShaderBytecode(const std::wstring& fileName) {
 		ID3DBlob* blob;
 		DX::ThrowIfFailed(
 			D3DReadFileToBlob(fileName.c_str(), &blob),
@@ -16,12 +16,12 @@ namespace URM::Core {
 		return blob;
 	}
 
-	void ShaderProgram::Bind(const D3DCore& core) const {
+	void ShaderPipeline::Bind(const D3DCore& core) const {
 		core.GetContext()->VSSetShader(this->mVertexShader.Get(), nullptr, 0);
 		core.GetContext()->PSSetShader(this->mPixelShader.Get(), nullptr, 0);
 	}
 
-	ShaderProgram::ShaderProgram(const D3DCore& core, const std::wstring& vertexPath, const std::wstring& pixelPath) {
+	ShaderPipeline::ShaderPipeline(const D3DCore& core, const std::wstring& vertexPath, const std::wstring& pixelPath) {
 		ID3D11VertexShader* vShader;
 		this->mVertexSource = LoadShaderBytecode(vertexPath);
 		spdlog::trace("Creating vertex shader from {}", StringUtils::WStringToString(vertexPath));

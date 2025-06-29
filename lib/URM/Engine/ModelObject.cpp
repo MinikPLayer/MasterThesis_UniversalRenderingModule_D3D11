@@ -5,7 +5,7 @@
 #include "Scene.h"
 
 namespace URM::Engine {
-	std::shared_ptr<Core::ShaderProgram> ModelObject::mDefaultShaderProgram = nullptr;
+	std::shared_ptr<Core::ShaderPipeline> ModelObject::mDefaultShaderProgram = nullptr;
 	std::shared_ptr<Core::ModelLoaderLayout> ModelObject::mDefaultInputLayout;
 
 	void ModelObject::AddMeshRecursive(const std::shared_ptr<Core::ModelLoaderNode>& node, const std::weak_ptr<SceneObject>& parent) {
@@ -40,7 +40,7 @@ namespace URM::Engine {
 		AddMeshRecursive(model, this->GetSelfPtr());
 	}
 
-	ModelObject::ModelObject(const std::string& path, const std::shared_ptr<Core::ShaderProgram>& shader, const std::shared_ptr<Core::ModelLoaderLayout>& layout) {
+	ModelObject::ModelObject(const std::string& path, const std::shared_ptr<Core::ShaderPipeline>& shader, const std::shared_ptr<Core::ModelLoaderLayout>& layout) {
 		this->mPath = path;
 		this->mShader = shader;
 		this->mInputLayout = layout;

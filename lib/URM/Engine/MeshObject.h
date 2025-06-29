@@ -3,13 +3,13 @@
 #include "SceneObject.h"
 #include <URM/Core/ModelLoader.h>
 #include <URM/Core/D3DInputLayout.h>
-#include <URM/Core/ShaderProgram.h>
+#include <URM/Core/ShaderPipeline.h>
 
 namespace URM::Engine {
 	class MeshObject : public SceneObject {
 		std::shared_ptr<Core::Mesh<Core::ModelLoaderVertexType>> mMesh;
 		std::shared_ptr<Core::ModelLoaderLayout> mInputLayout;
-		std::shared_ptr<Core::ShaderProgram> mShader;
+		std::shared_ptr<Core::ShaderPipeline> mShader;
 	public:
 		void OnAdded() override;
 		void OnDestroyed() override;
@@ -18,7 +18,7 @@ namespace URM::Engine {
 			return this->mInputLayout;
 		}
 
-		std::shared_ptr<Core::ShaderProgram> GetShader() {
+		std::shared_ptr<Core::ShaderPipeline> GetShader() {
 			return this->mShader;
 		}
 
@@ -29,7 +29,7 @@ namespace URM::Engine {
 		MeshObject(
 			const std::shared_ptr<Core::Mesh<Core::ModelLoaderVertexType>>& mesh,
 			const std::shared_ptr<Core::D3DInputLayout<Core::ModelLoaderVertexType>>& inputLayout,
-			const std::shared_ptr<Core::ShaderProgram>& shader
+			const std::shared_ptr<Core::ShaderPipeline>& shader
 		);
 	};
 }

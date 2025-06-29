@@ -12,7 +12,7 @@ namespace URM::Core {
 		GEOMETRY = 2,
 	};
 
-	class ShaderProgram {
+	class ShaderPipeline {
 		ComPtr<ID3D11VertexShader> mVertexShader;
 		ComPtr<ID3D11PixelShader> mPixelShader;
 
@@ -39,6 +39,6 @@ namespace URM::Core {
 			return this->mPixelSource;
 		}
 
-		ShaderProgram(const D3DCore& core, const std::wstring& vertexPath, const std::wstring& pixelPath);
+		ShaderPipeline(const D3DCore& core, const std::wstring& vertexPath, const std::wstring& pixelPath);
 	};
 }

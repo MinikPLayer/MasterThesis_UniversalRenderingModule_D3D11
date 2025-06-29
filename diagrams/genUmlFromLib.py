@@ -52,13 +52,12 @@ def scene_objects_uml_processor(lines_list: list[str]) -> list[str]:
 ENABLE_PLANTUML_IMAGE_GENERATOR = True
 REMOVE_OLD_FILES = True
 MODULES = [
-    Module("Core", Direction.TOP_TO_BOTTOM, ["Core/D3DCore.h"]),
-    Module("Window", Direction.LEFT_TO_RIGHT, ["Core/Window.h"]),
+    Module("Core", Direction.LEFT_TO_RIGHT, ["Core/D3DCore.h", "Core/Window.h"]),
     Module("D3DUtils", Direction.TOP_TO_BOTTOM, ["Core/D3DViewport.h", "Core/D3DRasterizerState.h"]),
-    Module("Buffer", Direction.TOP_TO_BOTTOM, ["Core/ID3DBuffer.h", "Core/D3DConstantBuffer.h", "Core/D3DIndexBuffer.h", "Core/D3DVertexBuffer.h"]),
-    Module("Mesh", Direction.LEFT_TO_RIGHT, ["Core/IMesh.h", "Core/Mesh.h", "Core/MaterialProperty.h"]),
+    Module("Buffer", Direction.LEFT_TO_RIGHT, ["Core/ID3DBuffer.h", "Core/D3DConstantBuffer.h", "Core/D3DIndexBuffer.h", "Core/D3DVertexBuffer.h"]),
+    Module("Mesh", Direction.TOP_TO_BOTTOM, ["Core/IMesh.h", "Core/Mesh.h", "Core/MaterialProperty.h"]),
     Module("ModelLoader", Direction.LEFT_TO_RIGHT, ["Core/ModelLoader.h"]),
-    Module("Texture", Direction.TOP_TO_BOTTOM, ["Core/D3DTexture2D.h", "Core/D3DSampler.h"]),
+    Module("Texture", Direction.LEFT_TO_RIGHT, ["Core/D3DTexture2D.h", "Core/D3DSampler.h"]),
     Module("Shader", Direction.LEFT_TO_RIGHT, ["Core/ShaderProgram.h",  "Core/D3DInputLayout.h"]),
     Module("VertexTypes", Direction.LEFT_TO_RIGHT, ["Core/StandardVertexTypes.h"]),
     Module("Utils", Direction.LEFT_TO_RIGHT, ["Core/Utils.h"]),

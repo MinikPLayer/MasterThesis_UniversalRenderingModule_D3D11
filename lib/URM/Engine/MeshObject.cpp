@@ -26,6 +26,6 @@ namespace URM::Engine {
 	MeshObject::MeshObject(
 		const std::shared_ptr<Core::Mesh<Core::ModelLoaderVertexType>>& mesh,
 		const std::shared_ptr<Core::D3DInputLayout<Core::ModelLoaderVertexType>>& inputLayout,
-		const std::shared_ptr<Core::ShaderProgram>& shader
+		const std::shared_ptr<Core::ShaderPipeline>& shader
 	) : mMesh(mesh), mInputLayout(inputLayout), mShader(shader) {}
 }

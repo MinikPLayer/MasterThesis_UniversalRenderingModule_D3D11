@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ID3DBuffer.h"
-#include "ShaderProgram.h"
+#include "ShaderPipeline.h"
 
 namespace URM::Core {
 	class D3DConstantBuffer : public ID3DBuffer {
