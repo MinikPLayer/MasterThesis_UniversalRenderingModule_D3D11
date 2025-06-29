@@ -177,7 +177,7 @@
     <ClCompile Include="AssetManager.cpp" />
     <ClCompile Include="CameraObject.cpp" />
     <ClCompile Include="Engine.cpp" />
-    <ClCompile Include="Light.cpp" />
+    <ClCompile Include="LightObject.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -192,8 +192,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <ClCompile Include="Scene.cpp" />
-    <ClCompile Include="SceneMesh.cpp" />
-    <ClCompile Include="SceneModel.cpp" />
+    <ClCompile Include="MeshObject.cpp" />
+    <ClCompile Include="ModelObject.cpp" />
     <ClCompile Include="SceneObject.cpp" />
     <FxCompile Include="SimplePixelShader.hlsl">
       <FileType>Document</FileType>
@@ -232,11 +232,11 @@
     <ClInclude Include="CameraObject.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="framework.h" />
-    <ClInclude Include="Light.h" />
+    <ClInclude Include="LightObject.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Scene.h" />
-    <ClInclude Include="SceneMesh.h" />
-    <ClInclude Include="SceneModel.h" />
+    <ClInclude Include="MeshObject.h" />
+    <ClInclude Include="ModelObject.h" />
     <ClInclude Include="SceneObject.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Transform.h" />

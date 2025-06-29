@@ -1,16 +1,16 @@
 #include "pch.h"
-#include "SceneMesh.h"
+#include "MeshObject.h"
 #include "Scene.h"
 
 namespace URM::Engine {
-	void SceneMesh::OnAdded() {
+	void MeshObject::OnAdded() {
 		auto& scene = GetScene();
 
-		auto selfPtr = std::static_pointer_cast<SceneMesh>(this->GetSelfPtr().lock());
+		auto selfPtr = std::static_pointer_cast<MeshObject>(this->GetSelfPtr().lock());
 		scene.mMeshes.push_back(selfPtr);
 	}
 
-	void SceneMesh::OnDestroyed() {
+	void MeshObject::OnDestroyed() {
 		auto thisPtr = this->GetSelfPtr().lock();
 
 		auto& scene = GetScene();
@@ -23,7 +23,7 @@ namespace URM::Engine {
 		}
 	}
 
-	SceneMesh::SceneMesh(
+	MeshObject::MeshObject(
 		const std::shared_ptr<Core::Mesh<Core::ModelLoaderVertexType>>& mesh,
 		const std::shared_ptr<Core::D3DInputLayout<Core::ModelLoaderVertexType>>& inputLayout,
 		const std::shared_ptr<Core::ShaderProgram>& shader

@@ -6,7 +6,7 @@
 namespace URM::Engine {
 
 	// TODO: Light attenuation
-	class Light : public SceneObject {
+	class LightObject : public SceneObject {
 	public:
 		Color color = Color(1, 1, 1);
 		float ambientIntensity = 0.05f;

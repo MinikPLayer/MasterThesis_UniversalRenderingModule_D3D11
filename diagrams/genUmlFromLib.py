@@ -17,7 +17,8 @@ OUTPUT_DIRECTORY = os.path.join(os.path.curdir, "./generator_output/")
 
 IGNORE_FILES = [
     "VertexConcept.h",
-    "pch.h"
+    "pch.h",
+    "framework.h",
 ]
 
 class Module:
@@ -37,10 +38,11 @@ class Module:
 ENABLE_PLANTUML_IMAGE_GENERATOR = True
 REMOVE_OLD_FILES = True
 MODULES = [
-    Module.create_left_to_right("Core", ["Core/D3DCore.h", "Core/Window.h"]),
+    Module.create_top_to_bottom("Core", ["Core/D3DCore.h"]),
+    Module.create_left_to_right("Window", ["Core/Window.h"]),
     Module.create_top_to_bottom("D3DUtils", ["Core/D3DViewport.h", "Core/D3DRasterizerState.h"]),
     Module.create_top_to_bottom("Buffer", ["Core/ID3DBuffer.h", "Core/D3DConstantBuffer.h", "Core/D3DIndexBuffer.h", "Core/D3DVertexBuffer.h"]),
-    Module.create_top_to_bottom("Mesh", ["Core/IMesh.h", "Core/Mesh.h", "Core/MaterialProperty.h"]),
+    Module.create_left_to_right("Mesh", ["Core/IMesh.h", "Core/Mesh.h", "Core/MaterialProperty.h"]),
     Module.create_left_to_right("ModelLoader", ["Core/ModelLoader.h"]),
     Module.create_top_to_bottom("Texture", ["Core/D3DTexture2D.h", "Core/D3DSampler.h"]),
     Module.create_left_to_right("Shader", ["Core/ShaderProgram.h",  "Core/D3DInputLayout.h"]),
@@ -48,6 +50,8 @@ MODULES = [
     Module.create_left_to_right("Utils", ["Core/Utils.h"]),
     Module.create_left_to_right("Logging", ["Core/Log.h"]),
     Module.create_left_to_right("Stopwatch", ["Core/Stopwatch.h"]),
+    Module.create_left_to_right("Scene", ["Engine/Scene.h"]),
+    Module.create_left_to_right("SceneObjects", ["Engine/SceneObject.h", "Engine/SceneMesh.h", "Engine/SceneModel.h", "Engine/Light.h", "Engine/CameraObject.h"])
 ]
 
 def normalizePath(path: str) -> str:
@@ -61,6 +65,14 @@ def generateImageForUMLFile(uml_file: str):
 def rewrutePumlFile(module: Module, uml_file: str, output_file: str):
     with open(uml_file, 'r') as file:
         content = file.readlines()
+
+    for i, line in enumerate(content):
+        # Remove self references
+        if "--" in line:
+            splitted = line.strip().split(" ")
+            if len(splitted) == 3 and splitted[0] == splitted[2]:
+                content[i] = ''
+
 
     # Skip @startuml
     content.insert(1, f"{module.direction.value}\n")

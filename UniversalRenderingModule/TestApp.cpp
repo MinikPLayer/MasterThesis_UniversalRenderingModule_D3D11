@@ -17,8 +17,8 @@
 #include <URM/Core/ModelLoader.h>
 #include <URM/Engine/Scene.h>
 
-#include <URM/Engine/SceneModel.h>
-#include <URM/Engine/SceneMesh.h>
+#include <URM/Engine/ModelObject.h>
+#include <URM/Engine/MeshObject.h>
 
 #include <URM/Engine/Engine.h>
 
@@ -159,7 +159,7 @@ namespace {
 		URM::Engine::Scene& scene;
 	};
 
-	void TestDrawMesh(TestDrawData& data, URM::Engine::PixelConstantBuffer pcb, std::weak_ptr<URM::Engine::SceneMesh> mesh, WVPMatrix transformMatrix) {
+	void TestDrawMesh(TestDrawData& data, URM::Engine::PixelConstantBuffer pcb, std::weak_ptr<URM::Engine::MeshObject> mesh, WVPMatrix transformMatrix) {
 		auto nodeWorldMatrix = mesh.lock()->GetTransform().GetWorldSpaceMatrix();
 		VertexConstantBuffer cBufferData;
 		transformMatrix.world = nodeWorldMatrix * transformMatrix.world;
@@ -241,34 +241,34 @@ namespace {
 	class SceneRelativeTransformationsTest : public ITest {
 	public:
 		void Init(URM::Core::D3DCore& core, URM::Engine::Scene& scene) override {
-			auto cubeModel = new URM::Engine::SceneModel("cube_textured.glb");
+			auto cubeModel = new URM::Engine::ModelObject("cube_textured.glb");
 			auto parentCube = scene.GetRoot().lock()->AddChild(cubeModel);
 			parentCube->GetTransform().SetLocalPosition({0.0f, 0.0f, 0.0f});
 			
-			auto cube = parentCube->AddChild(new URM::Engine::SceneModel("cube_textured.glb"));
+			auto cube = parentCube->AddChild(new URM::Engine::ModelObject("cube_textured.glb"));
 			cube->GetTransform().SetLocalPosition({3.0f, 0.0f, 0.0f});
 			cube->GetTransform().SetLocalScale({0.5f, 0.5f, 0.5f});
 
-			cube = cube->AddChild(new URM::Engine::SceneModel("cube_textured.glb"));
+			cube = cube->AddChild(new URM::Engine::ModelObject("cube_textured.glb"));
 			cube->GetTransform().SetLocalPosition({3.0f, 0.0f, 0.0f});
 			cube->GetTransform().SetLocalScale({0.5f, 0.5f, 0.5f});
 
-			cube = cube->AddChild(new URM::Engine::SceneModel("cube_textured.glb"));
+			cube = cube->AddChild(new URM::Engine::ModelObject("cube_textured.glb"));
 			cube->GetTransform().SetLocalPosition({3.0f, 0.0f, 0.0f});
 			cube->GetTransform().SetLocalScale({0.5f, 0.5f, 0.5f});
 
-			auto staticPosObject = cube->AddChild(new URM::Engine::SceneModel("suzanne.glb"));
+			auto staticPosObject = cube->AddChild(new URM::Engine::ModelObject("suzanne.glb"));
 			staticPosObject->GetTransform().SetLocalPosition({6.0f, 0.0f, 0.0f});
 			staticPosObject->GetTransform().SetLocalScale({3.0f, 3.0f, 3.0f});
 
 			auto light = parentCube->AddChild(
-				new URM::Engine::Light()
+				new URM::Engine::LightObject()
 			);
 			light->ambientIntensity = 0.2f;
 			light->GetTransform().SetLocalPosition(Vector3(0, 3, 0));
 			
 			light = cube->AddChild(
-				new URM::Engine::Light()
+				new URM::Engine::LightObject()
 			);
 			light->color = Color(1, 0, 0);
 			
@@ -305,14 +305,14 @@ namespace {
 	};
 
 	class MultipleShadersTest : public ITest {
-		std::vector<std::weak_ptr<URM::Engine::Light>> mLights;
+		std::vector<std::weak_ptr<URM::Engine::LightObject>> mLights;
 		
 	public:
 		void Init(URM::Core::D3DCore& core, URM::Engine::Scene& scene) override {
 			auto alternativeShader = std::make_shared<URM::Core::ShaderProgram>(URM::Core::ShaderProgram(core, L"SimpleVertexShader.cso", L"ColorOnlyPixelShader.cso"));
 			auto alternativeLayout = std::make_shared<URM::Core::ModelLoaderLayout>(URM::Core::ModelLoaderLayout(core, *alternativeShader));
 
-			auto suzanneModel = new URM::Engine::SceneModel(
+			auto suzanneModel = new URM::Engine::ModelObject(
 				"suzanne.glb",
 				alternativeShader,
 				alternativeLayout
@@ -321,11 +321,11 @@ namespace {
 			suzanne->GetTransform().SetLocalPosition({-2.0f, 0.0f, 0.0f});
 			suzanne->GetTransform().SetLocalRotation({0.0f, 180.0f, 0.0f});
 
-			auto cube = scene.GetRoot().lock()->AddChild(new URM::Engine::SceneModel("cube_textured.glb"));
+			auto cube = scene.GetRoot().lock()->AddChild(new URM::Engine::ModelObject("cube_textured.glb"));
 			cube->GetTransform().SetLocalPosition({2.0f, 0.0f, 0.0f});
 
 			auto floorCube = scene.GetRoot().lock()->AddChild(
-				new URM::Engine::SceneModel(
+				new URM::Engine::ModelObject(
 					"cube.glb",
 					alternativeShader,
 					alternativeLayout
@@ -335,7 +335,7 @@ namespace {
 			floorCube->GetTransform().SetLocalScale({5.0f, 1.0f, 5.0f});
 
 			auto wallCube = scene.GetRoot().lock()->AddChild(
-				new URM::Engine::SceneModel(
+				new URM::Engine::ModelObject(
 					"cube.glb",
 					alternativeShader,
 					alternativeLayout
@@ -345,7 +345,7 @@ namespace {
 			wallCube->GetTransform().SetLocalScale({5.0f, 5.0f, 1.0f});
 
 			auto leftWallCube = scene.GetRoot().lock()->AddChild(
-				new URM::Engine::SceneModel(
+				new URM::Engine::ModelObject(
 					"cube.glb",
 					alternativeShader,
 					alternativeLayout
@@ -355,7 +355,7 @@ namespace {
 			leftWallCube->GetTransform().SetLocalScale({1.0f, 5.0f, 5.0f});
 
 			auto rightWallCube = scene.GetRoot().lock()->AddChild(
-				new URM::Engine::SceneModel(
+				new URM::Engine::ModelObject(
 					"cube.glb",
 					alternativeShader,
 					alternativeLayout
@@ -366,19 +366,19 @@ namespace {
 
 			// Lights
 			auto newLight = scene.GetRoot().lock()->AddChild(
-				std::make_shared<URM::Engine::Light>()
+				std::make_shared<URM::Engine::LightObject>()
 			);
 			newLight->color = Color(1, 0, 0);
 			mLights.push_back(newLight);
 
 			newLight = scene.GetRoot().lock()->AddChild(
-				std::make_shared<URM::Engine::Light>()
+				std::make_shared<URM::Engine::LightObject>()
 			);
 			newLight->color = Color(0, 1, 0);
 			mLights.push_back(newLight);
 
 			newLight = scene.GetRoot().lock()->AddChild(
-				std::make_shared<URM::Engine::Light>()
+				std::make_shared<URM::Engine::LightObject>()
 			);
 			newLight->color = Color(0, 0, 1);
 			mLights.push_back(newLight);
@@ -522,11 +522,11 @@ namespace {
 		URM::Core::D3DCore core(URM::Core::WindowCreationParams(1600, 1000, "UniversalRenderingModule", hInstance));
 		URM::Engine::Scene scene(core);
 
-		auto suzanneModel = new URM::Engine::SceneModel("suzanne.glb");
+		auto suzanneModel = new URM::Engine::ModelObject("suzanne.glb");
 		auto suzanne = scene.GetRoot().lock()->AddChild(suzanneModel);
 		suzanne->GetTransform().SetLocalPosition({-2.0f, 0.0f, 0.0f});
 
-		auto cubeModel = new URM::Engine::SceneModel("cube_textured.glb");
+		auto cubeModel = new URM::Engine::ModelObject("cube_textured.glb");
 		auto cube = scene.GetRoot().lock()->AddChild(cubeModel);
 		cube->GetTransform().SetLocalPosition({2.0f, 0.0f, 0.0f});
 

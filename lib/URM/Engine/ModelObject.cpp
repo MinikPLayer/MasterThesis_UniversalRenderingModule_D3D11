@@ -1,20 +1,20 @@
 #include "pch.h"
-#include "SceneModel.h"
+#include "ModelObject.h"
 
-#include "SceneMesh.h"
+#include "MeshObject.h"
 #include "Scene.h"
 
 namespace URM::Engine {
-	std::shared_ptr<Core::ShaderProgram> SceneModel::mDefaultShaderProgram = nullptr;
-	std::shared_ptr<Core::ModelLoaderLayout> SceneModel::mDefaultInputLayout;
+	std::shared_ptr<Core::ShaderProgram> ModelObject::mDefaultShaderProgram = nullptr;
+	std::shared_ptr<Core::ModelLoaderLayout> ModelObject::mDefaultInputLayout;
 
-	void SceneModel::AddMeshRecursive(const std::shared_ptr<Core::ModelLoaderNode>& node, const std::weak_ptr<SceneObject>& parent) {
+	void ModelObject::AddMeshRecursive(const std::shared_ptr<Core::ModelLoaderNode>& node, const std::weak_ptr<SceneObject>& parent) {
 		auto newObject = std::make_shared<SceneObject>();
 		newObject->GetTransform().SetWorldSpaceMatrix(node->transform);
 		parent.lock()->AddChild(newObject);
 
 		for (auto& mesh : node->meshes) {
-			auto meshObject = std::make_shared<SceneMesh>(mesh, this->mInputLayout, this->mShader);
+			auto meshObject = std::make_shared<MeshObject>(mesh, this->mInputLayout, this->mShader);
 			newObject->AddChild(meshObject);
 		}
 
@@ -23,7 +23,7 @@ namespace URM::Engine {
 		}
 	}
 
-	void SceneModel::OnAdded() {
+	void ModelObject::OnAdded() {
 		if (this->mShader == nullptr) {
 			this->mShader = GetDefaultShader(this->GetScene().GetCore());
 		}
@@ -40,14 +40,14 @@ namespace URM::Engine {
 		AddMeshRecursive(model, this->GetSelfPtr());
 	}
 
-	SceneModel::SceneModel(const std::string& path, const std::shared_ptr<Core::ShaderProgram>& shader, const std::shared_ptr<Core::ModelLoaderLayout>& layout) {
+	ModelObject::ModelObject(const std::string& path, const std::shared_ptr<Core::ShaderProgram>& shader, const std::shared_ptr<Core::ModelLoaderLayout>& layout) {
 		this->mPath = path;
 		this->mShader = shader;
 		this->mInputLayout = layout;
 	}
 
 	// PLAN: Async loading
-	SceneModel::SceneModel(const std::string& path) {
+	ModelObject::ModelObject(const std::string& path) {
 		this->mPath = path;
 	}
 }

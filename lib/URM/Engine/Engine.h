@@ -88,7 +88,7 @@ namespace URM::Engine {
 
 		void Clear(Color color);
 		void Clear();
-		void Draw(RenderingParams& params, std::weak_ptr<CameraObject> mainCamera, std::vector<std::weak_ptr<SceneMesh>>& meshes, std::vector<std::weak_ptr<Light>>& lights);
+		void Draw(RenderingParams& params, std::weak_ptr<CameraObject> mainCamera, std::vector<std::weak_ptr<MeshObject>>& meshes, std::vector<std::weak_ptr<LightObject>>& lights);
 		void Draw(RenderingParams& params, Scene& scene);
 		void Draw(RenderingParams& params);
 		void Present(int verticalSyncInterval);

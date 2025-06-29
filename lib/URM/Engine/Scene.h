@@ -8,12 +8,12 @@
 #include <URM/Core/Utils.h>
 
 #include "CameraObject.h"
-#include "Light.h"
+#include "LightObject.h"
 
 namespace URM::Engine {
 	class Scene : NonCopyable {
-		friend class SceneMesh;
-		friend class Light;
+		friend class MeshObject;
+		friend class LightObject;
 	protected:
 		struct CustomData {
 			void* data;
@@ -28,8 +28,8 @@ namespace URM::Engine {
 		std::weak_ptr<CameraObject> mMainCamera;
 		
 		std::shared_ptr<SceneObject> mRootObject;
-		std::vector<std::weak_ptr<SceneMesh>> mMeshes;
-		std::vector<std::weak_ptr<Light>> mLights;
+		std::vector<std::weak_ptr<MeshObject>> mMeshes;
+		std::vector<std::weak_ptr<LightObject>> mLights;
 
 		AssetManager mAssetManager;
 		std::reference_wrapper<Core::D3DCore> mCore;
@@ -39,8 +39,8 @@ namespace URM::Engine {
 		std::weak_ptr<CameraObject> GetMainCamera();
 		void SetMainCamera(const std::weak_ptr<CameraObject>& camera);
 		
-		std::vector<std::weak_ptr<Light>>& GetLights();
-		std::vector<std::weak_ptr<SceneMesh>>& GetMeshes();
+		std::vector<std::weak_ptr<LightObject>>& GetLights();
+		std::vector<std::weak_ptr<MeshObject>>& GetMeshes();
 
 		AssetManager& GetAssetManager() {
 			return this->mAssetManager;

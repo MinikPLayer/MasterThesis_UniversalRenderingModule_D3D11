@@ -2,7 +2,7 @@
 #include "Scene.h"
 
 namespace URM::Engine {
-	std::vector<std::weak_ptr<SceneMesh>>& Scene::GetMeshes() {
+	std::vector<std::weak_ptr<MeshObject>>& Scene::GetMeshes() {
 		return this->mMeshes;
 	}
 
@@ -20,7 +20,7 @@ namespace URM::Engine {
 		this->mMainCamera = camera;
 	}
 
-	std::vector<std::weak_ptr<Light>>& Scene::GetLights() {
+	std::vector<std::weak_ptr<LightObject>>& Scene::GetLights() {
 		return this->mLights;
 	}
 }

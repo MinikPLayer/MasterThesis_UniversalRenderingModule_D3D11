@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Engine.h"
-#include "SceneMesh.h"
+#include "MeshObject.h"
 #include <URM/Core/Stopwatch.h>
 
 namespace URM::Engine {
@@ -63,7 +63,7 @@ namespace URM::Engine {
 		this->Clear(renderParameters.clearColor);
 	}
 
-	void Engine::Draw(RenderingParams& params, std::weak_ptr<CameraObject> mainCamera, std::vector<std::weak_ptr<SceneMesh>>& meshes, std::vector<std::weak_ptr<Light>>& lights) {
+	void Engine::Draw(RenderingParams& params, std::weak_ptr<CameraObject> mainCamera, std::vector<std::weak_ptr<MeshObject>>& meshes, std::vector<std::weak_ptr<LightObject>>& lights) {
 		if (mainCamera.expired()) {
 			throw std::runtime_error("Main camera is not set. Cannot draw the scene.");
 		}
