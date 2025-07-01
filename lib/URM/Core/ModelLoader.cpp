@@ -10,35 +10,33 @@
 #include <assimp/postprocess.h>
 
 namespace URM::Core {
-	D3DTexture2D LoadEmbeddedTexture(const D3DCore& core, const std::string& path, const std::string& type, const aiTexture* embeddedTexture) {
+	D3DTexture2D LoadEmbeddedTexture(const D3DCore& core, const std::string& type, const aiTexture* embeddedTexture) {
 		auto width = embeddedTexture->mWidth;
 		auto height = embeddedTexture->mHeight;
 		auto pixelData = embeddedTexture->pcData;
 
-		return D3DTexture2D(core, path, type, Size2i(width, height), reinterpret_cast<Texel2D*>(pixelData));
+		return D3DTexture2D::CreateFromMemory(core, type, Size2i(width, height), reinterpret_cast<Texel2D*>(pixelData));
 	}
 
-	std::vector<D3DTexture2D> LoadMaterialTextures(const D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, const std::string& fileDirectory, const aiMaterial* mat, aiTextureType type, const std::string& typeName, const aiScene* scene) {
+	std::vector<D3DTexture2D> LoadMaterialTextures(const D3DCore& core, std::map<std::string, D3DTexture2D>& loadedTexturesPool, const std::string& fileDirectory, const aiMaterial* mat, aiTextureType type, const std::string& typeName, const aiScene* scene) {
 		std::vector<D3DTexture2D> textures;
 		for (UINT i = 0; i < mat->GetTextureCount(type); i++) {
 			aiString str;
 			mat->GetTexture(type, i, &str);
 			// Check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
-			bool skip = false;
-			for (UINT j = 0; j < loadedTexturesPool.size(); j++) {
-				if (std::strcmp(loadedTexturesPool[j].GetPath().c_str(), str.C_Str()) == 0) {
-					textures.push_back(loadedTexturesPool[j]);
-					skip = true; // A texture with the same filepath has already been loaded, continue to next one. (optimization)
-					break;
-				}
+			if(loadedTexturesPool.count(str.C_Str()) > 0) {
+				spdlog::trace("[TextureLoad()] Reusing cached texture: {}", str.C_Str());
+				textures.push_back(loadedTexturesPool.at(str.C_Str()));
 			}
-			if (!skip) {   // If texture hasn't been loaded already, load it
+			else {
+				spdlog::trace("[TextureLoad()] Loading texture from file: {}", str.C_Str());
+
 				const aiTexture* embeddedTexture = scene->GetEmbeddedTexture(str.C_Str());
 
-				D3DTexture2D texture = embeddedTexture == nullptr ? D3DTexture2D(core, fileDirectory + '/' + std::string(str.C_Str()), typeName) : LoadEmbeddedTexture(core, std::string(str.C_Str()), typeName, embeddedTexture);
+				D3DTexture2D texture = (embeddedTexture == nullptr) ? D3DTexture2D::CreateFromFile(core, fileDirectory + '/' + std::string(str.C_Str()), typeName) : LoadEmbeddedTexture(core, typeName, embeddedTexture);
 
 				textures.push_back(texture);
-				loadedTexturesPool.push_back(texture);  // Store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
+				loadedTexturesPool.insert({ str.C_Str(), texture });  // Store it as texture loaded for entire model, to ensure we won't unnecessarily load duplicate textures.
 			}
 		}
 		return textures;
@@ -113,7 +111,7 @@ namespace URM::Core {
 		}
 	}
 
-	std::shared_ptr<Mesh<ModelLoaderVertexType>> ProcessMesh(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, const std::string& fileDirectory, const aiMesh* mesh, const aiScene* scene) {
+	std::shared_ptr<Mesh<ModelLoaderVertexType>> ProcessMesh(D3DCore& core, std::map<std::string, D3DTexture2D>& loadedTexturesPool, const std::string& fileDirectory, const aiMesh* mesh, const aiScene* scene) {
 		// Data to fill
 		std::vector<ModelLoaderVertexType> vertices;
 		std::vector<UINT> indices;
@@ -174,7 +172,7 @@ namespace URM::Core {
 		return std::shared_ptr<Mesh<ModelLoaderVertexType>>(newMesh);
 	}
 
-	std::shared_ptr<ModelLoaderNode> ProcessNode(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, const std::string& fileDirectory, const aiNode* node, const aiScene* scene) {
+	std::shared_ptr<ModelLoaderNode> ProcessNode(D3DCore& core, std::map<std::string, D3DTexture2D>& loadedTexturesPool, const std::string& fileDirectory, const aiNode* node, const aiScene* scene) {
 		auto newNode = std::make_shared<ModelLoaderNode>();
 		if (node->mTransformation.IsIdentity()) {
 			newNode->transform = DirectX::XMMatrixIdentity();
@@ -197,7 +195,7 @@ namespace URM::Core {
 		return std::move(newNode);
 	}
 
-	std::shared_ptr<ModelLoaderNode> Load(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, const std::string& filePath) {
+	std::shared_ptr<ModelLoaderNode> Load(D3DCore& core, std::map<std::string, D3DTexture2D>& loadedTexturesPool, const std::string& filePath) {
 		Assimp::Importer importer;
 
 		const aiScene* pScene = importer.ReadFile(filePath, aiProcess_Triangulate);
@@ -209,7 +207,7 @@ namespace URM::Core {
 		return ProcessNode(core, loadedTexturesPool, dir, pScene->mRootNode, pScene);
 	}
 
-	std::shared_ptr<ModelLoaderNode> ModelLoader::LoadFromFile(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, const std::string& path) {
+	std::shared_ptr<ModelLoaderNode> ModelLoader::LoadFromFile(D3DCore& core, std::map<std::string, D3DTexture2D>& loadedTexturesPool, const std::string& path) {
 		auto mesh = Load(core, loadedTexturesPool, path);
 		if (mesh != nullptr) {
 			return mesh;

@@ -19,6 +19,6 @@ namespace URM::Core {
 	class ModelLoader {
 		ModelLoader() {}
 	public:
-		static std::shared_ptr<ModelLoaderNode> LoadFromFile(D3DCore& core, std::vector<D3DTexture2D>& loadedTexturesPool, const std::string& path);
+		static std::shared_ptr<ModelLoaderNode> LoadFromFile(D3DCore& core, std::map<std::string, D3DTexture2D>& loadedTexturesPool, const std::string& path);
 	};
 }

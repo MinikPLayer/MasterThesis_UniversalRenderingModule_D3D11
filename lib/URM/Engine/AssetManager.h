@@ -17,7 +17,7 @@ namespace URM::Engine {
 		std::optional<std::shared_ptr<Core::ModelLoaderNode>> GetCachedModel(const std::string& path);
 		bool IsModelCached(const std::string& path) const;
 	public:
-		std::vector<Core::D3DTexture2D> texturePool;
+		std::map<std::string, Core::D3DTexture2D> texturePool;
 
 		bool RemoveCachedModel(const std::string& path);
 		std::shared_ptr<Core::ModelLoaderNode> GetModel(const std::string& path);
