@@ -227,7 +227,9 @@
 \subsection{Manager zasobów}
 	Większość zasobów w ramach modułu jest automatycznie zarządzana przy pomocy inteligentnych wskaźników. Wczytywanie niektórych danych, takich jak modeli czy tekstur jest jednak czasochłonne i posiada nieunikniony narzut obliczeniowy. Przy wielokrotnym wykorzystaniu takich obiektów warto wprowadzić mechanizm typu cache, który przechowywać będzie referencje do już wczytanych elementów celem ich użycia zamiast ponownego ładowania od zera.
 	
-	Implementacją takiego mechanizmu w module jest \textbf{AssetManager}, przedstawiony na rys. \ref{UML_AssetManager}. Przechowuje on wczytane modele oraz tekstury.
+	Implementacją takiego mechanizmu w module jest \textbf{AssetManager}, przedstawiony na rys. \ref{UML_AssetManager}. Przechowuje on wczytane modele oraz tekstury w postaci słowników wykorzystujących typ std::map z C++ STL w celach optymalizacyjnych. Modele wczytane przy pomocy metody \textit{GetModel()} są automatycznie dodawane do cache'u, a każde kolejne wywołanie tej metody z tą samą ścieżką zwracać będzie już wczytany do pamięci model zamiast ponownego wczytywania i dekodowania z dysku.
+	
+	W niektórych przypadkach konieczne jest wyczyszczenie cache'u (na przykład przy zmianie sceny). Do tego celu oddana została metoda ClearAll(), która usuwa referencje do modeli i tekstur z managera. Nie są one jednak automatycznie zwalniane, gdyż referencje do nich nadal mogą istnieć w innych miejscach. Za ostateczne zwalnianie pamięci odpowiedzialny jest opisywany wcześniej mechanizm inteligentnych wskaźników.
 	
 	\begin{figure}[h!]
 		\centering
