@@ -409,7 +409,7 @@ namespace {
 
 	constexpr bool ENGINE_MODE = true;
 	constexpr bool ENGINE_LOOP_MODE = true;
-	constexpr bool ENGINE_TRACE_MODE = true;
+	constexpr bool ENGINE_TRACE_MODE = false;
 	auto SelectedTest = std::unique_ptr<ITest>(std::make_unique<SceneRelativeTransformationsTest>());
 
 	void Init(URM::Core::D3DCore& core, URM::Engine::Scene& scene) {

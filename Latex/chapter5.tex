@@ -22,23 +22,25 @@ Wadą takiego rozwiązania jest zwiększony nakład pracy dla programisty aplika
 
 \section{Założenia projektowe - struktura warstwowa}
 Projektowany system przyjmuje formę hybrydową.
-Głównym założeniem wyróżniającym omawiany projekt względem innych, podobnych bibliotek, jest budowa warstwowa. 
-Składa się z kolejnych warstw abstrakcji, co pozwala na połączenie dobrych aspektów obu rodzajów silników renderujących.
+Głównym założeniem wyróżniającym omawiany projekt względem innych, podobnych bibliotek, jest modularna struktura warstwowa.
+Kolejne segmenty budują na poprzednich abstraktując coraz więcej elementów procesu renderowania.
+
+Logistycznie projekt został podzielony na następujące warstwy:
 
 \subsection{\textbf{Core} - Warstwa rdzeniowa}
 Grupuje często używane funkcje oraz struktury z DirectX do łatwych w użyciu elementów obiektowych, takich jak Window, Shader, Framebuffer, czy Mesh.
 Udostępnia funkcjonalność wczytywania z dysku plików tesktur i modeli.
 Do zadań tej warstwy należy też zarządzenia pamięcią oraz cyklem życia obiektów.
-Obiekty automatycznie zarządzają swoją pamięcią stosując inteligentne wskaźniki ze standardu C++11 oraz ComPtr z biblitoek WinAPI.
+Obiekty automatycznie zarządzają zasobami stosując inteligentne wskaźniki ze standardu C++11 oraz ComPtr z biblitoek WinAPI.
 
 \subsection{\textbf{Scene} - Warstwa sceny}
 Na tym poziomie znajdują się wysokopoziomowe struktury oraz metody wczytywania i zarządzania sceną oraz jej komponentami.
 Automatyzowane jest tutaj między innymi wczytywanie z pliku pełnego modelu wraz z hierarchią, teksturami i parametrami materiałów.
-Udostępnione są także podstawowe funkcje rysowania sceny i znajdujących się w niej obiektów, a także metody do wczytywania i zapisu sceny do pliku.
+Segment ten odpowiada też za zachowanie wzajemnych relacji między hierarchią obiektów z uwzględnieniem ich transformacji.
 
-\subsection{\textbf{Engine} - Warstwa rysująca}
-Uproszczenie metod rysowania oraz implementacji efektów oświetlenia.
-Warstwa odpowiada za większość procesu renderowania.
-Aplikacja klienta przekazuje przy inicjalizacji parametry sceny - pozycje oraz ustawienia modeli, parametry wirtualnej kamery oraz oświetlenia.
-Wartości te modyfikowane są w przekazanej do modułu funkcji typu callback, wywoływanej automatycznie przed rysowaniem kolejnej klatki obrazu.
+\subsection{\textbf{Engine} - Warstwa renderująca}
+Warstwa odpowiadająca za większość procesu renderowania.
+Aplikacja klienta przekazuje przy inicjalizacji parametry sceny, pozycje oraz ustawienia modeli, wirtualnej kamery i oświetlenia.
+Wartości te mogą być modyfikowane w przekazanej do modułu funkcji typu callback, wywoływanej automatycznie przed rysowaniem kolejnej klatki obrazu.
 Możliwe jest także przełączenie w tryb ręczny, w którym za wywoływanie funkcji rysowania oraz synchronizację odpowiedzialna jest aplikacja klienta.
+Na tym poziomie obecna jest logika ułatwiająca pracę z buforami, oświetleniem, pakiet standardowych shader'ów czy menadżer zasobów.

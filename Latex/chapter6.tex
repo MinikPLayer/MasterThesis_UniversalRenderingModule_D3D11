@@ -126,6 +126,8 @@
 	Funkcje pomocnicze ułatwiające wczytywanie modeli z pliku udostępnione zostały w ramach metod statycznych klasy \textbf{ModelLoader}. Metoda \textit{LoadFromFile()} jako argument otrzymuje ścieżkę do pliku modelu w obsługiwanym formacie, a następnie zwraca strukturę drzewową, której wierzchołkami są obiekty klasy \textbf{ModelLoaderNode}. Każdy wierzchołek zwracanego drzewa posiada macierz transformacji względem rodzica, listę mesh'y oraz wierzchołków przynależnych. Zachowywana zostaje oryginalna relacja transformacji między obiektami z wczytywanego pliku.
 	Wraz z geometrią modelu wczytywane są także parametry metadanych do listy \textit{MaterialProperty} oraz przynależne do modelu tekstury. 
 	
+	Ze względu na ograniczenia API Direct3D na tym etapie koniecznym było założenie standardowego typu wierzchołków, za który przyjęty został typ \textit{VertexPositionNormalTexture}, oznaczony dalej przy pomocy mechanizmu type alias jako \textbf{ModelLoaderVertexType}.
+	
 	Moduł obsługuje wszystkie formaty plików wspierane przez bibliotekę assimp, których pełna lista dostępna jest na stronie biblioteki \cite{github:assimp:FileFormats}. Szczególna uwaga została położona na wsparcie najczęściej spotykanych formatów, takich jak DAE, FBX, glTF / GLB, OBJ czy STL.
 	
 	Diagram opisywanych struktur został przedstawiony na rys. \ref{UML_ModelLoader}.
@@ -154,7 +156,7 @@
 \subsection{Shader}
 	W ramach modułu programy typy shader zostały zunifikowane do pojedynczej klasy, która reprezentuje poszczególne etapy procesu renderowania - \textbf{ShaderPipeline}. W aktualnej formie uwzględnia on etapy \textit{Vertex} oraz \textit{Pixel}, lecz dzięki modularnej budowanie możliwe jest uwzględnienie dodatkowych kroków, takich jak \textit{Geometry} czy \textit{Tesselation}.
 	
-	W ramach tego segmentu uwzględniony został także \textbf{D3DInputLayout}, służący jako warstwa abstrakcji nad układem wejściowym do shader'ów. Wykorzystuje on opisywany wcześniej koncept \textit{VertexTypeConcept} do automatycznego dopasowania w procesie rysowania modeli.
+	W ramach tego segmentu uwzględniony został także \textbf{D3DInputLayout}, służący jako warstwa abstrakcji nad układem wejściowym do shader'ów. Wykorzystuje on opisywany wcześniej koncept \textit{VertexTypeConcept} do automatycznego dopasowania w procesie rysowania modeli, a jego standardowa wersja wykorzystująca typ \textit{VertexPositionNormalTexture} oznaczona została jako \textbf{ModelLoaderLayout}.
 	
 	Diagram UML segmentu został przedstawiony na rys. \ref{UML_ShaderPipeline}.
 	
@@ -163,4 +165,73 @@
 		\includegraphics[width=\textwidth]{images/UML/shader.png}
 		\caption{Schemat kompozycji klasy Shader oraz D3DInputLayout.}
 		\label{UML_ShaderPipeline}
+	\end{figure}
+	
+	\vfill
+	\clearpage
+	
+\section{Engine}
+	Podczas implementacji z przyczyn logistycznych zintegorwana została warstwa sceny oraz renderująca. Mimo tego zachowane zostało założenie budowy modularnej oraz możliwość użycia poszczególnych elementów bez konieczności korzystania z pozostałych na tym samym lub wyższym logicznie poziomie.
+	
+\subsection{Scene}
+	Główna struktura zawierająca pełne informacje o rysowanej scenie, której diagram został przedstawiony na rys. \ref{UML_Scene}. Przechowuje ona współdzieloną referencję do głównego wierzchołka struktury obiektów, kamery ustawionej jako głównej, menadżera zasobów oraz struktury rdzeniowej \textit{(D3DCore)}. Posiada ona także listę odniesień do istniejących w scenie świateł oraz mesh'y, co pozwala na optymalizację ich rysowania ze względu na eliminację konieczności każdorazowego przechodzenia sceny w ich poszukiwaniu podczas procesu renderowania.
+	
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[width=\textwidth]{images/UML/scene.png}
+		\caption{Schemat kompozycji klasy opisującej scenę.}
+		\label{UML_Scene}
+	\end{figure}
+	
+	
+\subsection{Obiekt sceny}
+	Klasa opisująca wierzchołek struktury drzewowej opisującej rysowany świat. Jest ona jednocześnie klasą bazową, z której dziedziczyć mogą obiekty implementujące wyspecjalizowane funkcjonalności. Posiada w swojej kompozycji odniesienie do sceny w której się znajduje, a także do \textit{"rodzica"} oraz listę \textit{"dzieci"} danego wierzchołka. 
+	
+	Ważnym elementem jest skomponowany obiekt klasy \textbf{Transform}, opisujący transformację przestrzenną obiektu w scenie. Przechowuje te informacje za pomocą macierzy transformacji, a także wyliczonych na jej podstawie wektory pozycji, skali oraz rotacji w dwóch wersjach - względem rodzica oraz globalnej. Do ich zmiany oddane zostały metody \textit{GetLocal\{Position/Rotation/Scale\}} do ustalania parametrów w przestrzeni lokalnej oraz \textit{Set\{Position/Rotation\}} do odmiany globalnej. Funkcje te wykonują automatyczną rekalkulację przestrzenną obiektu oraz jego dzieci. W ten sposób możliwe jest zachowanie relacji transformacji w hierarchii sceny bez konieczności zarządzania tym procesem z perspektywy programisty.
+	
+	Kompozycja oraz relacje między opisanymi klasami zostały pokazane na rys. \ref{UML_SceneObject}.
+	
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[width=\textwidth]{images/UML/sceneobject.png}
+		\caption{Klasa obiektu sceny oraz transformacji.}
+		\label{UML_SceneObject}
+	\end{figure}
+	
+\subsection{Standardowe obiekty sceny}
+	W ramach tego segmentu opisywany jest zbiór klas dziedziczących z typu SceneObject, które implementują podstawowe obiekty wykorzystywane do procesu rysowania sceny, a które zostały przedstawione na rys. \ref{UML_SceneObjects}.
+	
+	Do obsługi modeli oddane zostały klasy \textbf{MeshObject} oraz \textbf{ModelObject}, opisujące odpowiednio pojedynczy mesh w świecie programu oraz ich zbiór w ramach jednego modelu. Model zawiera referencje do wymaganych przy renderowaniu obiektów, które w przypadku elementów zależnych od typu wierzchołków przyjmują formę typów standardowych. Są to \textit{ModelLoaderLayout (D3DInputLayout)} oraz \textit{ShaderPipeline}. 
+	
+	Kolejnym zdefiniowanym w ten sposób obiektem jest \textbf{LightObject}, reprezentujący wirtualne źródło światła. W zaimplementowanej formie używa on bardzo uproszczonego modelu oświetlenia, składającego się z 4 elementów:
+	\begin{itemize}
+		\item \textbf{Kolor} - wartość opisująca składowe RGB źródła światła.
+		\item \textbf{Intensywność komponentu otoczenia (ambient)} - opisuje poziom natężenia oświetlenia symulującego oświetlenie globalne. Ten składnik jest niezależny od kąta padania światła i zostaje nałożony uniwersalnie na wszystkie powierzchnie.
+		\item \textbf{Intensywność komponentu rozproszonego (diffuse)} - natężenie światła odbitego niebezpośrednio. Przyjmuje wartość cosine z kąta między powierzchnią, źródłem światła, a kamerą.
+		\item \textbf{Intensywność komponentu wziernikowego (specular)} - moc bezpośredniego odbicia światła, bezpośrednio zależnego od kąta padania oraz parametrów materiału.
+	\end{itemize}
+	Symulacja oświetlenia jest szybko rozwijającym się tematem w dziedzinie grafiki trójwymiarowej, a modularna forma pozwala na doimplementowanie bardziej zaawansowanych technik w razie zaistnienia takiej potrzeby.
+	
+	Ostatnim elementem zestawu jest obiekt opisujący wirtualną kamerę. Rozszerza on klasę bazową o parametry pola widzenia oraz minimalnej i maksymalnej głębi odcięcia rysowanych obiektów. Dodaje także funkcjonalność obliczania macierzy projekcji \textit{(ProjectionMatrix)} oraz widoku \textit{(ViewMatrix)}, potrzebnych do poprawnego użycia w procesie renderowania.
+	
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[width=\textwidth]{images/UML/sceneobjects.png}
+		\caption{Standardowe obiekty sceny dziedziczące z klasy SceneObject.}
+		\label{UML_SceneObjects}
+	\end{figure}
+	
+	\vfill
+	\clearpage
+	
+\subsection{Manager zasobów}
+	Większość zasobów w ramach modułu jest automatycznie zarządzana przy pomocy inteligentnych wskaźników. Wczytywanie niektórych danych, takich jak modeli czy tekstur jest jednak czasochłonne i posiada nieunikniony narzut obliczeniowy. Przy wielokrotnym wykorzystaniu takich obiektów warto wprowadzić mechanizm typu cache, który przechowywać będzie referencje do już wczytanych elementów celem ich użycia zamiast ponownego ładowania od zera.
+	
+	Implementacją takiego mechanizmu w module jest \textbf{AssetManager}, przedstawiony na rys. \ref{UML_AssetManager}. Przechowuje on wczytane modele oraz tekstury.
+	
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[width=\textwidth]{images/UML/assets.png}
+		\caption{Diagram UML przestawiający schemat manager'a zasobów.}
+		\label{UML_AssetManager}
 	\end{figure}

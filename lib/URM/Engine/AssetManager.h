@@ -5,19 +5,13 @@
 #include "URM/Core/Mesh.h"
 #include "URM/Core/ModelLoader.h"
 
+#include <map>
+
 namespace URM::Engine {
 	class Scene;
-	class ModelAsset {
-	public:
-		std::string path;
-		std::shared_ptr<Core::ModelLoaderNode> rootNode;
-
-		ModelAsset(const std::string& path, const std::shared_ptr<Core::ModelLoaderNode>& rootNode);
-	};
-	
 	class AssetManager final : NonCopyable {
 		std::reference_wrapper<Scene> mScene;
-		std::vector<ModelAsset> mModelPool;
+		std::map<std::string, std::shared_ptr<Core::ModelLoaderNode>> mModelPool;
 
 		void AddModelToCache(const std::string& path, const std::shared_ptr<Core::ModelLoaderNode>& rootNode, bool overrideIfExists = false);
 		std::optional<std::shared_ptr<Core::ModelLoaderNode>> GetCachedModel(const std::string& path);

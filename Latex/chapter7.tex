@@ -1,0 +1,36 @@
+\chapter{Testy - wydajność i ograniczenia}
+	\begin{comment}
+		Testy:
+			- Porównanie dla trybu "Natywnego", "URM::Core", "URM::Engine".
+			- Porównanie złożoności kodu.
+			1) Wydajność przetwarzania wierzchołków.
+				* Testy wyświetlania obiektów o bardzo złożonej topologii.
+				- Oszacowanie maksymalnej ilości wierzchołków.
+				- Sprawdzenie narzutu na CPU i GPU.
+				+ Optymalizacje vertex shader'a.
+				
+			2) Wydajność generowania oświetlenia
+				* Sprawdzenie narzutu wydajności wielu źródeł światła.
+				- Oszacowanie maksymalnego limitu ilości świateł w scenie.
+				+ Dodanie bardziej zaawansowanego silnika obliczania efektów oświetlenia.
+				
+			3) Testy wydajności pixel shader'a.
+				- Sprawdzenia skalowania wydajności zależnie od rozdzielczości.
+				- Sprawdzenie bottleneck'u (CPU / GPU).
+				
+			4) Instance rendering.
+				- Sprawdzenie jak moduł radzi sobie z rysowaniem wielu instancji tego samego lub różnych obiektów.
+				- Porównanie wydajności z różnymi shader'ami i tym samym shader'em.
+				
+			5) Wydajność wczytywania modeli z pliku.
+				- Porównanie różnych formatów.
+				- Porównanie różnych opcji preprocessingu.
+				- Porównanie pierwszego i kolejnych wczytań modelu (AssetManager).
+				
+			6) Testy wydajności macierzy transformacji w Transform.
+				- Określenie złożoności obliczeniowej poszczególnych funkcji.
+				- Oszacowanie maksymalnej głębokości oraz szerokości drzewa obiektów.
+				- Sprawdzenie narzutu wielokrotnego ustalania pozycji.
+				+ Cache'ing.
+				
+	\end{comment}

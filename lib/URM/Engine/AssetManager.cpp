@@ -4,28 +4,16 @@
 #include "Scene.h"
 
 namespace URM::Engine {
-	ModelAsset::ModelAsset(const std::string& path, const std::shared_ptr<Core::ModelLoaderNode>& rootNode) {
-		this->path = path;
-		this->rootNode = rootNode;
-	}
-	
 	void AssetManager::AddModelToCache(const std::string& path, const std::shared_ptr<Core::ModelLoaderNode>& rootNode, const bool overrideIfExists) {
 		if (!overrideIfExists && IsModelCached(path)) {
 			throw std::runtime_error("Cannot add model that is already loaded: " + path);
 		}
 
-		this->mModelPool.push_back(ModelAsset(path, rootNode));
+		this->mModelPool[path] = rootNode;
 	}
 	
 	bool AssetManager::RemoveCachedModel(const std::string& path) {
-		for (auto it = this->mModelPool.begin(); it != this->mModelPool.end(); it++) {
-			if (it->path == path) {
-				this->mModelPool.erase(it);
-				return true;
-			}
-		}
-
-		return false;
+		return this->mModelPool.erase(path) > 0;
 	}
 	
 	std::shared_ptr<Core::ModelLoaderNode> AssetManager::GetModel(const std::string& path) {
@@ -42,23 +30,16 @@ namespace URM::Engine {
 	}
 
 	bool AssetManager::IsModelCached(const std::string& path) const {
-		for (auto& m : this->mModelPool) {
-			if (m.path == path) {
-				return true;
-			}
-		}
-
-		return false;
+		return this->mModelPool.count(path) > 0;
 	}
 
 	std::optional<std::shared_ptr<Core::ModelLoaderNode>> AssetManager::GetCachedModel(const std::string& path) {
-		for (auto& m : this->mModelPool) {
-			if (m.path == path) {
-				return m.rootNode;
-			}
+		try {
+			return this->mModelPool.at(path);
 		}
-
-		return std::nullopt;
+		catch(std::out_of_range&) {
+			return std::nullopt;
+		}
 	}
 	
 	void AssetManager::ClearAll() {

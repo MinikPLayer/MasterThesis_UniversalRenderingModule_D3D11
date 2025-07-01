@@ -15,16 +15,6 @@ namespace URM::Engine {
 		friend class MeshObject;
 		friend class LightObject;
 	protected:
-		struct CustomData {
-			void* data;
-			size_t typeCode;
-
-			CustomData(void* data, const size_t typeCode) {
-				this->data = data;
-				this->typeCode = typeCode;
-			}
-		};
-
 		std::weak_ptr<CameraObject> mMainCamera;
 		
 		std::shared_ptr<SceneObject> mRootObject;
