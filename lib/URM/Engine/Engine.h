@@ -14,7 +14,7 @@
 namespace URM::Engine {
 	// Alignment rules: https://maraneshi.github.io/HLSL-ConstantBufferLayoutVisualizer/
 	struct PixelConstantBuffer {
-		static constexpr int MAX_LIGHTS_COUNT = 8;
+		static constexpr int MAX_LIGHTS_COUNT = 16;
 		
 		struct Material {
 			alignas(4) int useAlbedoTexture = 0;
@@ -41,7 +41,7 @@ namespace URM::Engine {
 		alignas(4) Vector4 viewPosition;
 		alignas(16) Material material;
 		alignas(4) uint32_t activeLightsCount = 0;
-		alignas(16) Light lights[8];
+		alignas(16) Light lights[MAX_LIGHTS_COUNT];
 
 
 		PixelConstantBuffer(Vector3 viewPos) : viewPosition(viewPos.x, viewPos.y, viewPos.z, 1.0f) {}

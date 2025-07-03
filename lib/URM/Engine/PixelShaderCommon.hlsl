@@ -1,6 +1,6 @@
 #include "SimpleShaderCommonTypes.hlsl"
 
-static const int MAX_LIGHTS_COUNT = 8;
+static const int MAX_LIGHTS_COUNT = 16;
 
 struct Light {
 	float3 color; // 16B

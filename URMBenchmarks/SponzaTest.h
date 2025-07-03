@@ -32,16 +32,16 @@ class SponzaTest : public ITest {
 	const std::vector<std::tuple<Vector3, Color, float, float, float>> mLightsInformation = {
 		{{-20, 40, 20}, Color(1, 0.6, 0.2), 1.0f, 1.0f, 1.0f}, // Main light
 		{{-20, 40, -20}, Color(0.2, 0.6, 1.0), 0.75f, 0.75f, 0.75f}, // Main light
-		{{0, 3, 0}, Color(1, 1, 1),		  1.0f, 0.1f, 0.05f}, // First floor
-		{{ 20,  3,   20}, Color(1, 1, 1), 1.0f, 0.1f, 0.05f}, // First floor
-		{{-20,  3,   20}, Color(1, 1, 1), 1.0f, 0.1f, 0.05f}, // First floor
-		{{-20,  3,  -20}, Color(1, 1, 1), 1.0f, 0.1f, 0.05f}, // First floor
-		{{ 20,  3,  -20}, Color(1, 1, 1), 1.0f, 0.1f, 0.05f}, // First floor
+		{{0, 3, 0}, Color(1, 1, 1),		  1.0f, 0.05f, 0.05f}, // First floor
+		{{ 20,  3,   20}, Color(1, 1, 1), 1.0f, 0.05f, 0.05f}, // First floor
+		{{-20,  3,   20}, Color(1, 1, 1), 1.0f, 0.05f, 0.05f}, // First floor
+		{{-20,  3,  -20}, Color(1, 1, 1), 1.0f, 0.05f, 0.05f}, // First floor
+		{{ 20,  3,  -20}, Color(1, 1, 1), 1.0f, 0.05f, 0.05f}, // First floor
 		
-		{{ 20,  14,   20}, Color(1, 1, 1), 1.0f, 0.1f, 0.05f}, // Second floor
-		{{-20,  14,   20}, Color(1, 1, 1), 1.0f, 0.1f, 0.05f}, // Second floor
-		{{-20,  14,  -20}, Color(1, 1, 1), 1.0f, 0.1f, 0.05f}, // Second floor
-		{{ 20,  14,  -20}, Color(1, 1, 1), 1.0f, 0.1f, 0.05f}, // Second floor
+		{{ 20,  14,   20}, Color(1, 1, 1), 1.0f, 0.05f, 0.05f}, // Second floor
+		{{-20,  14,   20}, Color(1, 1, 1), 1.0f, 0.05f, 0.05f}, // Second floor
+		{{-20,  14,  -20}, Color(1, 1, 1), 1.0f, 0.05f, 0.05f}, // Second floor
+		{{ 20,  14,  -20}, Color(1, 1, 1), 1.0f, 0.05f, 0.05f}, // Second floor
 	};
 
 	UINT CalculateVerticesCount(std::shared_ptr<URM::Engine::ModelObject> model) const {
