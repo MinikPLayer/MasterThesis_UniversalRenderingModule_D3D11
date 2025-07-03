@@ -14,10 +14,12 @@
 namespace URM::Engine {
 	// Alignment rules: https://maraneshi.github.io/HLSL-ConstantBufferLayoutVisualizer/
 	struct PixelConstantBuffer {
-		static constexpr int MAX_LIGHTS_COUNT = 16;
+		static constexpr int MAX_LIGHTS_COUNT = 1300;
 		
 		struct Material {
 			alignas(4) int useAlbedoTexture = 0;
+			alignas(4) int roughnessPowerCoefficient;
+			alignas(16) Color albedoColor = Color(1, 1, 1, 1);
 		};
 
 		struct alignas(16) Light {
@@ -35,7 +37,8 @@ namespace URM::Engine {
 				  Color color = Color(1, 1, 1),
 				  float ambient = 0.05f,
 				  float diffuse = 0.9f,
-				  float specular = 1.0f) : color(color.ToVector3()), position(position), ambientIntensity(ambient), diffuseIntensity(diffuse), specularIntensity(specular) {}
+				  float specular = 1.0f
+			) : color(color.ToVector3()), position(position), ambientIntensity(ambient), diffuseIntensity(diffuse), specularIntensity(specular) {}
 		};
 
 		alignas(4) Vector4 viewPosition;
@@ -44,7 +47,9 @@ namespace URM::Engine {
 		alignas(16) Light lights[MAX_LIGHTS_COUNT];
 
 
-		PixelConstantBuffer(Vector3 viewPos) : viewPosition(viewPos.x, viewPos.y, viewPos.z, 1.0f) {}
+		PixelConstantBuffer(Vector3 viewPos, int roughnessPowerCoefficient = 32) : viewPosition(viewPos.x, viewPos.y, viewPos.z, 1.0f) {
+			material.roughnessPowerCoefficient = roughnessPowerCoefficient;
+		}
 	};
 	
 	struct RenderingParams {

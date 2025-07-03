@@ -31,6 +31,7 @@
     <ClInclude Include="ID3DBuffer.h" />
     <ClInclude Include="IMesh.h" />
     <ClInclude Include="Log.h" />
+    <ClInclude Include="Material.h" />
     <ClInclude Include="MaterialProperty.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="ModelLoader.h" />

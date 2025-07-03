@@ -1,6 +1,6 @@
 #include "SimpleShaderCommonTypes.hlsl"
 
-static const int MAX_LIGHTS_COUNT = 16;
+static const int MAX_LIGHTS_COUNT = 1300;
 
 struct Light {
 	float3 color; // 16B
@@ -13,6 +13,8 @@ struct Light {
 
 struct Material {
 	bool useAlbedoTexture; // 4B
+    int roughnessPowerCoefficient; // 4B
+    float4 albedoColor; // 16B
 };
 
 struct PixelUniformData {
@@ -34,7 +36,7 @@ float3 CalculateLighting(PS_INPUT input, Light light) {
 
 	float ambient = light.ambientIntensity;
 	float diff = light.diffuseIntensity * max(dot(norm, lightDir), 0.0f);
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), data.material.roughnessPowerCoefficient);
 	float specular = light.specularIntensity * spec;
 
 	//return ((diff + ambient + specular) * light.color).xyz;

@@ -159,6 +159,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ITest.h" />
+    <ClInclude Include="LightsTest.h" />
     <ClInclude Include="SponzaTest.h" />
     <ClInclude Include="VertexThroughputTest.h" />
   </ItemGroup>

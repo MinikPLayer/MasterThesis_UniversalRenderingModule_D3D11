@@ -4,10 +4,11 @@
 
 #include "VertexThroughputTest.h"
 #include "SponzaTest.h"
+#include "LightsTest.h"
 
 using namespace URM;
 
-auto* test = new SponzaTest();
+auto* test = new LightsTest();
 
 void OnUpdate(Engine::Engine& engine) {
 	test->Update(engine);
