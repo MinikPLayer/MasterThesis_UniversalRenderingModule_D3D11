@@ -8,6 +8,8 @@
 
 #include <directxtk/Keyboard.h>
 
+// Model source: https://www.intel.com/content/www/us/en/developer/topic-technology/graphics-research/samples.html
+// + Removed transparent elements.
 class SponzaTest : public ITest {
 	std::weak_ptr<DirectX::Keyboard> mKeyboard;
 

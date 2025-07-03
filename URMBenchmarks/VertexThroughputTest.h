@@ -5,6 +5,7 @@
 #include <URM/Engine/ModelObject.h>
 #include <URM/Engine/MeshObject.h>
 
+// Model source: https://www.fab.com/listings/36463603-685c-4605-88c5-ad7b17355143
 class VertexThroughputTest : public ITest {
 	std::shared_ptr<URM::Engine::SceneObject> mModel;
 
