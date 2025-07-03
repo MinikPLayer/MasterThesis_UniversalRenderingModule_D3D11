@@ -4,6 +4,8 @@
 #include <URM/Core/Stopwatch.h>
 #include <URM/Core/Log.h>
 
+#undef min
+
 namespace URM::Engine {
 	// TODO: Move these structs to another file.
 	struct VertexConstantBuffer {
@@ -90,69 +92,79 @@ namespace URM::Engine {
 		this->mVertexConstantBuffer.Bind(this->mCore, 0);
 		this->mPixelConstantBuffer.Bind(this->mCore, 1);
 
+		params.geometryPassParams.blendState.Bind(this->mCore);
+		params.geometryPassParams.depthStencilState.Bind(this->mCore);
+
 		auto cameraPos = cameraPtr->GetTransform().GetPosition();
+		auto renderMatrix = CreateTransformationMatrix(cameraPtr.get(), windowSize);
 		// TODO: Add support for custom PixelConstantBuffer types.
 		auto pixelBufferValue = PixelConstantBuffer(cameraPos);
-		size_t lightsCount = lights.size();
-		if (lightsCount > PixelConstantBuffer::MAX_LIGHTS_COUNT) {
-			spdlog::warn("Too many lights in the scene. Max supported: {}, current: {}. Truncating to the max value.", PixelConstantBuffer::MAX_LIGHTS_COUNT, lightsCount);
-			lightsCount = PixelConstantBuffer::MAX_LIGHTS_COUNT;
-		}
-		pixelBufferValue.activeLightsCount = static_cast<uint32_t>(lightsCount);
-		for (size_t i = 0; i < lightsCount; i++) {
-			auto l = lights[i].lock();
-			pixelBufferValue.lights[i] = PixelConstantBuffer::Light(
-				l->GetTransform().GetPosition(),
-				l->color,
-				l->ambientIntensity,
-				l->diffuseIntensity,
-				l->specularIntensity
-			);
-		}
-
-		this->mPixelConstantBuffer.UpdateWithData(this->mCore, &pixelBufferValue);
-		
-		auto renderMatrix = CreateTransformationMatrix(cameraPtr.get(), windowSize);
-
-		// TODO: Group meshes by shaders and input layouts.
-		for (auto& mesh : meshes) {
-			auto sceneMesh = mesh.lock();
+		size_t allLightsCount = lights.size();
+		for (int lightOffset = 0; lightOffset < allLightsCount; lightOffset += PixelConstantBuffer::MAX_LIGHTS_COUNT) {
+			if (lightOffset != 0) {
+				params.lightingPassParams.blendState.Bind(this->mCore);
+				params.lightingPassParams.depthStencilState.Bind(this->mCore);
+			}
 			
-			VertexConstantBuffer vcb;
-			auto worldMatrix = sceneMesh->GetTransform().GetWorldSpaceMatrix();
-			auto meshRenderMatrix = renderMatrix;
-			meshRenderMatrix.world = worldMatrix;
-			meshRenderMatrix.wvp = worldMatrix * renderMatrix.wvp;
-			meshRenderMatrix.Apply(vcb);
-			this->mVertexConstantBuffer.UpdateWithData(this->mCore, &vcb);
-
-			sceneMesh->GetInputLayout()->Bind(mCore);
-			sceneMesh->GetShader()->Bind(mCore);
-
-			auto& m = sceneMesh->GetMesh();
-
-			// TODO: Combine similiar meshes to avoid multiple data sending.
-			// TODO: Add support for materials.
-			if (m.ContainsTextures()) {
-				pixelBufferValue.material.useAlbedoTexture = 1;
-				m.BindTextures(mCore);
+			size_t lightsCount = std::min((size_t)PixelConstantBuffer::MAX_LIGHTS_COUNT, allLightsCount - lightOffset);
+			pixelBufferValue.activeLightsCount = static_cast<uint32_t>(lightsCount);
+			for (size_t i = 0; i < lightsCount; i++) {
+				auto l = lights[lightOffset + i].lock();
+				pixelBufferValue.lights[i] = PixelConstantBuffer::Light(
+					l->GetTransform().GetPosition(),
+					l->color,
+					l->ambientIntensity,
+					l->diffuseIntensity,
+					l->specularIntensity
+				);
 			}
-			else {
-				pixelBufferValue.material.useAlbedoTexture = 0;
-			}
-			this->mPixelConstantBuffer.UpdateWithData(this->mCore, &pixelBufferValue);
 
-			m.GetVertexBuffer().Bind(this->mCore, 0);
-			if (m.ContainsIndices()) {
-				m.GetIndexBuffer().Bind(mCore, 0);
+			//this->mPixelConstantBuffer.UpdateWithData(this->mCore, &pixelBufferValue);
+			// TODO: Group meshes by shaders and input layouts.
+			for (auto& mesh : meshes) {
+				auto sceneMesh = mesh.lock();
 
-				context->DrawIndexed(m.GetIndicesCount(), 0, 0);
-			}
-			else {
+				VertexConstantBuffer vcb;
+				auto worldMatrix = sceneMesh->GetTransform().GetWorldSpaceMatrix();
+				auto meshRenderMatrix = renderMatrix;
+				meshRenderMatrix.world = worldMatrix;
+				meshRenderMatrix.wvp = worldMatrix * renderMatrix.wvp;
+				meshRenderMatrix.Apply(vcb);
+				this->mVertexConstantBuffer.UpdateWithData(this->mCore, &vcb);
+
+				sceneMesh->GetInputLayout()->Bind(mCore);
+				sceneMesh->GetShader()->Bind(mCore);
+
+				auto& m = sceneMesh->GetMesh();
+
+				// TODO: Combine similiar meshes to avoid multiple data sending.
+				// TODO: Add support for materials.
+				if (m.ContainsTextures()) {
+					pixelBufferValue.material.useAlbedoTexture = 1;
+					m.BindTextures(mCore);
+				}
+				else {
+					pixelBufferValue.material.useAlbedoTexture = 0;
+				}
+				this->mPixelConstantBuffer.UpdateWithData(this->mCore, &pixelBufferValue);
+
 				m.GetVertexBuffer().Bind(this->mCore, 0);
-				context->Draw(m.GetVerticesCount(), 0);
+				if (m.ContainsIndices()) {
+					m.GetIndexBuffer().Bind(mCore, 0);
+
+					context->DrawIndexed(m.GetIndicesCount(), 0, 0);
+				}
+				else {
+					m.GetVertexBuffer().Bind(this->mCore, 0);
+					context->Draw(m.GetVerticesCount(), 0);
+				}
 			}
 		}
+		//if (lightsCount > PixelConstantBuffer::MAX_LIGHTS_COUNT) {
+		//	spdlog::warn("Too many lights in the scene. Max supported: {}, current: {}. Truncating to the max value.", PixelConstantBuffer::MAX_LIGHTS_COUNT, lightsCount);
+		//	lightsCount = PixelConstantBuffer::MAX_LIGHTS_COUNT;
+		//}
+		
 	}
 
 	void Engine::Draw(RenderingParams& params, Scene& scene) {
@@ -207,6 +219,18 @@ namespace URM::Engine {
 	                                                                 mVertexConstantBuffer(Core::D3DConstantBuffer::Create<VertexConstantBuffer>(mCore, Core::ShaderStages::VERTEX)),
 	                                                                 mPixelConstantBuffer(Core::D3DConstantBuffer::Create<PixelConstantBuffer>(mCore, Core::ShaderStages::PIXEL)) {
 		URM::Core::Logger::InitLogger();
+
+		auto lightPassBlendStateData = this->renderParameters.lightingPassParams.blendState.GetData();
+		lightPassBlendStateData.enableBlending = true;
+		lightPassBlendStateData.srcBlend = D3D11_BLEND_ONE;
+		lightPassBlendStateData.destBlend = D3D11_BLEND_ONE;
+		lightPassBlendStateData.blendOp = D3D11_BLEND_OP_ADD;
+		this->renderParameters.lightingPassParams.blendState.SetData(lightPassBlendStateData);
+
+		auto lightPassDepthStencilStateData = this->renderParameters.lightingPassParams.depthStencilState.GetData();
+		lightPassDepthStencilStateData.depthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+		lightPassDepthStencilStateData.depthFunc = D3D11_COMPARISON_EQUAL;
+		this->renderParameters.lightingPassParams.depthStencilState.SetData(lightPassDepthStencilStateData);
 	}
 
 }

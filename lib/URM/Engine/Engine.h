@@ -5,6 +5,8 @@
 #include <URM/Core/D3DViewport.h>
 #include <URM/Core/D3DRasterizerState.h>
 #include <URM/Core/D3DConstantBuffer.h>
+#include <URM/Core/D3DBlendState.h>
+#include <URM/Core/D3DDepthStencilState.h>
 
 #include <functional>
 
@@ -14,7 +16,7 @@
 namespace URM::Engine {
 	// Alignment rules: https://maraneshi.github.io/HLSL-ConstantBufferLayoutVisualizer/
 	struct PixelConstantBuffer {
-		static constexpr int MAX_LIGHTS_COUNT = 1300;
+		static constexpr int MAX_LIGHTS_COUNT = 64;
 		
 		struct Material {
 			alignas(4) int useAlbedoTexture = 0;
@@ -47,17 +49,24 @@ namespace URM::Engine {
 		alignas(16) Light lights[MAX_LIGHTS_COUNT];
 
 
-		PixelConstantBuffer(Vector3 viewPos, int roughnessPowerCoefficient = 16) : viewPosition(viewPos.x, viewPos.y, viewPos.z, 1.0f) {
+		PixelConstantBuffer(Vector3 viewPos, int roughnessPowerCoefficient = 128) : viewPosition(viewPos.x, viewPos.y, viewPos.z, 1.0f) {
 			material.roughnessPowerCoefficient = roughnessPowerCoefficient;
 		}
 	};
 	
+	struct RenderingParamsPerPass {
+		Core::D3DBlendState blendState;
+		Core::D3DDepthStencilState depthStencilState;
+	};
+
 	struct RenderingParams {
 		Color clearColor;
 		Core::PrimitiveTopologies topology = Core::PrimitiveTopologies::TRIANGLE_LIST;
 		Core::D3DRasterizerState rasterizerState;
 		Core::D3DViewport viewport;
 		Core::D3DSampler albedoTextureSampler;
+		RenderingParamsPerPass geometryPassParams;
+		RenderingParamsPerPass lightingPassParams;
 
 		RenderingParams() = default;
 	};

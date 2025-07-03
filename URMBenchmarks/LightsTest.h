@@ -21,7 +21,7 @@ public:
 		camera->GetTransform().SetPosition({ 0, 2, 5 });
 		camera->GetTransform().LookAt({ 0, 0, 0 });
 
-		const unsigned int lightsCount = URM::Engine::PixelConstantBuffer::MAX_LIGHTS_COUNT;
+		const unsigned int lightsCount = 1024;
 		for (int i = 0; i < lightsCount; i++) {
 			auto light = lightsObject->AddChild(new URM::Engine::LightObject());
 			const auto distance = 10.0f;
