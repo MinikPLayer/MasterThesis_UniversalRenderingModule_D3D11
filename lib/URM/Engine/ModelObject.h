@@ -12,36 +12,22 @@ namespace URM::Engine {
 	// TODO: Add support for custom PixelConstantBuffer types.
 	class ModelObject : public SceneObject {
 		// TODO: Move defaults, VertexConstantBuffer and PixelConstantBuffer to a separate class.
-		static std::shared_ptr<Core::ShaderPipeline> mDefaultShaderProgram;
-		static std::shared_ptr<Core::ModelLoaderLayout> mDefaultInputLayout;
+		static std::map<URM::Core::RenderingStage, std::shared_ptr<Core::ShaderPipeline>> mDefaultShaders;
+		static std::map<URM::Core::RenderingStage, std::shared_ptr<Core::ModelLoaderLayout>> mDefaultInputLayouts;
 
-		std::shared_ptr<Core::ShaderPipeline> mShader = nullptr;
-		std::shared_ptr<Core::ModelLoaderLayout> mInputLayout = nullptr;
+		std::map<URM::Core::RenderingStage, std::shared_ptr<Core::ShaderPipeline>> mShaders;
+		std::map<URM::Core::RenderingStage, std::shared_ptr<Core::ModelLoaderLayout>> mInputLayouts;
 
 		std::string mPath;
 
 		void AddMeshRecursive(const std::shared_ptr<Core::ModelLoaderNode>& node, const std::weak_ptr<SceneObject>& parent);
 	public:
-		static std::shared_ptr<Core::ShaderPipeline> GetDefaultShader(Core::D3DCore& core) {
-			if (!mDefaultShaderProgram) {
-				mDefaultShaderProgram = std::make_shared<Core::ShaderPipeline>(core, L"SimpleVertexShader.cso", L"SimplePixelShader.cso");
-			}
-
-			return mDefaultShaderProgram;
-		}
-
-		static std::shared_ptr<Core::ModelLoaderLayout> GetDefaultInputLayout(Core::D3DCore& core) {
-			if (!mDefaultInputLayout) {
-				auto defaultShader = GetDefaultShader(core);
-				mDefaultInputLayout = std::make_shared<Core::ModelLoaderLayout>(core, *(defaultShader.get()));
-			}
-
-			return mDefaultInputLayout;
-		}
+		static std::shared_ptr<Core::ShaderPipeline> GetDefaultShader(Core::D3DCore& core, URM::Core::RenderingStage stage);
+		static std::shared_ptr<Core::ModelLoaderLayout> GetDefaultInputLayout(Core::D3DCore& core, URM::Core::RenderingStage stage);
 
 		void OnAdded() override;
 
-		ModelObject(const std::string& path, const std::shared_ptr<Core::ShaderPipeline>& shader, const std::shared_ptr<Core::ModelLoaderLayout>& layout);
+		ModelObject(const std::string& path, const std::map<URM::Core::RenderingStage, std::shared_ptr<Core::ShaderPipeline>> shaders, const std::map<URM::Core::RenderingStage, std::shared_ptr<Core::ModelLoaderLayout>> inputLayouts);
 		ModelObject(const std::string& path);
 	};
 }

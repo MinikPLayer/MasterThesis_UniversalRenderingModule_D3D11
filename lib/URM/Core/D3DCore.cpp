@@ -207,6 +207,10 @@ namespace URM::Core {
 		mContext->RSSetViewports(1, &viewport);
 	}
 
+	void D3DCore::ClearDepthStencilBuffer(float depth, UINT8 stencil) {
+		mContext->ClearDepthStencilView(this->mDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depth, stencil);
+	}
+
 	void D3DCore::Present(const int syncInterval) {
 		UINT flags = 0;
 		if (syncInterval == 0) {

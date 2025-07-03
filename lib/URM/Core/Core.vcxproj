@@ -19,8 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="D3DBlendState.h" />
     <ClInclude Include="D3DConstantBuffer.h" />
     <ClInclude Include="D3DCore.h" />
+    <ClInclude Include="D3DDepthStencilState.h" />
     <ClInclude Include="D3DIndexBuffer.h" />
     <ClInclude Include="D3DInputLayout.h" />
     <ClInclude Include="D3DRasterizerState.h" />
@@ -44,7 +46,9 @@
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="D3DBlendState.cpp" />
     <ClCompile Include="D3DCore.cpp" />
+    <ClCompile Include="D3DDepthStencilState.cpp" />
     <ClCompile Include="D3DRasterizerState.cpp" />
     <ClCompile Include="D3DSampler.cpp" />
     <ClCompile Include="D3DTexture2D.cpp" />

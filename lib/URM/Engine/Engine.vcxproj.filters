@@ -91,9 +91,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="SimplePixelShader.hlsl" />
+    <FxCompile Include="PixelShaderLightingStage.hlsl" />
     <FxCompile Include="PixelShaderCommon.hlsl" />
     <FxCompile Include="SimpleShaderCommonTypes.hlsl" />
     <FxCompile Include="SimpleVertexShader.hlsl" />
+    <FxCompile Include="PixelShaderGeometryStage.hlsl" />
   </ItemGroup>
 </Project>

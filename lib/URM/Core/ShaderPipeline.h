@@ -11,6 +11,11 @@ namespace URM::Core {
 		PIXEL    = 1,
 	};
 
+	enum class RenderingStage {
+		GEOMETRY,
+		LIGHTING
+	};
+
 	class ShaderPipeline {
 		ComPtr<ID3D11VertexShader> mVertexShader;
 		ComPtr<ID3D11PixelShader> mPixelShader;

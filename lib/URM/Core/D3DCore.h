@@ -64,6 +64,8 @@ namespace URM::Core {
 
 		void SetPrimitiveTopology(PrimitiveTopologies topology) const;
 		void ClearFramebuffer(Color color);
+		void ClearDepthStencilBuffer(float depth = 1.0f, UINT8 stencil = 0);
+
 		void Present(int syncInterval);
 
 		D3DCore(const D3DCore&) = delete;

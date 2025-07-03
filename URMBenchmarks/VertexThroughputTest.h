@@ -36,7 +36,7 @@ public:
 		auto model = mModel->AddChild(new URM::Engine::ModelObject("roman_marble_3.000.000_triangles.glb"));
 		model->GetTransform().SetLocalScale({ scale, scale, scale });
 		//model->GetTransform().SetLocalPosition({ -modelSize.x / 2, -modelSize.y / 2, -modelSize.z / 2 });
-		mModel->GetTransform().SetPosition({ 2, 0, 0 });
+		mModel->GetTransform().SetPosition({ 2, -2, 0 });
 
 		auto verticesCount = CalculateVerticesCount(model);
 		spdlog::info("[VertexThroughputTest] Model loaded with {} vertices", verticesCount);
