@@ -7,8 +7,8 @@ namespace URM::Core {
 	// Back and front inverted because of RH coordinate system, while D3D11 assumes LH.
 	enum class CullModes {
 		NONE  = D3D11_CULL_NONE,
-		FRONT = D3D11_CULL_BACK,
-		BACK  = D3D11_CULL_FRONT,
+		FRONT = D3D11_CULL_FRONT,
+		BACK  = D3D11_CULL_BACK,
 	};
 
 	enum class FillModes {

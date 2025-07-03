@@ -1,21 +1,26 @@
 #include "pch.h"
 #include "SceneObject.h"
+#include "Engine.h"
 
 namespace URM::Engine {
-	void SceneObject::Destroy(const std::shared_ptr<SceneObject>& object) {
+	void SceneObject::Destroy() {
 #if !NDEBUG
-		if (object->mIsDestroyed) {
+		if (this->mIsDestroyed) {
 			spdlog::error("Object destoyed twice");
 		}
 #endif
 
-		if (!object->mParent.expired()) {
-			object->mParent.lock()->RemoveChild(object);
+		this->OnDestroyed();
+		if (this->HasParent()) {
+			this->mParent.lock()->RemoveChild(this, false);
 		}
 
-		object->mIsDestroyed = true;
-		for (auto child : object->mChildren) {
-			Destroy(child);
+		this->mIsDestroyed = true;
+
+		// Copy children to avoid invalidating iterators during destruction
+		auto children = this->mChildren;
+		for (auto child : children) {
+			child->Destroy();
 		}
 	}
 
@@ -32,10 +37,9 @@ namespace URM::Engine {
 
 	void SceneObject::RemoveParent() {
 		if (HasParent()) {
-			mParent.lock()->RemoveChild(mSelf);
+			mParent.lock()->RemoveChild(this);
 		}
 
-		mHasParent = false;
 		mParent.reset();
 	}
 
@@ -54,8 +58,6 @@ namespace URM::Engine {
 		}
 
 		c->mParent = mSelf;
-		c->mHasParent = true;
-
 		c->mTransform.UpdateMatrix();
 	}
 
@@ -72,10 +74,24 @@ namespace URM::Engine {
 		}
 	}
 
-	void SceneObject::RemoveChild(std::weak_ptr<SceneObject> child) {
-		child.lock().get()->mParent = std::weak_ptr<SceneObject>();
+	void SceneObject::OnEngineUpdate(Engine& engine) {}
+
+	void SceneObject::RunEventRecursively(std::function<void(SceneObject*)> event)
+	{
+		event(this);
+
+		for (auto& child : mChildren) {
+			child->RunEventRecursively(event);
+		}
+	}
+
+	void SceneObject::RemoveChild(SceneObject* child, bool destroy) {
+		child->mParent.reset();
 		for (auto it = mChildren.begin(); it != mChildren.end(); ++it) {
-			if (*it == child.lock()) {
+			if ((*it).get() == child) {
+				if (destroy) {
+					(*it)->Destroy();
+				}
 				mChildren.erase(it);
 				break;
 			}
@@ -83,11 +99,8 @@ namespace URM::Engine {
 	}
 
 	SceneObject::~SceneObject() {
-		for (auto it = mChildren.begin(); it != mChildren.end(); ++it) {
-			(*it)->mParent = std::weak_ptr<SceneObject>();
-		}
-
 		if (!mIsDestroyed) {
+			this->Destroy();
 			mIsDestroyed = true;
 		}
 

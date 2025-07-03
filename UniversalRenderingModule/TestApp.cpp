@@ -21,6 +21,7 @@
 #include <URM/Engine/MeshObject.h>
 
 #include <URM/Engine/Engine.h>
+#include <URM/Engine/FlyCameraObject.h>
 
 // #include <DirectXMath.h>
 
@@ -384,8 +385,8 @@ namespace {
 			mLights.push_back(newLight);
 
 			// Camera
-			const auto camera = scene.GetRoot().lock()->AddChild(new URM::Engine::CameraObject());
-			camera->GetTransform().SetPosition(Vector3(0.0f, 3.0f, -6.0f));
+			const auto camera = scene.GetRoot().lock()->AddChild(new URM::Engine::FlyCameraObject());
+			camera->GetTransform().SetPosition(Vector3(3.0f, 3.0f, -6.0f));
 			camera->GetTransform().LookAt(Vector3(0.0f, 0.0f, 0.0f));
 			scene.SetMainCamera(camera);
 		}
@@ -410,7 +411,7 @@ namespace {
 	constexpr bool ENGINE_MODE = true;
 	constexpr bool ENGINE_LOOP_MODE = true;
 	constexpr bool ENGINE_TRACE_MODE = false;
-	auto SelectedTest = std::unique_ptr<ITest>(std::make_unique<SceneRelativeTransformationsTest>());
+	auto SelectedTest = std::unique_ptr<ITest>(std::make_unique<MultipleShadersTest>());
 
 	void Init(URM::Core::D3DCore& core, URM::Engine::Scene& scene) {
 		SelectedTest->Init(core, scene);

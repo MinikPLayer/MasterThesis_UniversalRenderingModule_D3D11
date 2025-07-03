@@ -135,7 +135,9 @@ namespace URM::Core {
 					this->OnResize(*this, this->mOldSize, Size2i(this->mWidth, this->mHeight));
 				break;
 
+			case WM_ACTIVATE:
 			case WM_ACTIVATEAPP: {
+				DirectX::Keyboard::ProcessMessage(message, wParam, lParam);
 				auto isFocused = wParam;
 				if (this->OnFocusChange)
 					this->OnFocusChange(*this, isFocused);
@@ -143,17 +145,12 @@ namespace URM::Core {
 				break;
 			}
 
-			case WM_SYSKEYDOWN: {
-				// TODO: Add OnKeyPressed().
-				// TODO: Add fullscreen toggle
-
-				// Toggle fullscreen on ALT+ENTER
-				//if (wParam == VK_RETURN && (lParam & 0x60000000) == 0x20000000) {
-				//    this->SetFullscreen(!this->IsFullscreen());
-				//}
-
+			case WM_SYSKEYDOWN:
+			case WM_KEYDOWN:
+			case WM_KEYUP:
+			case WM_SYSKEYUP:
+				DirectX::Keyboard::ProcessMessage(message, wParam, lParam);
 				break;
-			}
 
 			case WM_CLOSE:
 				if (this->OnCloseRequested) {

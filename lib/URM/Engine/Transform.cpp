@@ -19,6 +19,14 @@ const Vector3 Vector3::Right = Vector3(1, 0, 0);
 const Vector3 Vector3::Forward = Vector3(0, 0, 1);
 
 namespace URM::Engine {
+	static Vector3 EulerRadiansToAngles(Vector3 eulerAngles) {
+		return Vector3(
+			XMConvertToDegrees(eulerAngles.x),
+			XMConvertToDegrees(eulerAngles.y),
+			XMConvertToDegrees(eulerAngles.z)
+		);
+	}
+
 	Matrix Transform::CalculateLocalModelMatrix() const {
 		auto matTranslation = Matrix::CreateTranslation(this->mLocalPosition);
 		auto matRotation = Matrix::CreateFromQuaternion(this->mLocalRotation);
@@ -226,6 +234,18 @@ namespace URM::Engine {
 		return Vector3::Transform(Vector3::Right, this->mGlobalRotation);
 	}
 
+	Vector3 Transform::GetLocalForwardVector() const {
+		return Vector3::Transform(Vector3::Forward, this->mLocalRotation);
+	}
+
+	Vector3 Transform::GetLocalUpVector() const {
+		return Vector3::Transform(Vector3::Up, this->mLocalRotation);
+	}
+
+	Vector3 Transform::GetLocalRightVector() const {
+		return Vector3::Transform(Vector3::Right, this->mLocalRotation);
+	}
+
 	Vector3 Transform::GetPosition() const {
 		return this->mGlobalPosition;
 	}
@@ -236,6 +256,10 @@ namespace URM::Engine {
 
 	Quaternion Transform::GetRotation() const {
 		return this->mGlobalRotation;
+	}
+
+	Vector3 Transform::GetRotationEuler() const {
+		return EulerRadiansToAngles(this->mGlobalRotation.ToEuler());
 	}
 
 	Vector3 Transform::GetLocalPosition() const {

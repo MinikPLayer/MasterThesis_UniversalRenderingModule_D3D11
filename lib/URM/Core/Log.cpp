@@ -9,7 +9,13 @@
 #include <Windows.h>
 
 namespace URM::Core {
+	bool Logger::mLoggerInitialized = false;
+
 	void Logger::InitLogger() {
+		if (Logger::mLoggerInitialized) {
+			return;
+		}
+
 		auto msvcSink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
 		auto stdoutSink = std::make_shared<spdlog::sinks::stdout_sink_mt>();
 
@@ -44,9 +50,14 @@ namespace URM::Core {
 		set_default_logger(finalLogger);
 		spdlog::set_pattern("%Y-%m-%d %H:%M:%S.%e %l : %v");
 		spdlog::flush_on(spdlog::level::info);
+
+		Logger::mLoggerInitialized = true;
 	}
 
-	void Logger::DisposeLogger() {}
+	void Logger::DisposeLogger() {
+		spdlog::drop_all();
+		Logger::mLoggerInitialized = false;
+	}
 
 	std::shared_ptr<spdlog::logger> Logger::GetFatalLogger() {
 		auto fatalErrorLogger = spdlog::get("fatal");

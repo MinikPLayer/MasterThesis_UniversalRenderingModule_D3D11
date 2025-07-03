@@ -231,6 +231,7 @@
     <ClInclude Include="AssetManager.h" />
     <ClInclude Include="CameraObject.h" />
     <ClInclude Include="Engine.h" />
+    <ClInclude Include="FlyCameraObject.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="LightObject.h" />
     <ClInclude Include="pch.h" />

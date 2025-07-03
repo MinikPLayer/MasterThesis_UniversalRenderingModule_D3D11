@@ -5,7 +5,7 @@
 
 Matrix URM::Engine::CameraObject::CalculateProjectionMatrix(Core::Size2i viewSize) const {
 	auto fovInRadians = DirectX::XMConvertToRadians(this->mFov);
-	return DirectX::XMMatrixPerspectiveFovRH(
+	return DirectX::XMMatrixPerspectiveFovLH(
 		fovInRadians,
 		static_cast<float>(viewSize.width) / static_cast<float>(viewSize.height),
 		this->mNearPlane,
@@ -15,11 +15,12 @@ Matrix URM::Engine::CameraObject::CalculateProjectionMatrix(Core::Size2i viewSiz
 
 Matrix URM::Engine::CameraObject::CalculateViewMatrix() {
 	auto& transform = this->GetTransform();
-	// return this->GetTransform().GetWorldSpaceMatrix().Invert();
-	return DirectX::XMMatrixLookToRH(
-		this->GetTransform().GetPosition(),
-		this->GetTransform().GetForwardVector(),
-		Vector3::Up
+	//return this->GetTransform().GetWorldSpaceMatrix().Invert();
+
+	return DirectX::XMMatrixLookToLH(
+		transform.GetPosition(),
+		transform.GetForwardVector(),
+		transform.GetUpVector()
 	);
 	// return DirectX::XMMatrixLookAtRH(transform.GetPosition(), Vector3(0, 0, 0), Vector3::Up);
 }

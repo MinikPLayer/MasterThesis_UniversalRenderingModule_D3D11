@@ -2,6 +2,7 @@
 #include "Engine.h"
 #include "MeshObject.h"
 #include <URM/Core/Stopwatch.h>
+#include <URM/Core/Log.h>
 
 namespace URM::Engine {
 	// TODO: Move these structs to another file.
@@ -40,8 +41,12 @@ namespace URM::Engine {
 	
 	void Engine::Update() {
 		mCore.GetWindow().PollEvents();
-
 		mTimer.Update();
+
+		mScene.GetRoot().lock()->RunEventRecursively([this](SceneObject* object) {
+			object->OnEngineUpdate(*this);
+		});
+
 		if (onUpdate) {
 			this->onUpdate(*this);
 		}
@@ -200,6 +205,8 @@ namespace URM::Engine {
 	Engine::Engine(const Core::WindowCreationParams& windowParams) : mCore(windowParams),
 	                                                                 mScene(mCore),
 	                                                                 mVertexConstantBuffer(Core::D3DConstantBuffer::Create<VertexConstantBuffer>(mCore, Core::ShaderStages::VERTEX)),
-	                                                                 mPixelConstantBuffer(Core::D3DConstantBuffer::Create<PixelConstantBuffer>(mCore, Core::ShaderStages::PIXEL)) {}
+	                                                                 mPixelConstantBuffer(Core::D3DConstantBuffer::Create<PixelConstantBuffer>(mCore, Core::ShaderStages::PIXEL)) {
+		URM::Core::Logger::InitLogger();
+	}
 
 }

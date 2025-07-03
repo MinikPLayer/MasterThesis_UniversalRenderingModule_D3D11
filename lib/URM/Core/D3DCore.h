@@ -60,6 +60,7 @@ namespace URM::Core {
 		ID3D11DepthStencilView* GetDepthStencilView() const { return this->mDepthStencilView.Get(); }
 
 		Window& GetWindow() const { return *this->mWindow; }
+		std::weak_ptr<DirectX::Keyboard> GetKeyboard() { return GetWindow().GetKeyboard(); }
 
 		void SetPrimitiveTopology(PrimitiveTopologies topology) const;
 		void ClearFramebuffer(Color color);

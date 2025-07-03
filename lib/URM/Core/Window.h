@@ -4,6 +4,8 @@
 #include <functional>
 #include "pch.h"
 
+#include <directxtk/Keyboard.h>
+
 namespace URM::Core {
 	struct WindowCreationParams {
 		int width;
@@ -24,6 +26,7 @@ namespace URM::Core {
 		friend class D3DCore;
 		friend LRESULT WndProdDispatcher(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
+		std::shared_ptr<DirectX::Keyboard> mKeyboard = std::make_shared<DirectX::Keyboard>();
 		HWND mHandle = nullptr;
 
 		Size2i mOldSize = {-1, -1};
@@ -47,6 +50,10 @@ namespace URM::Core {
 		LRESULT WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 	public:
 		static void PollEvents();
+
+		std::weak_ptr<DirectX::Keyboard> GetKeyboard() {
+			return mKeyboard;
+		}
 
 		HWND GetHandle() const {
 			return this->mHandle;

@@ -4,6 +4,8 @@
 
 namespace URM::Core {
 	class Logger {
+		static bool mLoggerInitialized;
+
 	public:
 		static void InitLogger();
 		static void DisposeLogger();

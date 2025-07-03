@@ -7,6 +7,7 @@
 #include <URM/Core/Utils.h>
 
 namespace URM::Engine {
+	class Engine;
 	class SceneObject : NonCopyable {
 		friend class Scene;
 		friend class Transform;
@@ -14,13 +15,14 @@ namespace URM::Engine {
 	public:
 		virtual void OnAdded() {}
 		virtual void OnDestroyed() {}
-		
+		virtual void OnEngineUpdate(Engine& engine);
+
+		void RunEventRecursively(std::function<void(SceneObject*)> event);
 	private:
 		std::optional<std::reference_wrapper<Scene>> mScene;
 
 		std::vector<std::shared_ptr<SceneObject>> mChildren;
 		std::weak_ptr<SceneObject> mParent;
-		bool mHasParent = false;
 
 		std::weak_ptr<SceneObject> mSelf;
 		size_t mTypeCode = -1;
@@ -43,7 +45,8 @@ namespace URM::Engine {
 			object->mScene = scene;
 			parent->AddChildInternal(object);
 
-			object->OnAdded();
+			//object->OnAdded();
+			object.get()->RunEventRecursively(&SceneObject::OnAdded);
 
 			return object;
 		}
@@ -60,7 +63,7 @@ namespace URM::Engine {
 			return this->mChildren;
 		}
 	public:
-		static void Destroy(const std::shared_ptr<SceneObject>& object);
+		void Destroy();
 
 		template<typename T>
 		bool IsType() {
@@ -73,7 +76,7 @@ namespace URM::Engine {
 		void SetParent(const std::shared_ptr<SceneObject>& parent) const;
 
 		bool HasParent() const {
-			return this->mHasParent;
+			return !this->mParent.expired();
 		}
 
 		Scene& GetScene() const {
@@ -94,6 +97,23 @@ namespace URM::Engine {
 
 		std::shared_ptr<SceneObject> GetChildByIndex(int index) {
 			return this->mChildren[index];
+		}
+
+		template<typename T>
+		std::vector<std::shared_ptr<T>> GetChildrenByType(bool recursive = false) {
+			std::vector<std::shared_ptr<T>> result;
+			for (const auto& child : this->mChildren) {
+				if (child->IsType<T>()) {
+					auto childPtr = std::dynamic_pointer_cast<T>(child);
+					result.push_back(childPtr);
+				}
+
+				if (recursive) {
+					auto childResult = child->GetChildrenByType<T>(true);
+					result.insert(result.end(), childResult.begin(), childResult.end());
+				}
+			}
+			return result;
 		}
 
 		const char* GetTypeName() {
@@ -126,7 +146,7 @@ namespace URM::Engine {
 			return Instantiate<T>(this->mScene.value(), child, this->mSelf.lock());
 		}
 
-		void RemoveChild(std::weak_ptr<SceneObject> child);
+		void RemoveChild(SceneObject* child, bool destroy = true);
 
 		// Disable copy constructor and assignment operator
 		SceneObject(const SceneObject&) = delete;

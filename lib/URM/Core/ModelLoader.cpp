@@ -8,6 +8,7 @@
 #include <assimp/scene.h>
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
+#include <assimp/Exporter.hpp>
 
 namespace URM::Core {
 	D3DTexture2D LoadEmbeddedTexture(const D3DCore& core, const std::string& type, const aiTexture* embeddedTexture) {
@@ -198,10 +199,12 @@ namespace URM::Core {
 	std::shared_ptr<ModelLoaderNode> Load(D3DCore& core, std::map<std::string, D3DTexture2D>& loadedTexturesPool, const std::string& filePath) {
 		Assimp::Importer importer;
 
-		const aiScene* pScene = importer.ReadFile(filePath, aiProcess_Triangulate);
+		const aiScene* pScene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_FlipUVs);
 
-		if (pScene == nullptr)
-			return nullptr;
+		if (pScene == nullptr) {
+			auto error = importer.GetErrorString();
+			throw std::runtime_error("Failed to load model from file: " + filePath + ". Error: " + error);
+		}
 
 		auto dir = StringUtils::GetDirectoryFromPath(filePath);
 		return ProcessNode(core, loadedTexturesPool, dir, pScene->mRootNode, pScene);

@@ -1,5 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36221.1 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UniversalRenderingModule", "UniversalRenderingModule\UniversalRenderingModule.vcxproj", "{54E38630-8760-4A4A-A46E-1E1A1E3FFEA2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "URM", "URM", "{75146812-3F6E-4B34-9146-66A7B94B471D}"
@@ -7,6 +10,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Core", "lib\URM\Core\Core.vcxproj", "{A2FA76BF-01AB-4485-8CF1-B4B6639B0C21}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Engine", "lib\URM\Engine\Engine.vcxproj", "{EEED4AA7-8065-48B4-996D-3BED45EF230E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "URMBenchmarks", "URMBenchmarks\URMBenchmarks.vcxproj", "{8CB94443-6DCD-4C90-91BE-88A09ED95A2A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,6 +45,17 @@ Global
 		{EEED4AA7-8065-48B4-996D-3BED45EF230E}.Release|Win32.Build.0 = Release|Win32
 		{EEED4AA7-8065-48B4-996D-3BED45EF230E}.Release|x64.ActiveCfg = Release|x64
 		{EEED4AA7-8065-48B4-996D-3BED45EF230E}.Release|x64.Build.0 = Release|x64
+		{8CB94443-6DCD-4C90-91BE-88A09ED95A2A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8CB94443-6DCD-4C90-91BE-88A09ED95A2A}.Debug|Win32.Build.0 = Debug|Win32
+		{8CB94443-6DCD-4C90-91BE-88A09ED95A2A}.Debug|x64.ActiveCfg = Debug|x64
+		{8CB94443-6DCD-4C90-91BE-88A09ED95A2A}.Debug|x64.Build.0 = Debug|x64
+		{8CB94443-6DCD-4C90-91BE-88A09ED95A2A}.Release|Win32.ActiveCfg = Release|Win32
+		{8CB94443-6DCD-4C90-91BE-88A09ED95A2A}.Release|Win32.Build.0 = Release|Win32
+		{8CB94443-6DCD-4C90-91BE-88A09ED95A2A}.Release|x64.ActiveCfg = Release|x64
+		{8CB94443-6DCD-4C90-91BE-88A09ED95A2A}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{A2FA76BF-01AB-4485-8CF1-B4B6639B0C21} = {75146812-3F6E-4B34-9146-66A7B94B471D}
