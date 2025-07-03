@@ -22,17 +22,26 @@ class SponzaTest : public ITest {
 
 	const std::vector<std::pair<Vector3, Vector3>> mCameraTransforms = {
 		{{-27, 2.4, 0}, {0, 90, 0}}, // Hallway
-		{{-21, 5.0, -11}, {0, 65, 0}}, // Hallway Side
+		{{-16, 6.0, -11}, {0, 65, 0}}, // Hallway Side
 		{{0, 53, 0}, {90, 0, 0}}, // Bird Eye View
 		{{-23, 14, -3.5}, {0, 75, 0}} // Floor Center
 	};
 
 	// Light transforms
-	// Position, Color, Intensity
-	const std::vector<std::tuple<Vector3, Color, float>> mLightsInformation = {
-		{{-20, 40, 20}, Color(1, 0.6, 0.2), 4.0f}, // Main light
-		{{-20, 40, -20}, Color(0.2, 0.6, 1.0), 3.0f}, // Main light
-		{{0, 3, 0}, Color(1, 1, 1), 1.0f}, // First floor
+	// Position, Color, Specular intensity, Diffuse intensity, Ambient intensity
+	const std::vector<std::tuple<Vector3, Color, float, float, float>> mLightsInformation = {
+		{{-20, 40, 20}, Color(1, 0.6, 0.2), 1.0f, 1.0f, 1.0f}, // Main light
+		{{-20, 40, -20}, Color(0.2, 0.6, 1.0), 0.75f, 0.75f, 0.75f}, // Main light
+		{{0, 3, 0}, Color(1, 1, 1),		  1.0f, 0.1f, 0.05f}, // First floor
+		{{ 20,  3,   20}, Color(1, 1, 1), 1.0f, 0.1f, 0.05f}, // First floor
+		{{-20,  3,   20}, Color(1, 1, 1), 1.0f, 0.1f, 0.05f}, // First floor
+		{{-20,  3,  -20}, Color(1, 1, 1), 1.0f, 0.1f, 0.05f}, // First floor
+		{{ 20,  3,  -20}, Color(1, 1, 1), 1.0f, 0.1f, 0.05f}, // First floor
+		
+		{{ 20,  14,   20}, Color(1, 1, 1), 1.0f, 0.1f, 0.05f}, // Second floor
+		{{-20,  14,   20}, Color(1, 1, 1), 1.0f, 0.1f, 0.05f}, // Second floor
+		{{-20,  14,  -20}, Color(1, 1, 1), 1.0f, 0.1f, 0.05f}, // Second floor
+		{{ 20,  14,  -20}, Color(1, 1, 1), 1.0f, 0.1f, 0.05f}, // Second floor
 	};
 
 	UINT CalculateVerticesCount(std::shared_ptr<URM::Engine::ModelObject> model) const {
@@ -66,9 +75,13 @@ public:
 			light->GetTransform().SetPosition(std::get<0>(lightInfo));
 			light->color = std::get<1>(lightInfo);
 
-			auto intensity = std::get<2>(lightInfo);
-			light->diffuseIntensity = intensity * light->diffuseIntensity / mLightsInformation.size();
-			light->ambientIntensity = intensity * light->ambientIntensity / mLightsInformation.size();
+			auto specularIntensity = std::get<2>(lightInfo);
+			auto diffuseIntensity = std::get<3>(lightInfo);
+			auto ambientIntensity = std::get<4>(lightInfo);
+
+			light->specularIntensity = specularIntensity * light->specularIntensity;
+			light->diffuseIntensity = diffuseIntensity * light->diffuseIntensity;
+			light->ambientIntensity = ambientIntensity * light->ambientIntensity;
 		}
 	}
 
