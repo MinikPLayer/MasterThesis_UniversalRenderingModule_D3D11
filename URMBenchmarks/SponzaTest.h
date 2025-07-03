@@ -22,16 +22,17 @@ class SponzaTest : public ITest {
 
 	const std::vector<std::pair<Vector3, Vector3>> mCameraTransforms = {
 		{{-27, 2.4, 0}, {0, 90, 0}}, // Hallway
-		{{-21, 6.6, -11}, {0, 65, 0}}, // Hallway Side
+		{{-21, 5.0, -11}, {0, 65, 0}}, // Hallway Side
 		{{0, 53, 0}, {90, 0, 0}}, // Bird Eye View
 		{{-23, 14, -3.5}, {0, 75, 0}} // Floor Center
 	};
 
 	// Light transforms
-	const std::vector<std::pair<Vector3, Color>> mLightsInformation = {
-		{{-5, 40, 20}, Color(1, 0.7, 0.4)}, // Main light
-		{{-5, 40, -20}, Color(0.4, 0.7, 1.0)}, // Main light
-		{{0, 3, 0}, Color(1, 1, 1)}, // First floor
+	// Position, Color, Intensity
+	const std::vector<std::tuple<Vector3, Color, float>> mLightsInformation = {
+		{{-20, 40, 20}, Color(1, 0.6, 0.2), 4.0f}, // Main light
+		{{-20, 40, -20}, Color(0.2, 0.6, 1.0), 3.0f}, // Main light
+		{{0, 3, 0}, Color(1, 1, 1), 1.0f}, // First floor
 	};
 
 	UINT CalculateVerticesCount(std::shared_ptr<URM::Engine::ModelObject> model) const {
@@ -46,7 +47,7 @@ class SponzaTest : public ITest {
 
 public:
 	URM::Core::WindowCreationParams GetWindowParams(HINSTANCE instance) const override {
-		return URM::Core::WindowCreationParams(640, 480, "URM Vertex Throughput Test", instance);
+		return URM::Core::WindowCreationParams(1920, 1080, "Sponza", instance);
 	}
 
 	void AddCameras(std::shared_ptr<URM::Engine::SceneObject> root) {
@@ -62,11 +63,12 @@ public:
 	void AddLights(std::shared_ptr<URM::Engine::SceneObject> root) {
 		for (const auto& lightInfo : mLightsInformation) {
 			auto light = root->AddChild(new URM::Engine::LightObject());
-			light->GetTransform().SetPosition(lightInfo.first);
-			light->color = lightInfo.second;
+			light->GetTransform().SetPosition(std::get<0>(lightInfo));
+			light->color = std::get<1>(lightInfo);
 
-			light->diffuseIntensity = 2.0 * light->diffuseIntensity / mLightsInformation.size();
-			light->ambientIntensity = 2.0 * light->ambientIntensity / mLightsInformation.size();
+			auto intensity = std::get<2>(lightInfo);
+			light->diffuseIntensity = intensity * light->diffuseIntensity / mLightsInformation.size();
+			light->ambientIntensity = intensity * light->ambientIntensity / mLightsInformation.size();
 		}
 	}
 
