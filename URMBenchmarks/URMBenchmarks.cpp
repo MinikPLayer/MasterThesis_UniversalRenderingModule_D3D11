@@ -8,7 +8,7 @@
 
 using namespace URM;
 
-auto* test = new LightsTest();
+auto* test = new SponzaTest();
 
 void OnUpdate(Engine::Engine& engine) {
 	test->Update(engine);

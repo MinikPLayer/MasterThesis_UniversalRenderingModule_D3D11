@@ -47,7 +47,7 @@ namespace URM::Engine {
 		alignas(16) Light lights[MAX_LIGHTS_COUNT];
 
 
-		PixelConstantBuffer(Vector3 viewPos, int roughnessPowerCoefficient = 32) : viewPosition(viewPos.x, viewPos.y, viewPos.z, 1.0f) {
+		PixelConstantBuffer(Vector3 viewPos, int roughnessPowerCoefficient = 16) : viewPosition(viewPos.x, viewPos.y, viewPos.z, 1.0f) {
 			material.roughnessPowerCoefficient = roughnessPowerCoefficient;
 		}
 	};
