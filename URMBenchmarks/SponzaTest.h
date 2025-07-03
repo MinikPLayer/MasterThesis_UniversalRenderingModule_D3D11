@@ -24,24 +24,24 @@ class SponzaTest : public ITest {
 		{{-27, 2.4, 0}, {0, 90, 0}}, // Hallway
 		{{-16, 6.0, -11}, {0, 65, 0}}, // Hallway Side
 		{{0, 53, 0}, {90, 0, 0}}, // Bird Eye View
-		{{-23, 14, -3.5}, {0, 75, 0}} // Floor Center
+		{{-23, 14, -3.5}, {0, 75, 0}} // 1st floor
 	};
 
 	// Light transforms
 	// Position, Color, Specular intensity, Diffuse intensity, Ambient intensity
 	const std::vector<std::tuple<Vector3, Color, float, float, float>> mLightsInformation = {
 		{{-20, 40, 20}, Color(1, 0.6, 0.2), 1.0f, 1.0f, 1.0f}, // Main light
-		{{-20, 40, -20}, Color(0.2, 0.6, 1.0), 0.75f, 0.75f, 0.75f}, // Main light
+		{{-20, 40, -20}, Color(0.2, 0.6, 1.0), 0.5f, 0.5f, 0.5f}, // Main light
 		{{0, 3, 0}, Color(1, 1, 1),		  1.0f, 0.05f, 0.05f}, // First floor
 		{{ 20,  3,   20}, Color(1, 1, 1), 1.0f, 0.05f, 0.05f}, // First floor
 		{{-20,  3,   20}, Color(1, 1, 1), 1.0f, 0.05f, 0.05f}, // First floor
 		{{-20,  3,  -20}, Color(1, 1, 1), 1.0f, 0.05f, 0.05f}, // First floor
 		{{ 20,  3,  -20}, Color(1, 1, 1), 1.0f, 0.05f, 0.05f}, // First floor
 		
-		{{ 20,  14,   20}, Color(1, 1, 1), 1.0f, 0.05f, 0.05f}, // Second floor
-		{{-20,  14,   20}, Color(1, 1, 1), 1.0f, 0.05f, 0.05f}, // Second floor
-		{{-20,  14,  -20}, Color(1, 1, 1), 1.0f, 0.05f, 0.05f}, // Second floor
-		{{ 20,  14,  -20}, Color(1, 1, 1), 1.0f, 0.05f, 0.05f}, // Second floor
+		{{ 24,  14,   24}, Color(1, 1, 1), 1.0f, 0.05f, 0.05f}, // Second floor
+		{{-24,  14,   24}, Color(1, 1, 1), 1.0f, 0.05f, 0.05f}, // Second floor
+		{{-24,  14,  -24}, Color(1, 1, 1), 1.0f, 0.05f, 0.05f}, // Second floor
+		{{ 24,  14,  -24}, Color(1, 1, 1), 1.0f, 0.05f, 0.05f}, // Second floor
 	};
 
 	UINT CalculateVerticesCount(std::shared_ptr<URM::Engine::ModelObject> model) const {
@@ -89,6 +89,7 @@ public:
 		mKeyboard = engine.GetScene().GetCore().GetKeyboard();
 
 		auto root = engine.GetScene().GetRoot().lock();
+		engine.renderParameters.clearColor = Color(0.824f, 0.648f, 0.636f);
 
 		// Remove the old camera
 		engine.GetScene().GetMainCamera().lock()->Destroy();
