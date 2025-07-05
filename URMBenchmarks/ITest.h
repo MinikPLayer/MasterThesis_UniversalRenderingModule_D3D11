@@ -126,6 +126,6 @@ public:
 	}
 
 	IAutoTest() 
-		: mAverageAccumulator(50)
+		: mAverageAccumulator(100)
 	{}
 };
