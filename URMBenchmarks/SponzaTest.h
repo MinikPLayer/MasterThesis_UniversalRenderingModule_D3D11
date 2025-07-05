@@ -58,14 +58,13 @@ class SponzaTest : public ITest {
 		return count;
 	}
 
-public:
 	URM::Core::WindowCreationParams GetWindowParams(HINSTANCE instance) const override {
 		return URM::Core::WindowCreationParams(1920, 1080, "Sponza", instance);
 	}
 
 	void AddCameras(std::shared_ptr<URM::Engine::SceneObject> root) {
 		// Cameras setup
-		for(auto& transform : mCameraTransforms) {
+		for (auto& transform : mCameraTransforms) {
 			auto camera = root->AddChild(new URM::Engine::CameraObject());
 			camera->GetTransform().SetLocalPosition(transform.first);
 			camera->GetTransform().SetLocalRotation(transform.second);
@@ -89,7 +88,7 @@ public:
 		}
 	}
 
-	void Init(URM::Engine::Engine& engine) override {
+	void OnInit(URM::Engine::Engine& engine) override {
 		mKeyboard = engine.GetScene().GetCore().GetKeyboard();
 
 		auto root = engine.GetScene().GetRoot().lock();
@@ -108,7 +107,7 @@ public:
 
 		auto verticesCount = CalculateVerticesCount(model);
 		spdlog::info("[VertexThroughputTest] Model loaded with {} vertices", verticesCount);
-	
+
 		AddLights(root);
 		AddCameras(root);
 		engine.GetScene().SetMainCamera(mCameras[mCurrentCameraIndex]);
@@ -132,7 +131,7 @@ public:
 
 	bool mPrintPosKeyPressed = false;
 	bool mCameraChangeKeyPressed = false;
-	void Update(URM::Engine::Engine& engine) override {
+	void OnUpdate(URM::Engine::Engine& engine) override {
 		auto keyboard = mKeyboard.lock();
 		if (keyboard->GetState().IsKeyDown(DirectX::Keyboard::OemPeriod)) {
 			if (!mCameraChangeKeyPressed) {

@@ -147,6 +147,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ITest.cpp" />
     <ClCompile Include="URMBenchmarks.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -160,6 +161,7 @@
   <ItemGroup>
     <ClInclude Include="ITest.h" />
     <ClInclude Include="LightsTest.h" />
+    <ClInclude Include="AverageAccumulator.h" />
     <ClInclude Include="SponzaTest.h" />
     <ClInclude Include="VertexThroughputTest.h" />
   </ItemGroup>

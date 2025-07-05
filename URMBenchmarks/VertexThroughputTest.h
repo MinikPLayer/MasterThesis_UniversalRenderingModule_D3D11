@@ -19,12 +19,11 @@ class VertexThroughputTest : public ITest {
 		return count;
 	}
 
-public:
 	URM::Core::WindowCreationParams GetWindowParams(HINSTANCE instance) const override {
 		return URM::Core::WindowCreationParams(640, 480, "URM Vertex Throughput Test", instance);
 	}
 
-	void Init(URM::Engine::Engine& engine) override {
+	void OnInit(URM::Engine::Engine& engine) override {
 		auto root = engine.GetScene().GetRoot().lock();
 
 		const float scale = 8.0f;
@@ -46,7 +45,7 @@ public:
 		camera->GetTransform().LookAt({ 0, 0, 0 });
 	}
 
-	void Update(URM::Engine::Engine& engine) override {
+	void OnUpdate(URM::Engine::Engine& engine) override {
 		mModel->GetTransform().SetLocalRotation({
 			0.0f,
 			engine.GetTimer().GetElapsedTime() * 90.0f,
