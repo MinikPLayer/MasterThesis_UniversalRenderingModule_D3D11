@@ -20,6 +20,9 @@ class SponzaTest : public ITest {
 
 	std::shared_ptr<URM::Engine::SceneObject> mModel;
 
+// Disable double to float truncation warning.
+#pragma warning(push)
+#pragma warning(disable: 4305)
 	const std::vector<std::pair<Vector3, Vector3>> mCameraTransforms = {
 		{{-27, 2.4, 0}, {0, 90, 0}}, // Hallway
 		{{-16, 6.0, -11}, {0, 65, 0}}, // Hallway Side
@@ -43,6 +46,7 @@ class SponzaTest : public ITest {
 		{{-24,  14,  -24}, Color(1, 1, 1), 0.5f, 0.05f, 0.05f}, // Second floor
 		{{ 24,  14,  -24}, Color(1, 1, 1), 0.5f, 0.05f, 0.05f}, // Second floor
 	};
+#pragma warning(pop)
 
 	UINT CalculateVerticesCount(std::shared_ptr<URM::Engine::ModelObject> model) const {
 		auto children = model->GetChildrenByType<URM::Engine::MeshObject>(true);
@@ -117,7 +121,7 @@ public:
 
 	void PrevCamera(URM::Engine::Engine& engine) {
 		if (this->mCurrentCameraIndex == 0) {
-			this->mCurrentCameraIndex = this->mCameras.size() - 1;
+			this->mCurrentCameraIndex = (int)(this->mCameras.size() - 1);
 		}
 		else {
 			this->mCurrentCameraIndex--;
