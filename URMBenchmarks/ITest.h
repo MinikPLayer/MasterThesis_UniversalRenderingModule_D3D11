@@ -51,6 +51,9 @@ protected:
 	}
 
 	virtual unsigned int GetCount() = 0;
+	virtual unsigned int GetScore() {
+		return GetCount();
+	}
 
 	void IncreaseBy(size_t i) {
 		for(size_t j = 0; j < i; j++) {
@@ -115,7 +118,7 @@ public:
 				}
 				else {
 					if (targetHitCount++ >= 3) {
-						spdlog::info("[IAutoTest] Target FPS reached, stopping test.\nResult: {}", GetCount());
+						spdlog::info("[IAutoTest] Target FPS reached, stopping test.\nScore: {}", GetScore());
 						mIsDone = true;
 					}
 				}

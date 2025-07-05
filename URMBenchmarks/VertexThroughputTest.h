@@ -11,6 +11,10 @@ class VertexThroughputTest : public AutoTest {
 	int mCurrentVaseCount = 0;
 	UINT mPerVaseVerticesCount = 0;
 
+	unsigned int GetScore() override {
+		return mCurrentVaseCount * mPerVaseVerticesCount;
+	}
+
 	unsigned int GetCount() override {
 		return mCurrentVaseCount;
 	}
