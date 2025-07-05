@@ -78,8 +78,13 @@ public:
 
 		if (result.count() > 0) {
 			mAverageAccumulator.AddValue(result.count());
-			auto averageFrameTime = mAverageAccumulator.GetAverage();
-			if (averageFrameTime.has_value()) {
+			if (mAverageAccumulator.IsFilled()) {
+				auto averageFrameTime = mAverageAccumulator.GetAverageWithoutOutliers(5.0);
+				if (!averageFrameTime.has_value()) {
+					spdlog::warn("[IAutoTest] Average frame time is not available, skipping frame time check.");
+					return;
+				}
+
 				mAverageAccumulator.Clear();
 				auto now = std::chrono::high_resolution_clock::now();
 				if(std::chrono::duration_cast<std::chrono::seconds>(now - lastPrint).count() > 0.5) {
