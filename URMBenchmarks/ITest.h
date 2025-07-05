@@ -29,7 +29,7 @@ public:
 	virtual ~ITest() = default;
 };
 
-class IAutoTest : public ITest {
+class AutoTest : public ITest {
 	AverageAccumulator mAverageAccumulator;
 
 	int targetHitCount = 0;
@@ -47,7 +47,7 @@ protected:
 	virtual bool DecreaseCount() = 0;
 
 	virtual unsigned int GetTargetFPS() {
-		return 120;
+		return 60;
 	}
 
 	virtual unsigned int GetCount() = 0;
@@ -125,7 +125,7 @@ public:
 		mStopwatch.Reset();
 	}
 
-	IAutoTest() 
+	AutoTest() 
 		: mAverageAccumulator(100)
 	{}
 };

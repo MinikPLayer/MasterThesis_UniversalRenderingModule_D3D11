@@ -5,7 +5,7 @@
 #include <URM/Engine/Engine.h>
 #include <URM/Core/Window.h>
 
-class LightsTest : public IAutoTest {
+class LightsTest : public AutoTest {
 	int currentLightCount = 0;
 	std::shared_ptr<URM::Engine::SceneObject> lightsObject;
 

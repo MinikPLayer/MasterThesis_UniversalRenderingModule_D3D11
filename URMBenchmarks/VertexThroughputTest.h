@@ -6,8 +6,41 @@
 #include <URM/Engine/MeshObject.h>
 
 // Model source: https://www.fab.com/listings/36463603-685c-4605-88c5-ad7b17355143
-class VertexThroughputTest : public ITest {
-	std::shared_ptr<URM::Engine::SceneObject> mModel;
+class VertexThroughputTest : public AutoTest {
+	std::shared_ptr<URM::Engine::SceneObject> mModelsObject;
+	int mCurrentVaseCount = 0;
+	UINT mPerVaseVerticesCount = 0;
+
+	unsigned int GetCount() override {
+		return mCurrentVaseCount;
+	}
+
+	bool IncreaseCount() override {
+		auto newModel = mModelsObject->AddChild(new URM::Engine::ModelObject("roman_marble_3.000.000_triangles.glb"));
+		mPerVaseVerticesCount = CalculateVerticesCount(newModel);
+		mCurrentVaseCount++;
+
+		const auto distance = 10.0f;
+		for (int i = 0; i < mCurrentVaseCount; i++) {
+			auto model = mModelsObject->GetChildByIndex(i);
+			auto x = sin(i * 0.5f) * distance * i / mCurrentVaseCount;
+			auto z = cos(i * 0.5f) * distance * i / mCurrentVaseCount;
+			model->GetTransform().SetLocalPosition({ x, -0.9f, z });
+		}
+
+		return true;
+	}
+
+	bool DecreaseCount() override {
+		if (mCurrentVaseCount == 0) {
+			return false;
+		}
+
+		auto model = mModelsObject->GetChildByIndex(mCurrentVaseCount - 1);
+		model->Destroy();
+		mCurrentVaseCount--;
+		return true;
+	}
 
 	UINT CalculateVerticesCount(std::shared_ptr<URM::Engine::ModelObject> model) const {
 		auto children = model->GetChildrenByType<URM::Engine::MeshObject>(true);
@@ -19,10 +52,6 @@ class VertexThroughputTest : public ITest {
 		return count;
 	}
 
-	URM::Core::WindowCreationParams GetWindowParams(HINSTANCE instance) const override {
-		return URM::Core::WindowCreationParams(640, 480, "URM Vertex Throughput Test", instance);
-	}
-
 	void OnInit(URM::Engine::Engine& engine) override {
 		auto root = engine.GetScene().GetRoot().lock();
 
@@ -31,14 +60,11 @@ class VertexThroughputTest : public ITest {
 		auto light = new URM::Engine::LightObject();
 		light->GetTransform().SetPosition({ 0, 3, 5 });
 		root->AddChild(light);
-		mModel = root->AddChild(new URM::Engine::SceneObject());
-		auto model = mModel->AddChild(new URM::Engine::ModelObject("roman_marble_3.000.000_triangles.glb"));
-		model->GetTransform().SetLocalScale({ scale, scale, scale });
-		//model->GetTransform().SetLocalPosition({ -modelSize.x / 2, -modelSize.y / 2, -modelSize.z / 2 });
-		mModel->GetTransform().SetPosition({ 2, 0, 0 });
+		mModelsObject = root->AddChild(new URM::Engine::SceneObject());
+		IncreaseCount();
 
-		auto verticesCount = CalculateVerticesCount(model);
-		spdlog::info("[VertexThroughputTest] Model loaded with {} vertices", verticesCount);
+		//model->GetTransform().SetLocalPosition({ -modelSize.x / 2, -modelSize.y / 2, -modelSize.z / 2 });
+		mModelsObject->GetTransform().SetPosition({ 2, 0, 0 });
 
 		auto camera = engine.GetScene().GetMainCamera().lock();
 		camera->GetTransform().SetPosition({ 8, 4, 8 });
@@ -46,10 +72,15 @@ class VertexThroughputTest : public ITest {
 	}
 
 	void OnUpdate(URM::Engine::Engine& engine) override {
-		mModel->GetTransform().SetLocalRotation({
+		mModelsObject->GetTransform().SetLocalRotation({
 			0.0f,
 			engine.GetTimer().GetElapsedTime() * 90.0f,
 			0.0f
 		});
+	}
+
+public:
+	URM::Core::WindowCreationParams GetWindowParams(HINSTANCE instance) const override {
+		return URM::Core::WindowCreationParams(640, 480, "URM Vertex Throughput Test", instance);
 	}
 };

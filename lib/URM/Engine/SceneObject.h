@@ -11,10 +11,12 @@ namespace URM::Engine {
 	class SceneObject : NonCopyable {
 		friend class Scene;
 		friend class Transform;
-		
-	public:
+	
+	protected:
 		virtual void OnAdded() {}
 		virtual void OnDestroyed() {}
+
+	public:
 		virtual void OnEngineUpdate(Engine& engine);
 
 		void RunEventRecursively(std::function<void(SceneObject*)> event);
@@ -33,6 +35,12 @@ namespace URM::Engine {
 		bool mIsLateStarted = false;
 		bool mIsDestroyed = false;
 
+		bool mIsOnAddedCalled = false;
+		bool mIsOnDestroyedCalled = false;
+
+		void RunOnAdded();
+		void RunOnDestroyed();
+
 		void AddChildInternal(const std::weak_ptr<SceneObject>& object);
 		void PrintHierarchy(int level);
 
@@ -46,7 +54,7 @@ namespace URM::Engine {
 			parent->AddChildInternal(object);
 
 			//object->OnAdded();
-			object.get()->RunEventRecursively(&SceneObject::OnAdded);
+			object.get()->RunEventRecursively(&SceneObject::RunOnAdded);
 
 			return object;
 		}

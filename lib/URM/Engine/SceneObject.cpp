@@ -10,7 +10,7 @@ namespace URM::Engine {
 		}
 #endif
 
-		this->OnDestroyed();
+		this->RunOnDestroyed();
 		if (this->HasParent()) {
 			this->mParent.lock()->RemoveChild(this, false);
 		}
@@ -47,6 +47,20 @@ namespace URM::Engine {
 		parent->AddChildInternal(this->mSelf);
 	}
 
+	void SceneObject::RunOnAdded() {
+		if(!mIsOnAddedCalled) {
+			mIsOnAddedCalled = true;
+			this->OnAdded();
+		}
+	}
+
+	void SceneObject::RunOnDestroyed() {
+		if(!mIsOnDestroyedCalled) {
+			mIsOnDestroyedCalled = true;
+			this->OnDestroyed();
+		}
+	}
+
 	void SceneObject::AddChildInternal(const std::weak_ptr<SceneObject>& child) {
 		auto c = child.lock();
 		mChildren.push_back(c);
@@ -79,15 +93,15 @@ namespace URM::Engine {
 	void SceneObject::RunEventRecursively(std::function<void(SceneObject*)> event)
 	{
 		event(this);
-
-		for (auto& child : mChildren) {
+	
+		for (auto& child : this->mChildren) {
 			child->RunEventRecursively(event);
 		}
 	}
 
 	void SceneObject::RemoveChild(SceneObject* child, bool destroy) {
 		child->mParent.reset();
-		for (auto it = mChildren.begin(); it != mChildren.end(); ++it) {
+		for (auto it = this->mChildren.begin(); it != this->mChildren.end(); ++it) {
 			if ((*it).get() == child) {
 				if (destroy) {
 					(*it)->Destroy();
