@@ -43,7 +43,7 @@ class AutoTest : public ITest {
 	std::chrono::time_point<std::chrono::high_resolution_clock> lastPrint = std::chrono::high_resolution_clock::now();
 protected:
 
-	virtual bool IncreaseCount() = 0;
+	virtual bool IncreaseCount(size_t amount) = 0;
 	virtual bool DecreaseCount() = 0;
 
 	virtual unsigned int GetTargetFPS() {
@@ -53,15 +53,6 @@ protected:
 	virtual unsigned int GetCount() = 0;
 	virtual unsigned int GetScore() {
 		return GetCount();
-	}
-
-	void IncreaseBy(size_t i) {
-		for(size_t j = 0; j < i; j++) {
-			if (!IncreaseCount()) {
-				spdlog::info("[IAutoTest] Cannot increase count, stopping test.");
-				mIsDone = true;
-			}
-		}
 	}
 public:
 
@@ -100,7 +91,10 @@ public:
 					auto increaseRate = (mTargetFpsFrameTime / averageFrameTime.value()) - 1.0;
 					increaseRate /= 2; // Reduce the increase rate to avoid overshooting
 					auto increaseCount = std::ceil(increaseRate * GetCount());
-					IncreaseBy(increaseCount);
+					if (!IncreaseCount(increaseCount)) {
+						spdlog::info("[IAutoTest] Cannot increase count, stopping test.");
+						mIsDone = true;
+					}
 
 					spdlog::info("[IAutoTest] Running faster than target FPS, increasing count by {} ({:.1f}%) to {}. Current average frame time: {:.3f} ms", 
 						increaseCount, 100 * increaseRate, GetCount(), averageFrameTime.value() * 1000.0);

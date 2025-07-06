@@ -67,6 +67,8 @@ namespace URM::Core {
 		void Hide() const;
 		void Close(bool ignoreOnCloseRequested = false);
 
+		void SetSize(Size2i newSize);
+
 		Size2i GetSize() const {
 			return Size2i(this->mWidth, this->mHeight);
 		}

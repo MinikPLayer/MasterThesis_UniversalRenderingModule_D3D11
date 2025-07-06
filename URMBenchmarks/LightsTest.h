@@ -25,6 +25,12 @@ protected:
 		newLight->diffuseIntensity = 0.0f;
 		newLight->specularIntensity = 0.5f;
 		currentLightCount++;
+	}
+
+	bool IncreaseCount(size_t amount) override {
+		for (size_t i = 0; i < amount; i++) {
+			AddLight();
+		}
 
 		const auto distance = 10.0f;
 		for (int i = 0; i < currentLightCount; i++) {
@@ -33,10 +39,6 @@ protected:
 			auto z = cos(i * 0.5f) * distance * i / currentLightCount;
 			light->GetTransform().SetLocalPosition({ x, -0.9f, z });
 		}
-	}
-
-	bool IncreaseCount() override {
-		AddLight();
 
 		return true;
 	}
@@ -66,9 +68,7 @@ protected:
 		camera->GetTransform().LookAt({ 0, 0, 0 });
 
 		const unsigned int startLightsCount = 16;
-		for (int i = 0; i < startLightsCount; i++) {
-			AddLight();
-		}
+		IncreaseCount(startLightsCount);
 	}
 
 	void OnUpdate(URM::Engine::Engine& engine) override {

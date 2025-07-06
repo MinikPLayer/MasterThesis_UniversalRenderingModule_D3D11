@@ -162,6 +162,7 @@
     <ClInclude Include="ITest.h" />
     <ClInclude Include="LightsTest.h" />
     <ClInclude Include="AverageAccumulator.h" />
+    <ClInclude Include="PixelThroughputTest.h" />
     <ClInclude Include="SponzaTest.h" />
     <ClInclude Include="VertexThroughputTest.h" />
   </ItemGroup>

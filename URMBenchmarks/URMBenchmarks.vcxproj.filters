@@ -38,6 +38,9 @@
     <ClInclude Include="AverageAccumulator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PixelThroughputTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Assets\sphere_327680_triangles.fbx">

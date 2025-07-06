@@ -8,7 +8,7 @@
 
 using namespace URM;
 
-auto* test = new VertexThroughputTest();
+auto* test = new LightsTest();
 
 void OnUpdate(Engine::Engine& engine) {
 	test->Update(engine);

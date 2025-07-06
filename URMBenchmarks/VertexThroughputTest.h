@@ -19,10 +19,16 @@ class VertexThroughputTest : public AutoTest {
 		return mCurrentVaseCount;
 	}
 
-	bool IncreaseCount() override {
+	void AddModel() {
 		auto newModel = mModelsObject->AddChild(new URM::Engine::ModelObject("roman_marble_3.000.000_triangles.glb"));
 		mPerVaseVerticesCount = CalculateVerticesCount(newModel);
 		mCurrentVaseCount++;
+	}
+
+	bool IncreaseCount(size_t amount) override {
+		for(size_t i = 0; i < amount; i++) {
+			AddModel();
+		}
 
 		const auto distance = 10.0f;
 		for (int i = 0; i < mCurrentVaseCount; i++) {
@@ -65,7 +71,7 @@ class VertexThroughputTest : public AutoTest {
 		light->GetTransform().SetPosition({ 0, 3, 5 });
 		root->AddChild(light);
 		mModelsObject = root->AddChild(new URM::Engine::SceneObject());
-		IncreaseCount();
+		IncreaseCount(1);
 
 		//model->GetTransform().SetLocalPosition({ -modelSize.x / 2, -modelSize.y / 2, -modelSize.z / 2 });
 		mModelsObject->GetTransform().SetPosition({ 2, 0, 0 });

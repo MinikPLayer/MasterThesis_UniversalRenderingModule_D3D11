@@ -193,6 +193,21 @@ namespace URM::Core {
 		}
 	}
 
+	void Window::SetSize(Size2i newSize) {
+		assert(newSize.width > 0 && newSize.height > 0 && "Window size must be greater than zero.");
+
+		if (this->mHandle) {
+			this->mWidth = newSize.width;
+			this->mHeight = newSize.height;
+			SetWindowPos(this->mHandle, nullptr, 0, 0, this->mWidth, this->mHeight, SWP_NOZORDER | SWP_NOMOVE);
+			if (this->OnResize)
+				this->OnResize(*this, this->mOldSize, newSize);
+		}
+		else {
+			spdlog::warn("Cannot set size of a window that has not been created yet.");
+		}
+	}
+
 	void Window::PollEvents() {
 		MSG msg = {};
 
