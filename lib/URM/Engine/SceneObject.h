@@ -107,6 +107,10 @@ namespace URM::Engine {
 			return this->mChildren[index];
 		}
 
+		unsigned int GetChildrenCount() const {
+			return static_cast<unsigned int>(this->mChildren.size());
+		}
+
 		template<typename T>
 		std::vector<std::shared_ptr<T>> GetChildrenByType(bool recursive = false) {
 			std::vector<std::shared_ptr<T>> result;

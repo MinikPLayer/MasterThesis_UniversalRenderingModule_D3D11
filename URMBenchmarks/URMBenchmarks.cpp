@@ -8,10 +8,11 @@
 #include "SponzaTest.h"
 #include "LightsTest.h"
 #include "MultipleObjectsTest.h"
+#include "ObjectsTransformThroughputTest.h"
 
 using namespace URM;
 
-auto* test = new MultipleObjectsTest();
+auto* test = new ObjectsTransformThroughputTest();
 
 void OnUpdate(Engine::Engine& engine) {
 	test->Update(engine);

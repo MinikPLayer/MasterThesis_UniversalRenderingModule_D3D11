@@ -149,6 +149,7 @@
   <ItemGroup>
     <ClCompile Include="ITest.cpp" />
     <ClCompile Include="MultipleObjectsTest.cpp" />
+    <ClCompile Include="ObjectsTransformThroughputTest.cpp" />
     <ClCompile Include="PixelThroughputTest.cpp" />
     <ClCompile Include="URMBenchmarks.cpp" />
   </ItemGroup>
@@ -165,6 +166,7 @@
     <ClInclude Include="LightsTest.h" />
     <ClInclude Include="AverageAccumulator.h" />
     <ClInclude Include="MultipleObjectsTest.h" />
+    <ClInclude Include="ObjectsTransformThroughputTest.h" />
     <ClInclude Include="PixelThroughputTest.h" />
     <ClInclude Include="SponzaTest.h" />
     <ClInclude Include="VertexThroughputTest.h" />

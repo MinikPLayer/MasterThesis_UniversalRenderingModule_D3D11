@@ -27,6 +27,9 @@
     <ClCompile Include="MultipleObjectsTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ObjectsTransformThroughputTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="VertexThroughputTest.h">
@@ -48,6 +51,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MultipleObjectsTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectsTransformThroughputTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
