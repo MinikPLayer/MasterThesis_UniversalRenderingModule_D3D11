@@ -21,6 +21,12 @@
     <ClCompile Include="ITest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PixelThroughputTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MultipleObjectsTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="VertexThroughputTest.h">
@@ -39,6 +45,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PixelThroughputTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MultipleObjectsTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -162,12 +162,16 @@ namespace URM::Core {
 	}
 
 	void D3DCore::WindowResized(const Window& win, Size2i oldSize, Size2i newSize) {
+		if (oldSize == newSize) {
+			return;
+		}
+
 		auto windowSize = win.GetSize();
 		spdlog::info("Window resized from {}x{} to {}x{} [{}x{}]", oldSize.width, oldSize.height, newSize.width, newSize.height, windowSize.width, windowSize.height);
 
 		CreateResources();
 
-		if (this->onWindowResized && oldSize != newSize)
+		if (this->onWindowResized)
 			this->onWindowResized(*this, oldSize, newSize);
 	}
 

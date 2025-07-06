@@ -80,6 +80,7 @@ namespace URM::Engine {
 		Core::D3DConstantBuffer mVertexConstantBuffer;
 		Core::D3DConstantBuffer mPixelConstantBuffer;
 		
+		bool mNoLightsWarningShown = false;
 	public:
 		int vSyncInterval = 0;
 		RenderingParams renderParameters;

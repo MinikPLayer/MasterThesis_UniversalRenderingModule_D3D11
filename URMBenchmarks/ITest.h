@@ -46,6 +46,11 @@ protected:
 	virtual bool IncreaseCount(size_t amount) = 0;
 	virtual bool DecreaseCount() = 0;
 
+	// This multiplier is used to reduce the increase rate of the count when running faster than the target FPS.
+	virtual float GetTargetCurveMultiplier() {
+		return 0.5f;
+	}
+
 	virtual unsigned int GetTargetFPS() {
 		return 60;
 	}
@@ -89,7 +94,7 @@ public:
 				// Running faster than the target FPS, increase the count
 				if (!mWasBelowTargetFrameTime && averageFrameTime < mTargetFpsFrameTime) {
 					auto increaseRate = (mTargetFpsFrameTime / averageFrameTime.value()) - 1.0;
-					increaseRate /= 2; // Reduce the increase rate to avoid overshooting
+					increaseRate *= GetTargetCurveMultiplier(); // Reduce the increase rate to avoid overshooting
 					auto increaseCount = std::ceil(increaseRate * GetCount());
 					if (!IncreaseCount(increaseCount)) {
 						spdlog::info("[IAutoTest] Cannot increase count, stopping test.");

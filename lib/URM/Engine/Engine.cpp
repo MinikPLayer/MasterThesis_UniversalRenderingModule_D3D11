@@ -75,6 +75,11 @@ namespace URM::Engine {
 			throw std::runtime_error("Main camera is not set. Cannot draw the scene.");
 		}
 		
+		if(lights.size() == 0 && !mNoLightsWarningShown) {
+			spdlog::warn("No lights in the scene - high chance of a black screen. This warning won't be shown again in this session.");
+			mNoLightsWarningShown = true;
+		}
+
 		auto cameraPtr = mainCamera.lock();
 		auto context = this->mCore.GetContext();
 

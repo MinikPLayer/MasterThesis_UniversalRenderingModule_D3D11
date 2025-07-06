@@ -193,18 +193,24 @@ namespace URM::Core {
 		}
 	}
 
-	void Window::SetSize(Size2i newSize) {
-		assert(newSize.width > 0 && newSize.height > 0 && "Window size must be greater than zero.");
+	bool Window::SetSize(Size2i newSize) {
+		if(newSize.width <= 0 || newSize.height <= 0) {
+			spdlog::warn("Window size must be bigger than 0.");
+			return false;
+		}
 
 		if (this->mHandle) {
 			this->mWidth = newSize.width;
 			this->mHeight = newSize.height;
-			SetWindowPos(this->mHandle, nullptr, 0, 0, this->mWidth, this->mHeight, SWP_NOZORDER | SWP_NOMOVE);
+			auto ret = SetWindowPos(this->mHandle, nullptr, 0, 0, this->mWidth, this->mHeight, SWP_NOZORDER | SWP_NOMOVE);
 			if (this->OnResize)
 				this->OnResize(*this, this->mOldSize, newSize);
+
+			return ret;
 		}
 		else {
 			spdlog::warn("Cannot set size of a window that has not been created yet.");
+			return false;
 		}
 	}
 
