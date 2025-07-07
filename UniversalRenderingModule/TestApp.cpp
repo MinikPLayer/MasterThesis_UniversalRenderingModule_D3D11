@@ -160,7 +160,7 @@ namespace {
 		URM::Engine::Scene& scene;
 	};
 
-	void TestDrawMesh(TestDrawData& data, URM::Engine::PixelConstantBuffer pcb, std::weak_ptr<URM::Engine::MeshObject> mesh, WVPMatrix transformMatrix) {
+	void TestDrawMesh(TestDrawData& data, URM::Engine::PixelConstantBufferData pcb, std::weak_ptr<URM::Engine::MeshObject> mesh, WVPMatrix transformMatrix) {
 		auto nodeWorldMatrix = mesh.lock()->GetTransform().GetWorldSpaceMatrix();
 		VertexConstantBuffer cBufferData;
 		transformMatrix.world = nodeWorldMatrix * transformMatrix.world;
@@ -451,11 +451,11 @@ namespace {
 			lightDistance / 1.5f,
 			cos(rotationRad) * lightDistance
 		);
-		auto pixelBufferValue = URM::Engine::PixelConstantBuffer(
+		auto pixelBufferValue = URM::Engine::PixelConstantBufferData(
 			CAM_POS
 		);
 		pixelBufferValue.activeLightsCount = 1;
-		pixelBufferValue.lights[0] = URM::Engine::PixelConstantBuffer::Light();
+		pixelBufferValue.lights[0] = URM::Engine::PixelConstantBufferData::Light();
 		pixelBufferValue.lights[0].position = lightPosition;
 		data.pixelConstantBuffer.UpdateWithData(data.core, &pixelBufferValue);
 
@@ -532,7 +532,7 @@ namespace {
 		cube->GetTransform().SetLocalPosition({2.0f, 0.0f, 0.0f});
 
 		URM::Core::D3DConstantBuffer vertexConstantBuffer = URM::Core::D3DConstantBuffer::Create<VertexConstantBuffer>(core, URM::Core::ShaderStages::VERTEX);
-		URM::Core::D3DConstantBuffer pixelConstantBuffer = URM::Core::D3DConstantBuffer::Create<URM::Engine::PixelConstantBuffer>(core, URM::Core::ShaderStages::PIXEL);
+		URM::Core::D3DConstantBuffer pixelConstantBuffer = URM::Core::D3DConstantBuffer::Create<URM::Engine::PixelConstantBufferData>(core, URM::Core::ShaderStages::PIXEL);
 		URM::Core::D3DViewport viewport(URM::Core::D3DViewportData(core.GetWindow().GetSize()));
 
 		auto rStateData = URM::Core::D3DRasterizerStateData();

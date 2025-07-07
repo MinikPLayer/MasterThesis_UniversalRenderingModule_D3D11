@@ -14,44 +14,73 @@
 #include "Scene.h"
 
 namespace URM::Engine {
-	// Alignment rules: https://maraneshi.github.io/HLSL-ConstantBufferLayoutVisualizer/
-	struct PixelConstantBuffer {
-		static constexpr int MAX_LIGHTS_COUNT = 64;
-		
-		struct Material {
-			alignas(4) int useAlbedoTexture = 0;
-			alignas(4) int roughnessPowerCoefficient;
-			alignas(16) Color albedoColor = Color(1, 1, 1, 1);
-		};
+	struct alignas(16) PixelLightPBR {
+		alignas(16) Vector3 color;
+		alignas(16) Vector3 position;
 
-		struct alignas(16) Light {
-			alignas(16) Vector3 color;
-			alignas(16) Vector3 position;
-			alignas(4) float ambientIntensity;
-			alignas(4) float diffuseIntensity;
-			alignas(4) float specularIntensity;
+		PixelLightPBR(Vector3 position = Vector3::Zero, Color color = Color(1, 1, 1)) 
+			: color(color.ToVector3()), position(position) {}
+	};
 
-			// ReSharper disable once CppInconsistentNaming
-			int _padding_;
+	struct alignas(16) PixelLight {
+		alignas(16) Vector3 color;
+		alignas(16) Vector3 position;
+		alignas(4) float ambientIntensity;
+		alignas(4) float diffuseIntensity;
+		alignas(4) float specularIntensity;
 
-			// ReSharper disable once CppPossiblyUninitializedMember
-			Light(Vector3 position = Vector3::Zero,
-				  Color color = Color(1, 1, 1),
-				  float ambient = 0.05f,
-				  float diffuse = 0.9f,
-				  float specular = 1.0f
-			) : color(color.ToVector3()), position(position), ambientIntensity(ambient), diffuseIntensity(diffuse), specularIntensity(specular) {}
-		};
+		// ReSharper disable once CppInconsistentNaming
+		int _padding_;
 
-		alignas(4) Vector4 viewPosition;
-		alignas(16) Material material;
-		alignas(4) uint32_t activeLightsCount = 0;
-		alignas(16) Light lights[MAX_LIGHTS_COUNT];
-
-
-		PixelConstantBuffer(Vector3 viewPos, int roughnessPowerCoefficient = 128) : viewPosition(viewPos.x, viewPos.y, viewPos.z, 1.0f) {
-			material.roughnessPowerCoefficient = roughnessPowerCoefficient;
+		// ReSharper disable once CppPossiblyUninitializedMember
+		PixelLight(Vector3 position = Vector3::Zero,
+			Color color = Color(1, 1, 1),
+			float ambient = 0.05f,
+			float diffuse = 0.9f,
+			float specular = 1.0f
+		) : color(color.ToVector3()), position(position), ambientIntensity(ambient), diffuseIntensity(diffuse), specularIntensity(specular) {
 		}
+	};
+
+	struct PixelLightBufferData {
+		static constexpr int MAX_LIGHTS_COUNT = 64;
+
+		alignas(4) uint32_t activeLightsCount = 0;
+		alignas(16) PixelLight lights[MAX_LIGHTS_COUNT];
+	};
+
+	struct PixelLightBufferDataPBR {
+		static constexpr int MAX_LIGHTS_COUNT = 64;
+
+		alignas(4) uint32_t activeLightsCount = 0;
+		alignas(16) PixelLightPBR lights[MAX_LIGHTS_COUNT];
+	};
+
+	struct PixelMaterialBufferDataPBR {
+		alignas(16) Color albedo;
+		alignas(4) int useAlbedoTexture;
+		alignas(4) float metallic;
+		alignas(4) float roughness;
+		alignas(4) float ao;
+
+		PixelMaterialBufferDataPBR(Color albedo = Color(1, 1, 1, 1), int useAlbedoTexture = 0, float metallic = 0.0f, float roughness = 0.5f, float ao = 1.0f) 
+			: albedo(albedo), useAlbedoTexture(useAlbedoTexture), metallic(metallic), roughness(roughness), ao(ao) {}
+	};
+
+	struct PixelMaterialBufferData {
+		alignas(4) int useAlbedoTexture = 0;
+		alignas(4) int roughnessPowerCoefficient;
+		alignas(16) Color albedoColor = Color(1, 1, 1, 1);
+
+		PixelMaterialBufferData(Color albedoColor = Color(1, 1, 1, 1), int roughnessPowerCoefficient = 128) 
+			: albedoColor(albedoColor), roughnessPowerCoefficient(roughnessPowerCoefficient) {}
+	};
+
+	// Alignment rules: https://maraneshi.github.io/HLSL-ConstantBufferLayoutVisualizer/
+	struct PixelConstantBufferData {
+		alignas(4) Vector4 viewPosition;
+
+		PixelConstantBufferData(Vector3 viewPos) : viewPosition(viewPos.x, viewPos.y, viewPos.z, 1.0f) {}
 	};
 	
 	struct RenderingParamsPerPass {
@@ -79,6 +108,8 @@ namespace URM::Engine {
 
 		Core::D3DConstantBuffer mVertexConstantBuffer;
 		Core::D3DConstantBuffer mPixelConstantBuffer;
+		Core::D3DConstantBuffer mPixelMaterialConstantBuffer;
+		Core::D3DConstantBuffer mPixelLightsConstantBuffer;
 		
 		bool mNoLightsWarningShown = false;
 	public:

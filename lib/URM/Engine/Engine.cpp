@@ -96,35 +96,54 @@ namespace URM::Engine {
 
 		this->mVertexConstantBuffer.Bind(this->mCore, 0);
 		this->mPixelConstantBuffer.Bind(this->mCore, 1);
+		this->mPixelMaterialConstantBuffer.Bind(this->mCore, 2);
+		this->mPixelLightsConstantBuffer.Bind(this->mCore, 3);
 
 		params.geometryPassParams.blendState.Bind(this->mCore);
 		params.geometryPassParams.depthStencilState.Bind(this->mCore);
 
 		auto cameraPos = cameraPtr->GetTransform().GetPosition();
 		auto renderMatrix = CreateTransformationMatrix(cameraPtr.get(), windowSize);
+
+		auto pixelBufferValue = PixelConstantBufferData(cameraPos);
+		this->mPixelConstantBuffer.UpdateWithData(this->mCore, &pixelBufferValue);
+
 		// TODO: Add support for custom PixelConstantBuffer types.
-		auto pixelBufferValue = PixelConstantBuffer(cameraPos);
+		//auto materialBufferValue = PixelMaterialBufferDataPBR(
+		//	Color(1.0f, 0.0f, 0.0f, 1.0f),
+		//	0,
+		//	0.0f,
+		//	0.5f
+		//);
+		//this->mPixelMaterialConstantBuffer.UpdateWithData(this->mCore, &materialBufferValue);
+		auto materialBufferValue = PixelMaterialBufferData();
+
+		auto lightsBufferValue = PixelLightBufferData();
 		size_t allLightsCount = lights.size();
-		for (int lightOffset = 0; lightOffset < allLightsCount; lightOffset += PixelConstantBuffer::MAX_LIGHTS_COUNT) {
+		for (int lightOffset = 0; lightOffset < allLightsCount; lightOffset += PixelLightBufferData::MAX_LIGHTS_COUNT) {
 			if (lightOffset != 0) {
 				params.lightingPassParams.blendState.Bind(this->mCore);
 				params.lightingPassParams.depthStencilState.Bind(this->mCore);
 			}
 			
-			size_t lightsCount = std::min((size_t)PixelConstantBuffer::MAX_LIGHTS_COUNT, allLightsCount - lightOffset);
-			pixelBufferValue.activeLightsCount = static_cast<uint32_t>(lightsCount);
+			size_t lightsCount = std::min((size_t)PixelLightBufferData::MAX_LIGHTS_COUNT, allLightsCount - lightOffset);
+			lightsBufferValue.activeLightsCount = static_cast<uint32_t>(lightsCount);
 			for (size_t i = 0; i < lightsCount; i++) {
 				auto l = lights[lightOffset + i].lock();
-				pixelBufferValue.lights[i] = PixelConstantBuffer::Light(
+				lightsBufferValue.lights[i] = PixelLight(
 					l->GetTransform().GetPosition(),
 					l->color,
 					l->ambientIntensity,
 					l->diffuseIntensity,
 					l->specularIntensity
 				);
+				//lightsBufferValue.lights[i] = PixelLightPBR(
+				//	l->GetTransform().GetPosition(),
+				//	l->color * l->diffuseIntensity
+				//);
 			}
 
-			//this->mPixelConstantBuffer.UpdateWithData(this->mCore, &pixelBufferValue);
+			this->mPixelLightsConstantBuffer.UpdateWithData(this->mCore, &lightsBufferValue);
 			// TODO: Group meshes by shaders and input layouts.
 			for (auto& mesh : meshes) {
 				auto sceneMesh = mesh.lock();
@@ -145,13 +164,13 @@ namespace URM::Engine {
 				// TODO: Combine similiar meshes to avoid multiple data sending.
 				// TODO: Add support for materials.
 				if (m.ContainsTextures()) {
-					pixelBufferValue.material.useAlbedoTexture = 1;
+					materialBufferValue.useAlbedoTexture = 1;
 					m.BindTextures(mCore);
 				}
 				else {
-					pixelBufferValue.material.useAlbedoTexture = 0;
+					materialBufferValue.useAlbedoTexture = 0;
 				}
-				this->mPixelConstantBuffer.UpdateWithData(this->mCore, &pixelBufferValue);
+				this->mPixelMaterialConstantBuffer.UpdateWithData(this->mCore, &materialBufferValue);
 
 				m.GetVertexBuffer().Bind(this->mCore, 0);
 				if (m.ContainsIndices()) {
@@ -222,7 +241,10 @@ namespace URM::Engine {
 	Engine::Engine(const Core::WindowCreationParams& windowParams) : mCore(windowParams),
 	                                                                 mScene(mCore),
 	                                                                 mVertexConstantBuffer(Core::D3DConstantBuffer::Create<VertexConstantBuffer>(mCore, Core::ShaderStages::VERTEX)),
-	                                                                 mPixelConstantBuffer(Core::D3DConstantBuffer::Create<PixelConstantBuffer>(mCore, Core::ShaderStages::PIXEL)) {
+	                                                                 mPixelConstantBuffer(Core::D3DConstantBuffer::Create<PixelConstantBufferData>(mCore, Core::ShaderStages::PIXEL)),
+	                                                                 mPixelMaterialConstantBuffer(Core::D3DConstantBuffer::Create<PixelMaterialBufferData>(mCore, Core::ShaderStages::PIXEL)),
+	                                                                 mPixelLightsConstantBuffer(Core::D3DConstantBuffer::Create<PixelLightBufferData>(mCore, Core::ShaderStages::PIXEL))
+	{
 		URM::Core::Logger::InitLogger();
 
 		auto lightPassBlendStateData = this->renderParameters.lightingPassParams.blendState.GetData();

@@ -58,10 +58,6 @@ class SponzaTest : public ITest {
 		return count;
 	}
 
-	URM::Core::WindowCreationParams GetWindowParams(HINSTANCE instance) const override {
-		return URM::Core::WindowCreationParams(1920, 1080, "Sponza", instance);
-	}
-
 	void AddCameras(std::shared_ptr<URM::Engine::SceneObject> root) {
 		// Cameras setup
 		for (auto& transform : mCameraTransforms) {
@@ -167,5 +163,10 @@ class SponzaTest : public ITest {
 		else {
 			mPrintPosKeyPressed = false;
 		}
+	}
+
+public:
+	URM::Core::WindowCreationParams GetWindowParams(HINSTANCE instance) const override {
+		return URM::Core::WindowCreationParams(1920, 1080, "Sponza", instance);
 	}
 };
