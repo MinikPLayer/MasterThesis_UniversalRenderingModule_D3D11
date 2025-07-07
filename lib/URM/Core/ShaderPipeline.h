@@ -4,6 +4,7 @@
 #include "D3DCore.h"
 
 #include <d3dcommon.h>
+#include <variant>
 
 namespace URM::Core {
 	enum ShaderStages {
@@ -11,31 +12,50 @@ namespace URM::Core {
 		PIXEL    = 1,
 	};
 
-	class ShaderPipeline {
-		ComPtr<ID3D11VertexShader> mVertexShader;
-		ComPtr<ID3D11PixelShader> mPixelShader;
-
-		ComPtr<ID3DBlob> mVertexSource;
-		ComPtr<ID3DBlob> mPixelSource;
+	class Shader {
+	protected:
+		ComPtr<ID3DBlob> mBytecode;
 
 		static ComPtr<ID3DBlob> LoadShaderBytecode(const std::wstring& fileName);
 	public:
+		virtual void Bind(const D3DCore& core) const = 0;
+
+		ComPtr<ID3DBlob> GetBytecode() const {
+			return this->mBytecode;
+		}
+
+		Shader(const std::wstring& fileName);
+	};
+
+	class PixelShader : public Shader {
+		ComPtr<ID3D11PixelShader> mShader;
+
+	public:
+		void Bind(const D3DCore& core) const override;
+		PixelShader(const D3DCore& core, const std::wstring& fileName);
+	};
+
+	class VertexShader : public Shader {
+		ComPtr<ID3D11VertexShader> mShader;
+
+	public:
+		void Bind(const D3DCore& core) const override;
+		VertexShader(const D3DCore& core, const std::wstring& fileName);
+	};
+
+	class ShaderPipeline {
+		VertexShader mVertexShader;
+		PixelShader mPixelShader;
+
+	public:
 		void Bind(const D3DCore& core) const;
 
-		ComPtr<ID3D11VertexShader> GetVertexShader() {
+		VertexShader& GetVertexShader() {
 			return this->mVertexShader;
 		}
 
-		ComPtr<ID3D11PixelShader> GetPixelShader() {
+		PixelShader& GetPixelShader() {
 			return this->mPixelShader;
-		}
-
-		ComPtr<ID3DBlob> GetVertexShaderSource() {
-			return this->mVertexSource;
-		}
-
-		ComPtr<ID3DBlob> GetPixelShaderSource() {
-			return this->mPixelSource;
 		}
 
 		ShaderPipeline(const D3DCore& core, const std::wstring& vertexPath, const std::wstring& pixelPath);

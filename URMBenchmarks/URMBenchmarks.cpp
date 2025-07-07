@@ -9,10 +9,12 @@
 #include "LightsTest.h"
 #include "MultipleObjectsTest.h"
 #include "ObjectsTransformThroughputTest.h"
+#include "HighPolyModelTest.h"
+#include "MaterialTest.h"
 
 using namespace URM;
 
-auto* test = new SponzaTest();
+auto* test = new LightsTest();
 
 void OnUpdate(Engine::Engine& engine) {
 	test->Update(engine);

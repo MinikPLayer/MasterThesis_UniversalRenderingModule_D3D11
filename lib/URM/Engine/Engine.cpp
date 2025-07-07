@@ -109,13 +109,6 @@ namespace URM::Engine {
 		this->mPixelConstantBuffer.UpdateWithData(this->mCore, &pixelBufferValue);
 
 		// TODO: Add support for custom PixelConstantBuffer types.
-		//auto materialBufferValue = PixelMaterialBufferDataPBR(
-		//	Color(1.0f, 0.0f, 0.0f, 1.0f),
-		//	0,
-		//	0.0f,
-		//	0.5f
-		//);
-		//this->mPixelMaterialConstantBuffer.UpdateWithData(this->mCore, &materialBufferValue);
 		auto materialBufferValue = PixelMaterialBufferData();
 
 		auto lightsBufferValue = PixelLightBufferData();
@@ -137,10 +130,6 @@ namespace URM::Engine {
 					l->diffuseIntensity,
 					l->specularIntensity
 				);
-				//lightsBufferValue.lights[i] = PixelLightPBR(
-				//	l->GetTransform().GetPosition(),
-				//	l->color * l->diffuseIntensity
-				//);
 			}
 
 			this->mPixelLightsConstantBuffer.UpdateWithData(this->mCore, &lightsBufferValue);
@@ -157,20 +146,22 @@ namespace URM::Engine {
 				this->mVertexConstantBuffer.UpdateWithData(this->mCore, &vcb);
 
 				sceneMesh->GetInputLayout()->Bind(mCore);
-				sceneMesh->GetShader()->Bind(mCore);
+				sceneMesh->GetVertexShader()->Bind(mCore);
 
 				auto& m = sceneMesh->GetMesh();
 
 				// TODO: Combine similiar meshes to avoid multiple data sending.
 				// TODO: Add support for materials.
+				bool useTexture = false;
 				if (m.ContainsTextures()) {
-					materialBufferValue.useAlbedoTexture = 1;
+					useTexture = true;
 					m.BindTextures(mCore);
 				}
-				else {
-					materialBufferValue.useAlbedoTexture = 0;
-				}
-				this->mPixelMaterialConstantBuffer.UpdateWithData(this->mCore, &materialBufferValue);
+				sceneMesh->material->Bind(mCore, 2);
+				sceneMesh->material->UploadData(mCore, useTexture);
+
+				//materialBufferValue.Apply(sceneMesh->material);
+				//this->mPixelMaterialConstantBuffer.UpdateWithData(this->mCore, &materialBufferValue);
 
 				m.GetVertexBuffer().Bind(this->mCore, 0);
 				if (m.ContainsIndices()) {

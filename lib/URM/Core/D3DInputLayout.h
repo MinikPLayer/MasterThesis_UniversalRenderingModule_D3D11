@@ -18,18 +18,18 @@ namespace URM::Core {
 			return this->mInputLayout;
 		}
 
-		D3DInputLayout(const D3DCore& core, ShaderPipeline program);
+		D3DInputLayout(const D3DCore& core, VertexShader& program);
 	};
 
 	template<VertexTypeConcept VertexType>
-	D3DInputLayout<VertexType>::D3DInputLayout(const D3DCore& core, ShaderPipeline program) {
+	D3DInputLayout<VertexType>::D3DInputLayout(const D3DCore& core, VertexShader& vertexProgram) {
 		auto layout = VertexType::GetInputLayout();
 
 		core.GetDevice()->CreateInputLayout(
 			layout.data(),
 			static_cast<UINT>(layout.size()),
-			program.GetVertexShaderSource()->GetBufferPointer(),
-			program.GetVertexShaderSource()->GetBufferSize(),
+			vertexProgram.GetBytecode()->GetBufferPointer(),
+			vertexProgram.GetBytecode()->GetBufferSize(),
 			this->mInputLayout.GetAddressOf()
 		);
 	}

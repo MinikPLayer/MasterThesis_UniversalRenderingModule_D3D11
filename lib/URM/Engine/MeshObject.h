@@ -5,21 +5,25 @@
 #include <URM/Core/D3DInputLayout.h>
 #include <URM/Core/ShaderPipeline.h>
 
+#include <URM/Core/Material.h>
+
 namespace URM::Engine {
 	class MeshObject : public SceneObject {
 		std::shared_ptr<Core::Mesh<Core::ModelLoaderVertexType>> mMesh;
 		std::shared_ptr<Core::ModelLoaderLayout> mInputLayout;
-		std::shared_ptr<Core::ShaderPipeline> mShader;
+		std::shared_ptr<Core::VertexShader> mVertexShader;
 	public:
+		std::shared_ptr<URM::Core::Material> material;
+
 		void OnAdded() override;
 		void OnDestroyed() override;
 
-		std::shared_ptr<Core::ModelLoaderLayout> GetInputLayout() {
-			return this->mInputLayout;
+		std::shared_ptr<Core::VertexShader> GetVertexShader() const {
+			return this->mVertexShader;
 		}
 
-		std::shared_ptr<Core::ShaderPipeline> GetShader() {
-			return this->mShader;
+		std::shared_ptr<Core::ModelLoaderLayout> GetInputLayout() {
+			return this->mInputLayout;
 		}
 
 		Core::Mesh<Core::ModelLoaderVertexType>& GetMesh() const {
@@ -28,8 +32,9 @@ namespace URM::Engine {
 
 		MeshObject(
 			const std::shared_ptr<Core::Mesh<Core::ModelLoaderVertexType>>& mesh,
+			const std::shared_ptr<Core::VertexShader>& vertexShader,
 			const std::shared_ptr<Core::D3DInputLayout<Core::ModelLoaderVertexType>>& inputLayout,
-			const std::shared_ptr<Core::ShaderPipeline>& shader
+			const std::shared_ptr<URM::Core::Material> material
 		);
 	};
 }

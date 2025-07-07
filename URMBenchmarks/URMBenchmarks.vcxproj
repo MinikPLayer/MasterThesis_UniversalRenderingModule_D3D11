@@ -147,7 +147,9 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="HighPolyModelTest.cpp" />
     <ClCompile Include="ITest.cpp" />
+    <ClCompile Include="MaterialTest.cpp" />
     <ClCompile Include="MultipleObjectsTest.cpp" />
     <ClCompile Include="ObjectsTransformThroughputTest.cpp" />
     <ClCompile Include="PixelThroughputTest.cpp" />
@@ -162,9 +164,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="HighPolyModelTest.h" />
     <ClInclude Include="ITest.h" />
     <ClInclude Include="LightsTest.h" />
     <ClInclude Include="AverageAccumulator.h" />
+    <ClInclude Include="MaterialTest.h" />
     <ClInclude Include="MultipleObjectsTest.h" />
     <ClInclude Include="ObjectsTransformThroughputTest.h" />
     <ClInclude Include="PixelThroughputTest.h" />
@@ -178,6 +182,11 @@
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Assets\roman_marble_3.000.000_triangles.glb">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="Assets\sphere.glb">
       <FileType>Document</FileType>
     </CopyFileToFolders>
   </ItemGroup>

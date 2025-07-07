@@ -55,6 +55,7 @@
     <ClCompile Include="D3DViewport.cpp" />
     <ClCompile Include="ID3DBuffer.cpp" />
     <ClCompile Include="Log.cpp" />
+    <ClCompile Include="Material.cpp" />
     <ClCompile Include="MaterialProperty.cpp" />
     <ClCompile Include="ModelLoader.cpp" />
     <ClCompile Include="pch.cpp">

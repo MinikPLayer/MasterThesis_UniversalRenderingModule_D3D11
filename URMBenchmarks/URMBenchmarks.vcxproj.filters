@@ -30,6 +30,12 @@
     <ClCompile Include="ObjectsTransformThroughputTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="HighPolyModelTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="VertexThroughputTest.h">
@@ -56,12 +62,21 @@
     <ClInclude Include="ObjectsTransformThroughputTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="HighPolyModelTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Assets\sphere_327680_triangles.fbx">
       <Filter>Resource Files</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="Assets\roman_marble_3.000.000_triangles.glb">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Assets\sphere.glb">
       <Filter>Resource Files</Filter>
     </CopyFileToFolders>
   </ItemGroup>

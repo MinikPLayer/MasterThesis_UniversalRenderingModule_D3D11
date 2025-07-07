@@ -6,7 +6,7 @@
 #pragma comment(lib, "d3dcompiler.lib")
 
 namespace URM::Core {
-	ComPtr<ID3DBlob> ShaderPipeline::LoadShaderBytecode(const std::wstring& fileName) {
+	ComPtr<ID3DBlob> Shader::LoadShaderBytecode(const std::wstring& fileName) {
 		ID3DBlob* blob;
 		DX::ThrowIfFailed(
 			D3DReadFileToBlob(fileName.c_str(), &blob),
@@ -16,30 +16,44 @@ namespace URM::Core {
 		return blob;
 	}
 
-	void ShaderPipeline::Bind(const D3DCore& core) const {
-		core.GetContext()->VSSetShader(this->mVertexShader.Get(), nullptr, 0);
-		core.GetContext()->PSSetShader(this->mPixelShader.Get(), nullptr, 0);
+	Shader::Shader(const std::wstring& fileName) {
+		this->mBytecode = LoadShaderBytecode(fileName);
 	}
 
-	ShaderPipeline::ShaderPipeline(const D3DCore& core, const std::wstring& vertexPath, const std::wstring& pixelPath) {
-		ID3D11VertexShader* vShader;
-		this->mVertexSource = LoadShaderBytecode(vertexPath);
-		spdlog::trace("Creating vertex shader from {}", StringUtils::WStringToString(vertexPath));
-		spdlog::trace("Vertex shader size: {} bytes", this->mVertexSource->GetBufferSize());
-		auto hr = core.GetDevice()->CreateVertexShader(this->mVertexSource->GetBufferPointer(), this->mVertexSource->GetBufferSize(), nullptr, &vShader);
-		if (FAILED(hr)) {
-			spdlog::error("Failed to create vertex shader from source");
-			throw std::runtime_error("Failed to create vertex shader.");
-		}
-		this->mVertexShader = vShader;
+	void ShaderPipeline::Bind(const D3DCore& core) const {
+		this->mVertexShader.Bind(core);
+		this->mPixelShader.Bind(core);
+	}
 
+	ShaderPipeline::ShaderPipeline(const D3DCore& core, const std::wstring& vertexPath, const std::wstring& pixelPath) : mVertexShader(core, vertexPath), mPixelShader(core, pixelPath) {}
+
+	void PixelShader::Bind(const D3DCore& core) const {
+		core.GetContext()->PSSetShader(this->mShader.Get(), nullptr, 0);
+	}
+
+	PixelShader::PixelShader(const D3DCore& core, const std::wstring& fileName) : Shader(fileName) {
 		ID3D11PixelShader* pShader;
-		this->mPixelSource = LoadShaderBytecode(pixelPath);
-		hr = core.GetDevice()->CreatePixelShader(this->mPixelSource->GetBufferPointer(), this->mPixelSource->GetBufferSize(), nullptr, &pShader);
+		spdlog::trace("Creating pixel shader from {}", StringUtils::WStringToString(fileName));
+		auto hr = core.GetDevice()->CreatePixelShader(this->mBytecode->GetBufferPointer(), this->mBytecode->GetBufferSize(), nullptr, &pShader);
 		if (FAILED(hr)) {
 			spdlog::error("Failed to create pixel shader from source");
 			throw std::runtime_error("Failed to create pixel shader.");
 		}
-		this->mPixelShader = pShader;
+		this->mShader = pShader;
+	}
+
+	void VertexShader::Bind(const D3DCore& core) const {
+		core.GetContext()->VSSetShader(this->mShader.Get(), nullptr, 0);
+	}
+
+	VertexShader::VertexShader(const D3DCore& core, const std::wstring& fileName) : Shader(fileName) {
+		ID3D11VertexShader* vShader;
+		spdlog::trace("Creating vertex shader from {}", StringUtils::WStringToString(fileName));
+		auto hr = core.GetDevice()->CreateVertexShader(this->mBytecode->GetBufferPointer(), this->mBytecode->GetBufferSize(), nullptr, &vShader);
+		if (FAILED(hr)) {
+			spdlog::error("Failed to create vertex shader from source");
+			throw std::runtime_error("Failed to create vertex shader.");
+		}
+		this->mShader = vShader;
 	}
 }

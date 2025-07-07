@@ -7,6 +7,7 @@
 #include <URM/Core/D3DConstantBuffer.h>
 #include <URM/Core/D3DBlendState.h>
 #include <URM/Core/D3DDepthStencilState.h>
+#include <URM/Core/Material.h>
 
 #include <functional>
 
@@ -69,11 +70,11 @@ namespace URM::Engine {
 
 	struct PixelMaterialBufferData {
 		alignas(4) int useAlbedoTexture = 0;
-		alignas(4) int roughnessPowerCoefficient;
+		alignas(4) int roughnessPowerExponent;
 		alignas(16) Color albedoColor = Color(1, 1, 1, 1);
 
-		PixelMaterialBufferData(Color albedoColor = Color(1, 1, 1, 1), int roughnessPowerCoefficient = 128) 
-			: albedoColor(albedoColor), roughnessPowerCoefficient(roughnessPowerCoefficient) {}
+		PixelMaterialBufferData(Color albedoColor = Color(1, 1, 1, 1), int roughnessPowerExponent = 32) 
+			: albedoColor(albedoColor), roughnessPowerExponent(roughnessPowerExponent) {}
 	};
 
 	// Alignment rules: https://maraneshi.github.io/HLSL-ConstantBufferLayoutVisualizer/
