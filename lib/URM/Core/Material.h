@@ -56,4 +56,26 @@ namespace URM::Core {
 		void UploadData(D3DCore& core, bool useAlbedoTexture) override;
 		MaterialSimple(D3DCore& core, MaterialSimple::Data data = MaterialSimple::Data());
 	};
+
+	class MaterialPBR : public Material {
+	public:
+		struct Data {
+			alignas(16) Color albedo;
+			alignas(4) int useAlbedoTexture;
+			alignas(4) float metallic;
+			alignas(4) float roughness;
+			alignas(4) float ao;
+		};
+
+	private:
+		static std::shared_ptr<Core::PixelShader> defaultShader;
+
+		std::shared_ptr<Core::PixelShader> GetShader(D3DCore& core) override;
+
+	public:
+		Data data;
+
+		void UploadData(D3DCore& core, bool useAlbedoTexture) override;
+		MaterialPBR(D3DCore& core, MaterialPBR::Data data = MaterialPBR::Data());
+	};
 }

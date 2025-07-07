@@ -1,23 +1,17 @@
 #include "SimpleShaderCommonTypes.hlsl"
 
-struct LightUniformData
-{
-    int activeLightsCount;
-    Light lights[MAX_LIGHTS_COUNT]; // 8 * 48B
-};
-
 cbuffer CB : register(b1) {
 	PixelUniformData data;
+}
+
+cbuffer LightsBuffer : register(b3)
+{
+    LightUniformData lightData;
 }
 
 cbuffer MaterialBuffer : register(b2)
 {
 	Material material;
-}
-
-cbuffer LightsBuffer : register(b3)
-{
-	LightUniformData lightData;
 }
 
 float3 CalculateLighting(PS_INPUT input, Light light) {

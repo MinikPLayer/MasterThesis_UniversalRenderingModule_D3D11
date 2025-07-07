@@ -28,3 +28,9 @@ struct PixelUniformData
 {
     float4 viewPosition; // 16B
 };
+
+struct LightUniformData
+{
+    int activeLightsCount;
+    Light lights[MAX_LIGHTS_COUNT]; // 8 * 48B
+};

@@ -19,21 +19,26 @@ cbuffer MaterialCB : register(b2)
     PBRMaterial material;
 }
 
-struct PBRLight
-{
-    float3 color;
-    float3 position;
-};
+//struct PBRLight
+//{
+//    float3 color;
+//    float3 position;
+//};
 
-struct PBRLightUniformData
-{
-    int activeLightsCount;
-    PBRLight lights[MAX_LIGHTS_COUNT];
-};
+//struct PBRLightUniformData
+//{
+//    int activeLightsCount;
+//    PBRLight lights[MAX_LIGHTS_COUNT];
+//};
 
-cbuffer LightUniformData : register(b3)
+//cbuffer LightUniformData : register(b3)
+//{
+//    PBRLightUniformData lightData;
+//}
+
+cbuffer LightsBuffer : register(b3)
 {
-    PBRLightUniformData lightData;
+    LightUniformData lightData;
 }
 
 static const float PI = 3.14159265359;
