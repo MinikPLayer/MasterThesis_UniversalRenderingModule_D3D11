@@ -96,7 +96,6 @@ namespace URM::Engine {
 
 		this->mVertexConstantBuffer.Bind(this->mCore, 0);
 		this->mPixelConstantBuffer.Bind(this->mCore, 1);
-		this->mPixelMaterialConstantBuffer.Bind(this->mCore, 2);
 		this->mPixelLightsConstantBuffer.Bind(this->mCore, 3);
 
 		params.geometryPassParams.blendState.Bind(this->mCore);
@@ -109,8 +108,6 @@ namespace URM::Engine {
 		this->mPixelConstantBuffer.UpdateWithData(this->mCore, &pixelBufferValue);
 
 		// TODO: Add support for custom PixelConstantBuffer types.
-		auto materialBufferValue = PixelMaterialBufferData();
-
 		auto lightsBufferValue = PixelLightBufferData();
 		size_t allLightsCount = lights.size();
 		for (int lightOffset = 0; lightOffset < allLightsCount; lightOffset += PixelLightBufferData::MAX_LIGHTS_COUNT) {
@@ -151,7 +148,6 @@ namespace URM::Engine {
 				auto& m = sceneMesh->GetMesh();
 
 				// TODO: Combine similiar meshes to avoid multiple data sending.
-				// TODO: Add support for materials.
 				bool useTexture = false;
 				if (m.ContainsTextures()) {
 					useTexture = true;
@@ -159,9 +155,6 @@ namespace URM::Engine {
 				}
 				sceneMesh->material->Bind(mCore, 2);
 				sceneMesh->material->UploadData(mCore, useTexture);
-
-				//materialBufferValue.Apply(sceneMesh->material);
-				//this->mPixelMaterialConstantBuffer.UpdateWithData(this->mCore, &materialBufferValue);
 
 				m.GetVertexBuffer().Bind(this->mCore, 0);
 				if (m.ContainsIndices()) {
@@ -233,7 +226,6 @@ namespace URM::Engine {
 	                                                                 mScene(mCore),
 	                                                                 mVertexConstantBuffer(Core::D3DConstantBuffer::Create<VertexConstantBuffer>(mCore, Core::ShaderStages::VERTEX)),
 	                                                                 mPixelConstantBuffer(Core::D3DConstantBuffer::Create<PixelConstantBufferData>(mCore, Core::ShaderStages::PIXEL)),
-	                                                                 mPixelMaterialConstantBuffer(Core::D3DConstantBuffer::Create<PixelMaterialBufferData>(mCore, Core::ShaderStages::PIXEL)),
 	                                                                 mPixelLightsConstantBuffer(Core::D3DConstantBuffer::Create<PixelLightBufferData>(mCore, Core::ShaderStages::PIXEL))
 	{
 		URM::Core::Logger::InitLogger();

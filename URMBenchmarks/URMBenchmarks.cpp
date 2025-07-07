@@ -14,7 +14,7 @@
 
 using namespace URM;
 
-auto* test = new LightsTest();
+auto* test = new MaterialTest();
 
 void OnUpdate(Engine::Engine& engine) {
 	test->Update(engine);

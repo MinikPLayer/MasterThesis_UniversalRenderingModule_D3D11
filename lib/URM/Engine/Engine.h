@@ -57,26 +57,6 @@ namespace URM::Engine {
 		alignas(16) PixelLightPBR lights[MAX_LIGHTS_COUNT];
 	};
 
-	struct PixelMaterialBufferDataPBR {
-		alignas(16) Color albedo;
-		alignas(4) int useAlbedoTexture;
-		alignas(4) float metallic;
-		alignas(4) float roughness;
-		alignas(4) float ao;
-
-		PixelMaterialBufferDataPBR(Color albedo = Color(1, 1, 1, 1), int useAlbedoTexture = 0, float metallic = 0.0f, float roughness = 0.5f, float ao = 1.0f) 
-			: albedo(albedo), useAlbedoTexture(useAlbedoTexture), metallic(metallic), roughness(roughness), ao(ao) {}
-	};
-
-	struct PixelMaterialBufferData {
-		alignas(4) int useAlbedoTexture = 0;
-		alignas(4) int roughnessPowerExponent;
-		alignas(16) Color albedoColor = Color(1, 1, 1, 1);
-
-		PixelMaterialBufferData(Color albedoColor = Color(1, 1, 1, 1), int roughnessPowerExponent = 32) 
-			: albedoColor(albedoColor), roughnessPowerExponent(roughnessPowerExponent) {}
-	};
-
 	// Alignment rules: https://maraneshi.github.io/HLSL-ConstantBufferLayoutVisualizer/
 	struct PixelConstantBufferData {
 		alignas(4) Vector4 viewPosition;
@@ -109,7 +89,6 @@ namespace URM::Engine {
 
 		Core::D3DConstantBuffer mVertexConstantBuffer;
 		Core::D3DConstantBuffer mPixelConstantBuffer;
-		Core::D3DConstantBuffer mPixelMaterialConstantBuffer;
 		Core::D3DConstantBuffer mPixelLightsConstantBuffer;
 		
 		bool mNoLightsWarningShown = false;
