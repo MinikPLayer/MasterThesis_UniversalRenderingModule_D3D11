@@ -8,10 +8,26 @@
 #include <URM/Core/Material.h>
 
 namespace URM::Engine {
-
 	// PLAN: Try adding support for custom shaders with different vertex types.
 	// TODO: Add support for custom PixelConstantBuffer types.
 	class ModelObject : public SceneObject {
+		enum class MaterialProperties {
+			DIFFUSE_COLOR,
+			METALLIC_FACTOR,
+			ROUGHNESS_FACTOR,
+		};
+
+		struct MaterialData {
+			int expectedArrayLength;
+			MaterialProperties property;
+
+			MaterialData(MaterialProperties prop, int arrayLength) {
+				this->expectedArrayLength = arrayLength;
+				this->property = prop;
+			}
+		};
+
+		static std::unordered_map<std::string, MaterialData> materialPropertiesMap;
 		// TODO: Move defaults, VertexConstantBuffer and PixelConstantBuffer to a separate class.
 		static std::shared_ptr<Core::Material> mDefaultMaterial;
 		static std::shared_ptr<Core::VertexShader> mDefaultVertexShader;
@@ -23,6 +39,9 @@ namespace URM::Engine {
 
 		std::string mPath;
 
+		bool mTryDeduceMaterial = true;
+
+		std::shared_ptr<Core::Material> TryDeduceMaterial(URM::Core::D3DCore& core, std::vector<URM::Core::MaterialProperty> properties);
 		void AddMeshRecursive(const std::shared_ptr<Core::ModelLoaderNode>& node, const std::weak_ptr<SceneObject>& parent);
 	public:
 		static std::shared_ptr<Core::Material> GetDefaultMaterial(Core::D3DCore& core);
@@ -32,6 +51,6 @@ namespace URM::Engine {
 		void OnAdded() override;
 
 		ModelObject(const std::string& path, const std::shared_ptr<Core::Material>& material, const std::shared_ptr<Core::VertexShader>& vertexShader, const std::shared_ptr<Core::ModelLoaderLayout>& layout);
-		ModelObject(const std::string& path);
+		ModelObject(const std::string& path, bool tryDeduceMaterial = true);
 	};
 }

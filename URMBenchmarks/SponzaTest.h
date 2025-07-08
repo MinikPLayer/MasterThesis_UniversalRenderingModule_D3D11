@@ -20,31 +20,33 @@ class SponzaTest : public ITest {
 
 	std::shared_ptr<URM::Engine::SceneObject> mModel;
 
+	bool mUsePbr = false;
+
 // Disable double to float truncation warning.
 #pragma warning(push)
 #pragma warning(disable: 4305)
 	const std::vector<std::pair<Vector3, Vector3>> mCameraTransforms = {
-		{{-27, 2.4, 0}, {0, 90, 0}}, // Hallway
+		{{27, 2.4, 0}, {0, -90, 0}}, // Hallway
 		{{-16, 6.0, -11}, {0, 65, 0}}, // Hallway Side
 		{{0, 53, 0}, {90, 0, 0}}, // Bird Eye View
 		{{-23, 14, -3.5}, {0, 75, 0}} // 1st floor
 	};
 
 	// Light transforms
-	// Position, Color, Specular intensity, Diffuse intensity, Ambient intensity
-	const std::vector<std::tuple<Vector3, Color, float, float, float>> mLightsInformation = {
-		{{-20, 40, 20}, Color(1, 0.6, 0.2), 1.0f, 1.0f, 1.0f}, // Main light
-		{{-20, 40, -20}, Color(0.2, 0.6, 1.0), 0.5f, 0.5f, 0.5f}, // Main light
-		{{0, 3, 0}, Color(1, 1, 1),		  0.5f, 0.05f, 0.05f}, // First floor
-		{{ 20,  3,   20}, Color(1, 1, 1), 0.5f, 0.05f, 0.05f}, // First floor
-		{{-20,  3,   20}, Color(1, 1, 1), 0.5f, 0.05f, 0.05f}, // First floor
-		{{-20,  3,  -20}, Color(1, 1, 1), 0.5f, 0.05f, 0.05f}, // First floor
-		{{ 20,  3,  -20}, Color(1, 1, 1), 0.5f, 0.05f, 0.05f}, // First floor
+	// Position, Color, Specular intensity, Diffuse intensity, Ambient intensity, pbrIntensity, attenuation
+	const std::vector<std::tuple<Vector3, Color, float, float, float, float, float>> mLightsInformation = {
+		{{200, 400,  200}, Color(1, 0.6, 0.2),   1.0f, 1.0f, 1.0f, 4.0f, 0.0f}, // Main light
+		{{200, 400, -200}, Color(0.2, 0.6, 1.0), 0.5f, 0.5f, 0.5f, 8.0f, 0.0f}, // Main light
+		{{0, 3, 0}, Color(1, 1, 1),		  0.5f, 0.05f, 0.05f, 10.0f, 0.4f}, // First floor
+		{{ 20,  3,   20}, Color(1, 1, 1), 0.5f, 0.05f, 0.05f, 10.0f, 0.4f}, // First floor
+		{{-20,  3,   20}, Color(1, 1, 1), 0.5f, 0.05f, 0.05f, 10.0f, 0.4f}, // First floor
+		{{-20,  3,  -20}, Color(1, 1, 1), 0.5f, 0.05f, 0.05f, 10.0f, 0.4f}, // First floor
+		{{ 20,  3,  -20}, Color(1, 1, 1), 0.5f, 0.05f, 0.05f, 10.0f, 0.4f}, // First floor
 		
-		{{ 24,  14,   24}, Color(1, 1, 1), 0.5f, 0.05f, 0.05f}, // Second floor
-		{{-24,  14,   24}, Color(1, 1, 1), 0.5f, 0.05f, 0.05f}, // Second floor
-		{{-24,  14,  -24}, Color(1, 1, 1), 0.5f, 0.05f, 0.05f}, // Second floor
-		{{ 24,  14,  -24}, Color(1, 1, 1), 0.5f, 0.05f, 0.05f}, // Second floor
+		{{ 24,  14,   24}, Color(1, 1, 1), 0.5f, 0.05f, 0.05f, 10.0f, 1.0f}, // Second floor
+		{{-24,  14,   24}, Color(1, 1, 1), 0.5f, 0.05f, 0.05f, 10.0f, 1.0f}, // Second floor
+		{{-24,  14,  -24}, Color(1, 1, 1), 0.5f, 0.05f, 0.05f, 10.0f, 1.0f}, // Second floor
+		{{ 24,  14,  -24}, Color(1, 1, 1), 0.5f, 0.05f, 0.05f, 10.0f, 1.0f}, // Second floor
 	};
 #pragma warning(pop)
 
@@ -81,6 +83,12 @@ class SponzaTest : public ITest {
 			light->specularIntensity = specularIntensity * light->specularIntensity;
 			light->diffuseIntensity = diffuseIntensity * light->diffuseIntensity;
 			light->ambientIntensity = ambientIntensity * light->ambientIntensity;
+
+			auto pbrIntensity = std::get<5>(lightInfo);
+			light->pbrIntensity = pbrIntensity * light->pbrIntensity;
+
+			auto attenuationExponent = std::get<6>(lightInfo);
+			light->attenuationExponent = attenuationExponent * light->attenuationExponent;
 		}
 	}
 
@@ -97,7 +105,7 @@ class SponzaTest : public ITest {
 		const float scale = 2.0f;
 		const Vector3 modelSize = { 0, scale, 0 };
 		mModel = root->AddChild(new URM::Engine::SceneObject());
-		auto model = mModel->AddChild(new URM::Engine::ModelObject("sponza.glb"));
+		auto model = mModel->AddChild(new URM::Engine::ModelObject("sponza.glb", this->mUsePbr));
 		model->GetTransform().SetLocalScale({ scale, scale, scale });
 		model->GetTransform().SetLocalPosition({ -modelSize.x / 2, -modelSize.y / 2, -modelSize.z / 2 });
 
@@ -168,5 +176,9 @@ class SponzaTest : public ITest {
 public:
 	URM::Core::WindowCreationParams GetWindowParams(HINSTANCE instance) const override {
 		return URM::Core::WindowCreationParams(1920, 1080, "Sponza", instance);
+	}
+
+	SponzaTest(bool usePBR = false) {
+		this->mUsePbr = usePBR;
 	}
 };

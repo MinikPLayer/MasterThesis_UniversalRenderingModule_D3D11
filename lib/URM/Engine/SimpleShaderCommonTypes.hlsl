@@ -15,6 +15,9 @@ struct Light
     float ambientIntensity; // 4B
     float diffuseIntensity; // 4B
     float specularIntensity; // 4B
+    
+    float attenuationExponent; // 4B
+    float pbrIntensity; // 4B
 };
 
 struct Material

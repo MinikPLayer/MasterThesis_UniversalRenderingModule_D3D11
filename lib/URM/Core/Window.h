@@ -26,7 +26,7 @@ namespace URM::Core {
 		friend class D3DCore;
 		friend LRESULT WndProdDispatcher(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-		std::shared_ptr<DirectX::Keyboard> mKeyboard = std::make_shared<DirectX::Keyboard>();
+		static std::shared_ptr<DirectX::Keyboard> mKeyboard;
 		HWND mHandle = nullptr;
 
 		Size2i mOldSize = {-1, -1};

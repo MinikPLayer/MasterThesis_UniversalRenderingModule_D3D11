@@ -125,7 +125,9 @@ namespace URM::Engine {
 					l->color,
 					l->ambientIntensity,
 					l->diffuseIntensity,
-					l->specularIntensity
+					l->specularIntensity,
+					l->attenuationExponent,
+					l->pbrIntensity
 				);
 			}
 

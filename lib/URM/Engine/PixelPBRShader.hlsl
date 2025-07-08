@@ -19,23 +19,6 @@ cbuffer MaterialCB : register(b2)
     PBRMaterial material;
 }
 
-//struct PBRLight
-//{
-//    float3 color;
-//    float3 position;
-//};
-
-//struct PBRLightUniformData
-//{
-//    int activeLightsCount;
-//    PBRLight lights[MAX_LIGHTS_COUNT];
-//};
-
-//cbuffer LightUniformData : register(b3)
-//{
-//    PBRLightUniformData lightData;
-//}
-
 cbuffer LightsBuffer : register(b3)
 {
     LightUniformData lightData;
@@ -95,6 +78,7 @@ float3 CalculatePBR(PS_INPUT input, float3 albedo)
     float3 F0 = lerp(float3(0.04, 0.04, 0.04), albedo, material.metallic);
     
     float3 Lo = float3(0.0, 0.0, 0.0);
+    float3 ambient = float3(0.0, 0.0, 0.0);
     
     [unroll(MAX_LIGHTS_COUNT)]
     for (int i = 0; i < MAX_LIGHTS_COUNT; i++)
@@ -106,8 +90,9 @@ float3 CalculatePBR(PS_INPUT input, float3 albedo)
         float3 H = normalize(V + L);
         float distance = length(lightData.lights[i].position - input.fragPosition);
         //float attenuation = 1.0 / (distance * distance);
-        float attenuation = 1.0;
-        float3 radiance = lightData.lights[i].color * attenuation;
+        float attenuation = 1.0 / pow(distance, lightData.lights[i].attenuationExponent);
+        float diffuseIntensity = lightData.lights[i].diffuseIntensity * lightData.lights[i].pbrIntensity;
+        float3 radiance = lightData.lights[i].color * attenuation * float3(diffuseIntensity, diffuseIntensity, diffuseIntensity);
 
         float NDF = DistributionGGX(N, H, material.roughness);
         float G = GeometrySmith(N, V, L, material.roughness);
@@ -117,15 +102,18 @@ float3 CalculatePBR(PS_INPUT input, float3 albedo)
         float3 kD = float3(1.0, 1.0, 1.0) - kS;
         kD *= 1.0 - material.metallic;
 
-        float3 numerator = NDF * G * F;
+        float specularIntensity = lightData.lights[i].specularIntensity;
+        float3 numerator = NDF * G * F * float3(specularIntensity, specularIntensity, specularIntensity);
         float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
         float3 specular = numerator / denominator;
 
         float NdotL = max(dot(N, L), 0.0);
         Lo += (kD * albedo / PI + specular) * radiance * NdotL;
+        
+        ambient += float3(lightData.lights[i].ambientIntensity, lightData.lights[i].ambientIntensity, lightData.lights[i].ambientIntensity);
     }
     
-    float3 ambient = float3(0.03, 0.03, 0.03) * albedo * material.ao;
+    ambient = ambient * albedo * material.ao;
     float3 color = ambient + Lo;
     
     color = color / (color + float3(1.0, 1.0, 1.0));
@@ -139,6 +127,10 @@ float3 CalculatePBR(PS_INPUT input, float3 albedo)
 float4 main(PS_INPUT input) : SV_TARGET
 {
     float4 textureColor = material.useAlbedoTexture ? diffuseTexture.Sample(sampleType, input.textureUV) : material.albedo;
+    // Transparent materials are not currently supported.
+    if (textureColor.a < 1.0f)
+        discard;
+
     float3 lightColor = CalculatePBR(input, textureColor.rgb);
     return float4(textureColor.rgb * lightColor, 1.0f);
 }

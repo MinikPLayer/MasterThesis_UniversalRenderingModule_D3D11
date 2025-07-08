@@ -60,11 +60,11 @@ namespace URM::Core {
 	class MaterialPBR : public Material {
 	public:
 		struct Data {
-			alignas(16) Color albedo;
-			alignas(4) int useAlbedoTexture;
-			alignas(4) float metallic;
-			alignas(4) float roughness;
-			alignas(4) float ao;
+			alignas(16) Color albedo = Color(1.0f, 1.0f, 1.0f, 1.0f);
+			alignas(4) int useAlbedoTexture = 0;
+			alignas(4) float metallic = 0.5f;
+			alignas(4) float roughness = 0.5f;
+			alignas(4) float ao = 1.0f;
 		};
 
 	private:
