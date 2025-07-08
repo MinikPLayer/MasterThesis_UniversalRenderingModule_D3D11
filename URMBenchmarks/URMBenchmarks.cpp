@@ -14,7 +14,7 @@
 
 using namespace URM;
 
-auto* test = new SponzaTest(true);
+auto* test = new SponzaTest(false);
 
 void OnUpdate(Engine::Engine& engine) {
 	test->Update(engine);
