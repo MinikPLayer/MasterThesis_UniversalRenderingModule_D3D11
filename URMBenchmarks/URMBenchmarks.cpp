@@ -14,7 +14,7 @@
 
 using namespace URM;
 
-auto* test = new SponzaTest(false);
+auto* test = new HighPolyModelTest(true);
 
 void OnUpdate(Engine::Engine& engine) {
 	test->Update(engine);

@@ -79,5 +79,11 @@
     <CopyFileToFolders Include="Assets\sphere.glb">
       <Filter>Resource Files</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="..\UniversalRenderingModule\cube.glb">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\UniversalRenderingModule\suzanne.glb">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>
