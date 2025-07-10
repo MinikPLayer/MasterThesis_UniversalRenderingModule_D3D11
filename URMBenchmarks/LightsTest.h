@@ -59,10 +59,10 @@ protected:
 		lightsObject = root->AddChild(new URM::Engine::SceneObject());
 
 		auto suzanne = root->AddChild(new URM::Engine::ModelObject("suzanne.glb"));
-		suzanne->GetChildrenByType<URM::Engine::MeshObject>(true)[0]->material = std::shared_ptr<URM::Core::MaterialSimple>(new URM::Core::MaterialSimple(engine.GetCore(), URM::Core::MaterialSimple::Data(1024)));
+		suzanne->GetChildrenByType<URM::Engine::MeshObject>(true)[0]->material = std::shared_ptr<URM::Core::MaterialSimple>(new URM::Core::MaterialSimple(engine.GetCore(), URM::Core::MaterialSimpleData(1024)));
 
 		auto cube = root->AddChild(new URM::Engine::ModelObject("cube.glb"));
-		cube->GetChildrenByType<URM::Engine::MeshObject>(true)[0]->material = std::shared_ptr<URM::Core::MaterialSimple>(new URM::Core::MaterialSimple(engine.GetCore(), URM::Core::MaterialSimple::Data(128)));
+		cube->GetChildrenByType<URM::Engine::MeshObject>(true)[0]->material = std::shared_ptr<URM::Core::MaterialSimple>(new URM::Core::MaterialSimple(engine.GetCore(), URM::Core::MaterialSimpleData(128)));
 
 		cube->GetTransform().SetLocalScale({ 10.0f, 1.0f, 10.0f });
 		cube->GetTransform().SetLocalPosition({ 0.0f, -2.0f, 0.0f });
