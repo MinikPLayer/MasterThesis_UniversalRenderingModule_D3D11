@@ -101,13 +101,13 @@ ENABLE_PLANTUML_IMAGE_GENERATOR = True
 REMOVE_OLD_FILES = True
 MODULES = [
     Module("Core", Direction.LEFT_TO_RIGHT, ["Core/D3DCore.h", "Core/Window.h"]),
-    Module("D3DUtils", Direction.LEFT_TO_RIGHT, ["Core/D3DViewport.h", "Core/D3DRasterizerState.h", "Core/D3DBlendState.h", "Core/D3DDepthStencilState.h"], custom_uml_processor=d3dutils2_uml_processor),
+    Module("D3DUtils", Direction.LEFT_TO_RIGHT, ["Core/D3DViewport.h", "Core/D3DRasterizerState.h", "Core/D3DBlendState.h", "Core/D3DDepthStencilState.h", "Core/D3DInputLayout.h"], custom_uml_processor=d3dutils2_uml_processor),
     Module("Buffer", Direction.LEFT_TO_RIGHT, ["Core/ID3DBuffer.h", "Core/D3DConstantBuffer.h", "Core/D3DIndexBuffer.h", "Core/D3DVertexBuffer.h"]),
     Module("Mesh", Direction.TOP_TO_BOTTOM, ["Core/IMesh.h", "Core/Mesh.h", "Core/MaterialProperty.h"]),
     Module("ModelLoader", Direction.LEFT_TO_RIGHT, ["Core/ModelLoader.h"]),
     Module("Texture", Direction.LEFT_TO_RIGHT, ["Core/D3DTexture2D.h", "Core/D3DSampler.h"]),
-    Module("Shader", Direction.LEFT_TO_RIGHT, ["Core/ShaderPipeline.h",  "Core/D3DInputLayout.h"]),
-    Module("Material", Direction.LEFT_TO_RIGHT, ["Core/Material.h"]),
+    Module("Shader", Direction.LEFT_TO_RIGHT, ["Core/ShaderPipeline.h"]),
+    Module("Materials", Direction.TOP_TO_BOTTOM, ["Core/Material.h", "Core/StandardMaterials.h"]),
     Module("VertexTypes", Direction.LEFT_TO_RIGHT, ["Core/StandardVertexTypes.h"]),
     Module("Utils", Direction.LEFT_TO_RIGHT, ["Core/Utils.h"], custom_uml_processor=utils_uml_processor),
     Module("Logging", Direction.LEFT_TO_RIGHT, ["Core/Log.h"]),

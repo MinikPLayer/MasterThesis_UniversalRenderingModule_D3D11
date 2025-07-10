@@ -153,7 +153,7 @@
 		\label{UML_Textures}
 	\end{figure}
 	
-\subsection{Shader i Materiał}
+\subsection{Shader}
 	W ramach modułu programy typy shader zostały zunifikowane do pojedynczej klasy, która reprezentuje poszczególne etapy procesu renderowania - \textbf{ShaderPipeline}. W aktualnej formie uwzględnia on etapy \textit{Vertex} oraz \textit{Pixel}, lecz dzięki modularnej budowanie możliwe jest uwzględnienie dodatkowych kroków, takich jak \textit{Geometry} czy \textit{Tesselation}.
 	
 	W ramach tego segmentu uwzględniony został także \textbf{D3DInputLayout}, służący jako warstwa abstrakcji nad układem wejściowym do shader'ów. Wykorzystuje on opisywany wcześniej koncept \textit{VertexTypeConcept} do automatycznego dopasowania w procesie rysowania modeli, a jego standardowa wersja wykorzystująca typ \textit{VertexPositionNormalTexture} oznaczona została jako \textbf{ModelLoaderLayout}.

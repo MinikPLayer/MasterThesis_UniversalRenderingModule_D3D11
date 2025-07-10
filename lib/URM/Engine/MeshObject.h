@@ -5,7 +5,7 @@
 #include <URM/Core/D3DInputLayout.h>
 #include <URM/Core/ShaderPipeline.h>
 
-#include <URM/Core/Material.h>
+#include <URM/Core/StandardMaterials.h>
 
 namespace URM::Engine {
 	class MeshObject : public SceneObject {
