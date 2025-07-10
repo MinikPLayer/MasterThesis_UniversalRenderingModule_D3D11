@@ -18,6 +18,7 @@ void MaterialTest::OnInit(URM::Engine::Engine& engine) {
 
 	mLight = std::shared_ptr<URM::Engine::LightObject>(new URM::Engine::LightObject());
 	mLight->GetTransform().SetPosition({ 0, 0, SPHERE_COUNT * SPHERE_SEPARATION });
+	mLight->attenuationExponent = 0.0f;
 	mLight->diffuseIntensity = 0.1f;
 	mLight->ambientIntensity = 0.0f;
 	root->AddChild(mLight);
