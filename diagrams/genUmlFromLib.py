@@ -63,16 +63,29 @@ def utils_uml_processor(lines_list: list[str]) -> list[str]:
 
     return processed_lines
 
+def d3dutils2_uml_processor(lines_list: list[str]) -> list[str]:
+    # Custom processing for D3DUtils2 module
+    processed_lines = []
+
+    D3DEPTH_STENCIL_STATE_CLASS = "D3DDepthStencilStateData::D3DDepthStencilState"
+    for line in lines_list:
+        if D3DEPTH_STENCIL_STATE_CLASS in line:
+            line = line.replace(D3DEPTH_STENCIL_STATE_CLASS, "D3DDepthStencilState")
+
+        processed_lines.append(line)
+
+    return processed_lines
+
 ENABLE_PLANTUML_IMAGE_GENERATOR = True
 REMOVE_OLD_FILES = True
 MODULES = [
     Module("Core", Direction.LEFT_TO_RIGHT, ["Core/D3DCore.h", "Core/Window.h"]),
-    Module("D3DUtils", Direction.TOP_TO_BOTTOM, ["Core/D3DViewport.h", "Core/D3DRasterizerState.h"]),
+    Module("D3DUtils", Direction.LEFT_TO_RIGHT, ["Core/D3DViewport.h", "Core/D3DRasterizerState.h", "Core/D3DBlendState.h", "Core/D3DDepthStencilState.h"], custom_uml_processor=d3dutils2_uml_processor),
     Module("Buffer", Direction.LEFT_TO_RIGHT, ["Core/ID3DBuffer.h", "Core/D3DConstantBuffer.h", "Core/D3DIndexBuffer.h", "Core/D3DVertexBuffer.h"]),
     Module("Mesh", Direction.TOP_TO_BOTTOM, ["Core/IMesh.h", "Core/Mesh.h", "Core/MaterialProperty.h"]),
     Module("ModelLoader", Direction.LEFT_TO_RIGHT, ["Core/ModelLoader.h"]),
     Module("Texture", Direction.LEFT_TO_RIGHT, ["Core/D3DTexture2D.h", "Core/D3DSampler.h"]),
-    Module("Shader", Direction.LEFT_TO_RIGHT, ["Core/ShaderPipeline.h",  "Core/D3DInputLayout.h"]),
+    Module("Shader", Direction.LEFT_TO_RIGHT, ["Core/ShaderPipeline.h",  "Core/D3DInputLayout.h", "Core/Material.h"]),
     Module("VertexTypes", Direction.LEFT_TO_RIGHT, ["Core/StandardVertexTypes.h"]),
     Module("Utils", Direction.LEFT_TO_RIGHT, ["Core/Utils.h"], custom_uml_processor=utils_uml_processor),
     Module("Logging", Direction.LEFT_TO_RIGHT, ["Core/Log.h"]),
@@ -80,7 +93,7 @@ MODULES = [
     Module("Engine", Direction.LEFT_TO_RIGHT, ["Engine/Engine.h", "Engine/Timer.h"]),
     Module("Scene", Direction.LEFT_TO_RIGHT, ["Engine/Scene.h"]),
     Module("SceneObject", Direction.LEFT_TO_RIGHT, ["Engine/SceneObject.h", "Engine/Transform.h"]),
-    Module("SceneObjects", Direction.LEFT_TO_RIGHT, ["Engine/SceneObject.h", "Engine/MeshObject.h", "Engine/ModelObject.h", "Engine/LightObject.h", "Engine/CameraObject.h"], custom_uml_processor=scene_objects_uml_processor),
+    Module("SceneObjects", Direction.LEFT_TO_RIGHT, ["Engine/SceneObject.h", "Engine/MeshObject.h", "Engine/ModelObject.h", "Engine/LightObject.h", "Engine/CameraObject.h", "Engine/FlyCameraObject.h"], custom_uml_processor=scene_objects_uml_processor),
     Module("Assets", Direction.LEFT_TO_RIGHT, ["Engine/AssetManager.h"]),
 ]
 
