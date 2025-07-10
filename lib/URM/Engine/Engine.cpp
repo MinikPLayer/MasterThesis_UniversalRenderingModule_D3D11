@@ -9,6 +9,8 @@
 namespace URM::Engine {
 	// TODO: Move these structs to another file.
 	struct VertexConstantBuffer {
+		static constexpr UINT SEMANTIC_SHADER_CONSTANT_BUFFER_INDEX = 0;
+
 		// ReSharper disable once CppInconsistentNaming
 		Matrix WVP;
 		Matrix worldMatrix;
@@ -94,9 +96,9 @@ namespace URM::Engine {
 		this->mCore.SetPrimitiveTopology(params.topology);
 		params.rasterizerState.Bind(this->mCore);
 
-		this->mVertexConstantBuffer.Bind(this->mCore, 0);
-		this->mPixelConstantBuffer.Bind(this->mCore, 1);
-		this->mPixelLightsConstantBuffer.Bind(this->mCore, 3);
+		this->mVertexConstantBuffer.Bind(this->mCore, VertexConstantBuffer::SEMANTIC_SHADER_CONSTANT_BUFFER_INDEX);
+		this->mPixelConstantBuffer.Bind(this->mCore, PixelConstantBufferData::SEMANTIC_SHADER_CONSTANT_BUFFER_INDEX);
+		this->mPixelLightsConstantBuffer.Bind(this->mCore, PixelLightBufferData::SEMANTIC_SHADER_CONSTANT_BUFFER_INDEX);
 
 		params.geometryPassParams.blendState.Bind(this->mCore);
 		params.geometryPassParams.depthStencilState.Bind(this->mCore);
@@ -155,7 +157,7 @@ namespace URM::Engine {
 					useTexture = true;
 					m.BindTextures(mCore);
 				}
-				sceneMesh->material->Bind(mCore, 2);
+				sceneMesh->material->Bind(mCore, URM::Core::Material::SEMANTIC_SHADER_CONSTANT_BUFFER_INDEX);
 				sceneMesh->material->UploadData(mCore, useTexture);
 
 				m.GetVertexBuffer().Bind(this->mCore, 0);

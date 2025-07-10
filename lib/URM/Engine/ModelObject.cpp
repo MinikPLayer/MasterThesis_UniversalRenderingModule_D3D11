@@ -155,6 +155,11 @@ namespace URM::Engine {
 		this->mVertexShader = vertexShader;
 	}
 
+	ModelObject::ModelObject(const std::string& path, const std::shared_ptr<Core::Material>& material) {
+		this->mPath = path;
+		this->mMaterial = material;
+	}
+
 	// PLAN: Async loading
 	ModelObject::ModelObject(const std::string& path, bool tryDeduceMaterial) {
 		this->mPath = path;

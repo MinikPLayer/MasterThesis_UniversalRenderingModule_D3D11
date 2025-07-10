@@ -154,6 +154,7 @@ namespace {
 		URM::Core::D3DCore& core;
 		URM::Core::D3DConstantBuffer& vertexConstantBuffer;
 		URM::Core::D3DConstantBuffer& pixelConstantBuffer;
+		URM::Core::D3DConstantBuffer& lightsConstantBuffer;
 		URM::Core::D3DViewport& viewport;
 		URM::Core::D3DRasterizerState& rState;
 		URM::Core::D3DSampler& sampler;
@@ -170,19 +171,16 @@ namespace {
 
 		auto sceneMesh = mesh.lock();
 		sceneMesh->GetInputLayout()->Bind(data.core);
-		sceneMesh->GetShader()->Bind(data.core);
+		sceneMesh->GetVertexShader()->Bind(data.core);
 
 		auto& m = mesh.lock()->GetMesh();
 		m.GetVertexBuffer().Bind(data.core, 0);
 
+		mesh.lock()->material->Bind(data.core, URM::Core::Material::SEMANTIC_SHADER_CONSTANT_BUFFER_INDEX);
+		mesh.lock()->material->UploadData(data.core, m.ContainsTextures());
 		if (m.ContainsTextures()) {
 			m.BindTextures(data.core);
-			pcb.material.useAlbedoTexture = 1;
 		}
-		else {
-			pcb.material.useAlbedoTexture = 0;
-		}
-		data.pixelConstantBuffer.UpdateWithData(data.core, &pcb);
 
 		if (m.ContainsIndices()) {
 			m.GetIndexBuffer().Bind(data.core, 0);
@@ -308,16 +306,75 @@ namespace {
 	class MultipleShadersTest : public ITest {
 		std::vector<std::weak_ptr<URM::Engine::LightObject>> mLights;
 		
+		struct ColorOnlyMaterial : public URM::Core::Material {
+			static std::shared_ptr<URM::Core::PixelShader> colorOnlyPixelShader;
+
+		public:
+			struct Data {
+				Color color = Color(1, 1, 1, 1);
+			};
+
+		protected:
+			Data mData;
+			
+			// Inherited via Material
+			std::shared_ptr<URM::Core::PixelShader> GetShader(URM::Core::D3DCore& core) override
+			{
+				if (colorOnlyPixelShader == nullptr) {
+					colorOnlyPixelShader = std::shared_ptr<URM::Core::PixelShader>(new URM::Core::PixelShader(core, L"ColorOnlyPixelShader.cso"));
+				}
+				return colorOnlyPixelShader;
+			}
+
+			void UploadData(URM::Core::D3DCore& core, bool useAlbedoTexture) override {
+				this->mConstantBuffer.UpdateWithData(core, &mData);
+			}
+
+		public:
+			ColorOnlyMaterial(URM::Core::D3DCore& core) : Material(URM::Core::D3DConstantBuffer::Create<ColorOnlyMaterial::Data>(core, URM::Core::PIXEL)) {}
+		};
+
+		struct ScreenPositionMaterial : public URM::Core::Material {
+			static std::shared_ptr<URM::Core::PixelShader> screenPositionPixelShader;
+			struct Data {
+				Vector2 screenSize = { 1.0f, 1.0f };
+				int calculateLighting = 1;
+				int dummy;
+			};
+
+		protected:
+			Data mData;
+			bool mCalculateLighting = true;
+			
+			std::shared_ptr<URM::Core::PixelShader> GetShader(URM::Core::D3DCore& core) override
+			{
+				if (screenPositionPixelShader == nullptr) {
+					screenPositionPixelShader = std::shared_ptr<URM::Core::PixelShader>(new URM::Core::PixelShader(core, L"ScreenPositionPixelShader.cso"));
+				}
+				return screenPositionPixelShader;
+			}
+
+			void UploadData(URM::Core::D3DCore& core, bool useAlbedoTexture) override {
+				auto size = core.GetWindow().GetSize();
+				mData.screenSize = { static_cast<float>(size.width), static_cast<float>(size.height) };
+				mData.calculateLighting = mCalculateLighting ? 1 : 0;
+				this->mConstantBuffer.UpdateWithData(core, &mData);
+			}
+
+		public:
+			ScreenPositionMaterial(URM::Core::D3DCore& core, bool calculateLighting = true) : Material(URM::Core::D3DConstantBuffer::Create<ScreenPositionMaterial::Data>(core, URM::Core::PIXEL)) {
+				this->mCalculateLighting = calculateLighting;
+			}
+		};
+
 	public:
 		void Init(URM::Core::D3DCore& core, URM::Engine::Scene& scene) override {
-			auto alternativeShader = std::make_shared<URM::Core::ShaderPipeline>(URM::Core::ShaderPipeline(core, L"SimpleVertexShader.cso", L"ColorOnlyPixelShader.cso"));
-			auto alternativeLayout = std::make_shared<URM::Core::ModelLoaderLayout>(URM::Core::ModelLoaderLayout(core, *alternativeShader));
+			auto defaultVertexShader = URM::Engine::ModelObject::GetDefaultVertexShader(core);
+			auto alternativeMaterial = std::shared_ptr<URM::Core::Material>(new ColorOnlyMaterial(core));
+			auto screenPositionMaterial = std::shared_ptr<URM::Core::Material>(new ScreenPositionMaterial(core));
+			auto screenPositionMaterialNoLighting = std::shared_ptr<URM::Core::Material>(new ScreenPositionMaterial(core, false));
 
-			auto suzanneModel = new URM::Engine::ModelObject(
-				"suzanne.glb",
-				alternativeShader,
-				alternativeLayout
-			);
+			auto suzanneModel = new URM::Engine::ModelObject("suzanne.glb", screenPositionMaterial);
 			auto suzanne = scene.GetRoot().lock()->AddChild(suzanneModel);
 			suzanne->GetTransform().SetLocalPosition({-2.0f, 0.0f, 0.0f});
 			suzanne->GetTransform().SetLocalRotation({0.0f, 180.0f, 0.0f});
@@ -327,9 +384,8 @@ namespace {
 
 			auto floorCube = scene.GetRoot().lock()->AddChild(
 				new URM::Engine::ModelObject(
-					"cube.glb",
-					alternativeShader,
-					alternativeLayout
+					"cube.glb", 
+					screenPositionMaterialNoLighting
 				)
 			);
 			floorCube->GetTransform().SetLocalPosition({0.0f, -2.0f, 0.0f});
@@ -338,8 +394,7 @@ namespace {
 			auto wallCube = scene.GetRoot().lock()->AddChild(
 				new URM::Engine::ModelObject(
 					"cube.glb",
-					alternativeShader,
-					alternativeLayout
+					alternativeMaterial
 				)
 			);
 			wallCube->GetTransform().SetLocalPosition({0.0f, 3.0f, 5.0f});
@@ -348,8 +403,7 @@ namespace {
 			auto leftWallCube = scene.GetRoot().lock()->AddChild(
 				new URM::Engine::ModelObject(
 					"cube.glb",
-					alternativeShader,
-					alternativeLayout
+					alternativeMaterial
 				)
 			);
 			leftWallCube->GetTransform().SetLocalPosition({-5.0f, 3.0f, 0.0f});
@@ -358,8 +412,7 @@ namespace {
 			auto rightWallCube = scene.GetRoot().lock()->AddChild(
 				new URM::Engine::ModelObject(
 					"cube.glb",
-					alternativeShader,
-					alternativeLayout
+					alternativeMaterial
 				)
 			);
 			rightWallCube->GetTransform().SetLocalPosition({5.0f, 3.0f, 0.0f});
@@ -408,6 +461,9 @@ namespace {
 		}
 	};
 
+	std::shared_ptr<URM::Core::PixelShader> MultipleShadersTest::ColorOnlyMaterial::colorOnlyPixelShader = nullptr;
+	std::shared_ptr<URM::Core::PixelShader> MultipleShadersTest::ScreenPositionMaterial::screenPositionPixelShader = nullptr;
+
 	constexpr bool ENGINE_MODE = true;
 	constexpr bool ENGINE_LOOP_MODE = true;
 	constexpr bool ENGINE_TRACE_MODE = false;
@@ -437,6 +493,7 @@ namespace {
 
 		data.vertexConstantBuffer.Bind(data.core, 0);
 		data.pixelConstantBuffer.Bind(data.core, 1);
+		data.lightsConstantBuffer.Bind(data.core, 3);
 
 		// Bind the default sampler
 		data.sampler.Bind(data.core, 0);
@@ -454,10 +511,11 @@ namespace {
 		auto pixelBufferValue = URM::Engine::PixelConstantBufferData(
 			CAM_POS
 		);
-		pixelBufferValue.activeLightsCount = 1;
-		pixelBufferValue.lights[0] = URM::Engine::PixelConstantBufferData::Light();
-		pixelBufferValue.lights[0].position = lightPosition;
-		data.pixelConstantBuffer.UpdateWithData(data.core, &pixelBufferValue);
+		auto lightsPixelValue = URM::Engine::PixelLightBufferData();
+		lightsPixelValue.activeLightsCount = 1;
+		lightsPixelValue.lights[0] = URM::Engine::PixelLight();
+		lightsPixelValue.lights[0].position = lightPosition;
+		data.lightsConstantBuffer.UpdateWithData(data.core, &lightsPixelValue);
 
 		auto wvp = TestDrawCreateWvp({0.0f, 0.0f, 0.0f}, windowSize, 0);
 		for (auto& mesh : data.scene.GetMeshes()) {
@@ -533,6 +591,7 @@ namespace {
 
 		URM::Core::D3DConstantBuffer vertexConstantBuffer = URM::Core::D3DConstantBuffer::Create<VertexConstantBuffer>(core, URM::Core::ShaderStages::VERTEX);
 		URM::Core::D3DConstantBuffer pixelConstantBuffer = URM::Core::D3DConstantBuffer::Create<URM::Engine::PixelConstantBufferData>(core, URM::Core::ShaderStages::PIXEL);
+		URM::Core::D3DConstantBuffer lightsConstantBuffer = URM::Core::D3DConstantBuffer::Create<URM::Engine::PixelLightBufferData>(core, URM::Core::ShaderStages::PIXEL);
 		URM::Core::D3DViewport viewport(URM::Core::D3DViewportData(core.GetWindow().GetSize()));
 
 		auto rStateData = URM::Core::D3DRasterizerStateData();
@@ -545,6 +604,7 @@ namespace {
 			.core = core,
 			.vertexConstantBuffer = vertexConstantBuffer,
 			.pixelConstantBuffer = pixelConstantBuffer,
+			.lightsConstantBuffer = lightsConstantBuffer,
 			.viewport = viewport,
 			.rState = rState,
 			.sampler = sampler,

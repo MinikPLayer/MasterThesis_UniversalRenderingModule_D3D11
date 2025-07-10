@@ -153,7 +153,7 @@
 		\label{UML_Textures}
 	\end{figure}
 	
-\subsection{Shader}
+\subsection{Shader i Materiał}
 	W ramach modułu programy typy shader zostały zunifikowane do pojedynczej klasy, która reprezentuje poszczególne etapy procesu renderowania - \textbf{ShaderPipeline}. W aktualnej formie uwzględnia on etapy \textit{Vertex} oraz \textit{Pixel}, lecz dzięki modularnej budowanie możliwe jest uwzględnienie dodatkowych kroków, takich jak \textit{Geometry} czy \textit{Tesselation}.
 	
 	W ramach tego segmentu uwzględniony został także \textbf{D3DInputLayout}, służący jako warstwa abstrakcji nad układem wejściowym do shader'ów. Wykorzystuje on opisywany wcześniej koncept \textit{VertexTypeConcept} do automatycznego dopasowania w procesie rysowania modeli, a jego standardowa wersja wykorzystująca typ \textit{VertexPositionNormalTexture} oznaczona została jako \textbf{ModelLoaderLayout}.
@@ -198,32 +198,6 @@
 		\label{UML_SceneObject}
 	\end{figure}
 	
-\subsection{Standardowe obiekty sceny}
-	W ramach tego segmentu opisywany jest zbiór klas dziedziczących z typu SceneObject, które implementują podstawowe obiekty wykorzystywane do procesu rysowania sceny, a które zostały przedstawione na rys. \ref{UML_SceneObjects}.
-	
-	Do obsługi modeli oddane zostały klasy \textbf{MeshObject} oraz \textbf{ModelObject}, opisujące odpowiednio pojedynczy mesh w świecie programu oraz ich zbiór w ramach jednego modelu. Model zawiera referencje do wymaganych przy renderowaniu obiektów, które w przypadku elementów zależnych od typu wierzchołków przyjmują formę typów standardowych. Są to \textit{ModelLoaderLayout (D3DInputLayout)} oraz \textit{ShaderPipeline}. 
-	
-	Kolejnym zdefiniowanym w ten sposób obiektem jest \textbf{LightObject}, reprezentujący wirtualne źródło światła. W zaimplementowanej formie używa on bardzo uproszczonego modelu oświetlenia, składającego się z 4 elementów:
-	\begin{itemize}
-		\item \textbf{Kolor} - wartość opisująca składowe RGB źródła światła.
-		\item \textbf{Intensywność komponentu otoczenia (ambient)} - opisuje poziom natężenia oświetlenia symulującego oświetlenie globalne. Ten składnik jest niezależny od kąta padania światła i zostaje nałożony uniwersalnie na wszystkie powierzchnie.
-		\item \textbf{Intensywność komponentu rozproszonego (diffuse)} - natężenie światła odbitego niebezpośrednio. Przyjmuje wartość cosine z kąta między powierzchnią, źródłem światła, a kamerą.
-		\item \textbf{Intensywność komponentu wziernikowego (specular)} - moc bezpośredniego odbicia światła, bezpośrednio zależnego od kąta padania oraz parametrów materiału.
-	\end{itemize}
-	Symulacja oświetlenia jest szybko rozwijającym się tematem w dziedzinie grafiki trójwymiarowej, a modularna forma pozwala na doimplementowanie bardziej zaawansowanych technik w razie zaistnienia takiej potrzeby.
-	
-	Ostatnim elementem zestawu jest obiekt opisujący wirtualną kamerę. Rozszerza on klasę bazową o parametry pola widzenia oraz minimalnej i maksymalnej głębi odcięcia rysowanych obiektów. Dodaje także funkcjonalność obliczania macierzy projekcji \textit{(ProjectionMatrix)} oraz widoku \textit{(ViewMatrix)}, potrzebnych do poprawnego użycia w procesie renderowania.
-	
-	\begin{figure}[h!]
-		\centering
-		\includegraphics[width=\textwidth]{images/UML/sceneobjects.png}
-		\caption{Standardowe obiekty sceny dziedziczące z klasy SceneObject.}
-		\label{UML_SceneObjects}
-	\end{figure}
-	
-	\vfill
-	\clearpage
-	
 \subsection{Manager zasobów}
 	Większość zasobów w ramach modułu jest automatycznie zarządzana przy pomocy inteligentnych wskaźników. Wczytywanie niektórych danych, takich jak modeli czy tekstur jest jednak czasochłonne i posiada nieunikniony narzut obliczeniowy. Przy wielokrotnym wykorzystaniu takich obiektów warto wprowadzić mechanizm typu cache, który przechowywać będzie referencje do już wczytanych elementów celem ich użycia zamiast ponownego ładowania od zera.
 	
@@ -237,3 +211,57 @@
 		\caption{Diagram UML przestawiający schemat manager'a zasobów.}
 		\label{UML_AssetManager}
 	\end{figure}
+	
+	
+\subsection{Obiekty modeli}
+	Najważniejszym elementem w świecie programu do trójwymiarowej grafiki komputerowej są mesh'e oraz składające się z nich modele. W celu umieszczenia ich w hierarchii sceny i świata utworzone zostały klasy odpowiednio \textbf{ModelObject} oraz \textbf{MeshObject}, których schemat przedstawiony został na rys. \ref{UML_SceneObjects_Model}. Dla poprawienia czytelności diagramu typy parametrów konstruktorów zostały pominięte.
+	
+	\textit{ModelObject} odpowiedzialny jest za wczytanie modelu z pliku przy pomocy klasy \textit{AssetManager}, a następnie odpowiednie umieszczenie jego wierzchołków wraz z odpowiednimi transformacjami na scenie. Każdy pusty wierzchołek zostaje dodany jako obiekt klasy \textit{SceneObject}, a elementy zawierające mesh jako \textit{MeshObject} z zachowaniem odpowiedniej struktury między nimi.
+	
+	Po załadowaniu danych o geometrii z pliku wykonywana jest także próba odczytu parametrów przypisanego do niej materiału. Odpowiedzialna za to metoda \textit{TryDeduceMaterial(...)} analizuje elementy wczytanej w pierwszym etapie listy \textit{MaterialProperties}, z której wykonuje próbę dedukcji wspieranych parametrów materiału po ich nazwach. Mechanizm ten opiera swoje działanie o słownik materialPropertiesMap, zawierający mapę łączącą tekstową nazwę parametru zakodowaną w plikach modeli z obiektem typu \textbf{MaterialData}. Zawiera on informacje o spodziewanym typie z enum \textbf{MaterialProperties} oraz oczekiwanej liczbie elementów tablicy danych, dzięki której możliwa jest automatyczna weryfikacja poprawności wczytanego opisu i uniknięcie wyjścia poza zakres tablicy przy jego odczycie.
+	
+	Do poprawnego działania mesh wymaga odniesienia do obiektu rdzeniowego typu \textit{D3DCore}, którego pobranie możliwe jest dopiero gdy obiekt znajduje się na scenie. W związku z tym wczytanie modeli z pliku następuje dopiero w momencie dodania obiektu \textit{ModelObject} do świata, czyli w implementacji metody \textit{OnAdded()}, a nie przy tworzeniu instancji klasy.
+	
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[width=\textwidth]{images/UML/sceneobjects_model.png}
+		\caption{Obiekty sceny odpowiedzialne za modele, dziedziczące z klasy SceneObject.}
+		\label{UML_SceneObjects_Model}
+	\end{figure}
+
+\subsection{Obiekt światła}
+	Kolejnym zdefiniowanym jako element sceny obiektem jest przedstawiony na rys. \ref{UML_SceneObjects_Light} \textbf{LightObject}, reprezentujący wirtualne źródło światła. Zaimplementowane zostały 2 wersje oświetlenia - uproszczona oraz PBR, dzielące ze sobą wspólne parametry opisujące punkt oświetlenia:
+	\begin{itemize}
+		\item \textbf{Kolor (color)} - wartość opisująca składowe RGB źródła światła.
+		\item \textbf{Parametr zaniku z odległością (attenuationExponent)} - pozawala na kontrolę siły zanikania intensywności światła z odległością. Przyjmuje on pozycję zmiennej w równaniu \(I = I_z / d^a\), gdzie \(I\) jest jasnością wynikową, \(I_z\) intensywnością źródła, \(d\) odległością od punktu źródłowego, a \(a\) wartością \textit{attenuationExponent}.
+		\item \textbf{Intensywność komponentu otoczenia (ambientIntensity)} - opisuje poziom natężenia oświetlenia symulującego oświetlenie globalne. Składnik ten jest niezależny od kąta padania światła i zostaje nałożony uniwersalnie na wszystkie powierzchnie, uwzględniając jedynie odległość od źródła.
+		\item \textbf{Intensywność komponentu rozproszonego (diffuseIntensity)} - natężenie światła odbitego niebezpośrednio. Przyjmuje wartość cosine z kąta między powierzchnią, źródłem światła, a kamerą.
+		\item \textbf{Intensywność komponentu wziernikowego (specularIntensity)} - moc bezpośredniego odbicia światła, bezpośrednio zależnego od kąta padania oraz parametrów materiału.
+		\item \textbf{Intensywność w trybie PBR} - ze względu na swoją charakterystykę przy kalkulacjach opartych o PBR większość sceny sprawia wrażenie mniej oświetlonej od trybu uproszczonego. Aby zapobiec takiemu zachowaniu i zbliżyć poziom jasności obu trybów wprowadzony został opisywany parametr, będący mnożnikiem intensywności światła ignorowanym w uproszczonej wersji.
+	\end{itemize}
+	
+	Symulacja oświetlenia jest szybko rozwijającym się tematem w dziedzinie grafiki trójwymiarowej, a modularna forma implementacji opisywanej klasy oraz programów cieniujących w ramach \textit{Material} pozwala na doimplementowanie bardziej zaawansowanych technik w razie zaistnienia takiej potrzeby.
+	
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[width=\textwidth]{images/UML/sceneobjects_light.png}
+		\caption{Reprezentacja punktu światła w wirtualnej przestrzeni.}
+		\label{UML_SceneObjects_Light}
+	\end{figure}
+	
+\subsection{Obiekt kamery}
+	Samo rysowanie sceny byłoby mało użyteczne, jeśli nie istniałby sposób aby się po niej poruszać. Do tego celu oddana została klasa \textbf{CameraObject}, której funkcjonalność opiera się na abstrakcji nad złożonymi transformacjami sceny w formie prostego obiektu w przestrzeni sceny. Przechowuje ona informacje o parametrach rysowania, takich jak dystans odcięcia bliskiego \textit{(mNearPlane)} oraz dalekiego \textit{(mFarPlane)}, a także pola widzenia w formie kąta pionowej składowej \textit{(mFov)}. Na ich podstawie możliwe jest obliczenie macierzy projekcji \textit{(CalculateProjectionMatrix())} oraz widoku \textit{(CalculateViewMatrix())}, wykorzystywanych w dalszej części do transformacji rysowanego świata.
+	
+	Bardzo częstym sposobem podejścia do tematu kamery w aplikacjach grafiki komputerowej jest wersja sterowana przez użytkownika. Implementacja takiej funkcjonalności znajduje się w klasie \textbf{FlyCameraObject}, która automatyzuje odczytywanie wejścia użytkownika z klawiatury i na ich podstawie oraz parametrów prędkości porusza i obraca wirtualną kamerą w świecie aplikacji.
+	
+	Schemat opisywanych klas został pokazany na rys. \ref{UML_SceneObjects_Camera}.
+	
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[width=\textwidth]{images/UML/sceneobjects_camera.png}
+		\caption{Klasa reprezentująca wirtualną kamerę renderującą scenę oraz jej wersja sterowana przez użytkownika.}
+		\label{UML_SceneObjects_Camera}
+	\end{figure}
+	
+	\vfill
+	\clearpage

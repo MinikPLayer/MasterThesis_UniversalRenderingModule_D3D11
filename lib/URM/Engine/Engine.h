@@ -42,6 +42,7 @@ namespace URM::Engine {
 	};
 
 	struct PixelLightBufferData {
+		static constexpr UINT SEMANTIC_SHADER_CONSTANT_BUFFER_INDEX = 3;
 		static constexpr int MAX_LIGHTS_COUNT = 64;
 
 		alignas(4) uint32_t activeLightsCount = 0;
@@ -50,6 +51,8 @@ namespace URM::Engine {
 
 	// Alignment rules: https://maraneshi.github.io/HLSL-ConstantBufferLayoutVisualizer/
 	struct PixelConstantBufferData {
+		static constexpr UINT SEMANTIC_SHADER_CONSTANT_BUFFER_INDEX = 1;
+
 		alignas(4) Vector4 viewPosition;
 
 		PixelConstantBufferData(Vector3 viewPos) : viewPosition(viewPos.x, viewPos.y, viewPos.z, 1.0f) {}

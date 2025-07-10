@@ -49,6 +49,27 @@ def scene_objects_uml_processor(lines_list: list[str]) -> list[str]:
 
     return processed_lines
 
+def scene_objects_model_uml_processor(lines_list: list[str]) -> list[str]:
+    lines_list = scene_objects_uml_processor(lines_list)
+    found_mesh_constructor = False
+    found_model_constructor = False
+    for (i, line) in enumerate(lines_list):
+        if line.strip() == "+MeshObject(const std::shared_ptr<Core::Mesh<Core::ModelLoaderVertexType>>& mesh, const std::shared_ptr<Core::VertexShader>& vertexShader, const std::shared_ptr<Core::D3DInputLayout<Core::ModelLoaderVertexType>>& inputLayout, const std::shared_ptr<URM::Core::Material> material)":
+            lines_list[i] = "+MeshObject(mesh, vertexShader, inputLayout, material)\n"
+            found_mesh_constructor = True
+
+        if line.strip() == "+ModelObject(const std::string& path, const std::shared_ptr<Core::Material>& material, const std::shared_ptr<Core::VertexShader>& vertexShader, const std::shared_ptr<Core::ModelLoaderLayout>& layout)":
+            lines_list[i] = "+ModelObject(path, material, vertexShader, layout)\n"
+            found_model_constructor = True
+
+    if not found_mesh_constructor:
+        raise ValueError("MeshObject constructor not found in the UML lines. Please check the input files for changes.")
+
+    if not found_model_constructor:
+        raise ValueError("ModelObject constructor not found in the UML lines. Please check the input files for changes.")
+
+    return lines_list
+
 def utils_uml_processor(lines_list: list[str]) -> list[str]:
     # Custom processing for Utils module
     processed_lines = []
@@ -85,7 +106,8 @@ MODULES = [
     Module("Mesh", Direction.TOP_TO_BOTTOM, ["Core/IMesh.h", "Core/Mesh.h", "Core/MaterialProperty.h"]),
     Module("ModelLoader", Direction.LEFT_TO_RIGHT, ["Core/ModelLoader.h"]),
     Module("Texture", Direction.LEFT_TO_RIGHT, ["Core/D3DTexture2D.h", "Core/D3DSampler.h"]),
-    Module("Shader", Direction.LEFT_TO_RIGHT, ["Core/ShaderPipeline.h",  "Core/D3DInputLayout.h", "Core/Material.h"]),
+    Module("Shader", Direction.LEFT_TO_RIGHT, ["Core/ShaderPipeline.h",  "Core/D3DInputLayout.h"]),
+    Module("Material", Direction.LEFT_TO_RIGHT, ["Core/Material.h"]),
     Module("VertexTypes", Direction.LEFT_TO_RIGHT, ["Core/StandardVertexTypes.h"]),
     Module("Utils", Direction.LEFT_TO_RIGHT, ["Core/Utils.h"], custom_uml_processor=utils_uml_processor),
     Module("Logging", Direction.LEFT_TO_RIGHT, ["Core/Log.h"]),
@@ -93,7 +115,9 @@ MODULES = [
     Module("Engine", Direction.LEFT_TO_RIGHT, ["Engine/Engine.h", "Engine/Timer.h"]),
     Module("Scene", Direction.LEFT_TO_RIGHT, ["Engine/Scene.h"]),
     Module("SceneObject", Direction.LEFT_TO_RIGHT, ["Engine/SceneObject.h", "Engine/Transform.h"]),
-    Module("SceneObjects", Direction.LEFT_TO_RIGHT, ["Engine/SceneObject.h", "Engine/MeshObject.h", "Engine/ModelObject.h", "Engine/LightObject.h", "Engine/CameraObject.h", "Engine/FlyCameraObject.h"], custom_uml_processor=scene_objects_uml_processor),
+    Module("sceneobjects_model", Direction.LEFT_TO_RIGHT, ["Engine/SceneObject.h", "Engine/MeshObject.h", "Engine/ModelObject.h"], custom_uml_processor=scene_objects_model_uml_processor),
+    Module("sceneobjects_light", Direction.LEFT_TO_RIGHT, ["Engine/SceneObject.h", "Engine/LightObject.h"], custom_uml_processor=scene_objects_uml_processor),
+    Module("sceneobjects_camera", Direction.LEFT_TO_RIGHT, ["Engine/SceneObject.h", "Engine/CameraObject.h", "Engine/FlyCameraObject.h"], custom_uml_processor=scene_objects_uml_processor),
     Module("Assets", Direction.LEFT_TO_RIGHT, ["Engine/AssetManager.h"]),
 ]
 

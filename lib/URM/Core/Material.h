@@ -28,6 +28,8 @@ namespace URM::Core {
 
 		virtual std::shared_ptr<Core::PixelShader> GetShader(D3DCore& core) = 0;
 	public:
+		static constexpr UINT SEMANTIC_SHADER_CONSTANT_BUFFER_INDEX = 2;
+
 		void Bind(D3DCore& core, UINT bufferIndex);
 		virtual void UploadData(D3DCore& core, bool useAlbedoTexture) = 0;
 

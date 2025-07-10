@@ -9,12 +9,8 @@ cbuffer LightsBuffer : register(b3)
     LightUniformData lightData;
 }
 
-cbuffer MaterialBuffer : register(b2)
+float3 CalculateLighting(PS_INPUT input, Light light, int roughnessPowerCoefficient)
 {
-	Material material;
-}
-
-float3 CalculateLighting(PS_INPUT input, Light light) {
 	float3 norm = normalize(input.normal);
 	float3 lightDir = normalize(light.position - input.fragPosition);
 	float3 viewDir = normalize(data.viewPosition.xyz - input.fragPosition);
@@ -22,7 +18,7 @@ float3 CalculateLighting(PS_INPUT input, Light light) {
 
 	float ambient = light.ambientIntensity;
 	float diff = light.diffuseIntensity * max(dot(norm, lightDir), 0.0f);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.roughnessPowerCoefficient);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), roughnessPowerCoefficient);
 	float specular = light.specularIntensity * spec;
 
 	//return ((diff + ambient + specular) * light.color).xyz;

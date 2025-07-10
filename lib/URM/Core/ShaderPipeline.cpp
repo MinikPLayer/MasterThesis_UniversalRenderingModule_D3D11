@@ -20,13 +20,6 @@ namespace URM::Core {
 		this->mBytecode = LoadShaderBytecode(fileName);
 	}
 
-	void ShaderPipeline::Bind(const D3DCore& core) const {
-		this->mVertexShader.Bind(core);
-		this->mPixelShader.Bind(core);
-	}
-
-	ShaderPipeline::ShaderPipeline(const D3DCore& core, const std::wstring& vertexPath, const std::wstring& pixelPath) : mVertexShader(core, vertexPath), mPixelShader(core, pixelPath) {}
-
 	void PixelShader::Bind(const D3DCore& core) const {
 		core.GetContext()->PSSetShader(this->mShader.Get(), nullptr, 0);
 	}

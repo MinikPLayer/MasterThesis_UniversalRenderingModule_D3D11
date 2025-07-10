@@ -39,7 +39,7 @@ namespace URM::Engine {
 
 		std::string mPath;
 
-		bool mTryDeduceMaterial = true;
+		bool mTryDeduceMaterial = false;
 
 		std::shared_ptr<Core::Material> TryDeduceMaterial(URM::Core::D3DCore& core, std::vector<URM::Core::MaterialProperty> properties);
 		void AddMeshRecursive(const std::shared_ptr<Core::ModelLoaderNode>& node, const std::weak_ptr<SceneObject>& parent);
@@ -51,6 +51,7 @@ namespace URM::Engine {
 		void OnAdded() override;
 
 		ModelObject(const std::string& path, const std::shared_ptr<Core::Material>& material, const std::shared_ptr<Core::VertexShader>& vertexShader, const std::shared_ptr<Core::ModelLoaderLayout>& layout);
+		ModelObject(const std::string& path, const std::shared_ptr<Core::Material>& material);
 		ModelObject(const std::string& path, bool tryDeduceMaterial = true);
 	};
 }

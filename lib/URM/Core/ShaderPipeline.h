@@ -42,22 +42,4 @@ namespace URM::Core {
 		void Bind(const D3DCore& core) const override;
 		VertexShader(const D3DCore& core, const std::wstring& fileName);
 	};
-
-	class ShaderPipeline {
-		VertexShader mVertexShader;
-		PixelShader mPixelShader;
-
-	public:
-		void Bind(const D3DCore& core) const;
-
-		VertexShader& GetVertexShader() {
-			return this->mVertexShader;
-		}
-
-		PixelShader& GetPixelShader() {
-			return this->mPixelShader;
-		}
-
-		ShaderPipeline(const D3DCore& core, const std::wstring& vertexPath, const std::wstring& pixelPath);
-	};
 }
