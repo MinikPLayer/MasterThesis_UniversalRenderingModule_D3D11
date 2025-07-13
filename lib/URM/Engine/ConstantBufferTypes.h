@@ -49,7 +49,7 @@ namespace URM::Engine {
 		PixelConstantBufferData(Vector3 viewPos) : viewPosition(viewPos.x, viewPos.y, viewPos.z, 1.0f) {}
 	};
 
-	struct VertexConstantBuffer {
+	struct VertexConstantBufferData {
 		static constexpr UINT SEMANTIC_SHADER_CONSTANT_BUFFER_INDEX = 0;
 
 		// ReSharper disable once CppInconsistentNaming

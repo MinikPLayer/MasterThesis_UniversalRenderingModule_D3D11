@@ -9,6 +9,8 @@ class LightsTest : public AutoTest {
 	int currentLightCount = 0;
 	std::shared_ptr<URM::Engine::SceneObject> lightsObject;
 
+	bool mEnableAutoScaling = true;
+	bool mEnableRotation = true;
 protected:
 	unsigned int GetCount() override {
 		return currentLightCount;
@@ -27,12 +29,12 @@ protected:
 		currentLightCount++;
 	}
 
-	bool IncreaseCount(size_t amount) override {
+	bool AddLights(size_t amount) {
 		for (size_t i = 0; i < amount; i++) {
 			AddLight();
 		}
 
-		const auto distance = 10.0f;
+		auto distance = this->mEnableAutoScaling ? 10.0f : 6.0f;
 		for (int i = 0; i < currentLightCount; i++) {
 			auto light = lightsObject->GetChildByIndex(i);
 			auto x = sin(i * 0.5f) * distance * i / currentLightCount;
@@ -43,7 +45,19 @@ protected:
 		return true;
 	}
 
+	bool IncreaseCount(size_t amount) override {
+		if (!this->mEnableAutoScaling) {
+			return false;
+		}
+
+		AddLights(amount);
+	}
+
 	bool DecreaseCount() override {
+		if (!this->mEnableAutoScaling) {
+			return false;
+		}
+
 		if(currentLightCount == 0) {
 			return false;
 		}
@@ -71,11 +85,15 @@ protected:
 		camera->GetTransform().SetPosition({ 0, 2, 5 });
 		camera->GetTransform().LookAt({ 0, 0, 0 });
 
-		const unsigned int startLightsCount = 16;
-		IncreaseCount(startLightsCount);
+		const unsigned int startLightsCount = this->mEnableAutoScaling ? 16 : 128;
+		AddLights(startLightsCount);
 	}
 
 	void OnUpdate(URM::Engine::Engine& engine) override {
+		if (!this->mEnableRotation) {
+			return;
+		}
+
 		lightsObject->GetTransform().SetRotation({
 			0.0f,
 			engine.GetTimer().GetElapsedTime() * 45.0f,
@@ -86,5 +104,10 @@ protected:
 public:
 	virtual URM::Core::WindowCreationParams GetWindowParams(HINSTANCE instance) const {
 		return URM::Core::WindowCreationParams(1920, 1080, "URM Benchmarks", instance);
+	}
+
+	LightsTest(bool enableAutoScaling = true, bool enableRotation = true) {
+		this->mEnableAutoScaling = enableAutoScaling;
+		this->mEnableRotation = enableRotation;
 	}
 };

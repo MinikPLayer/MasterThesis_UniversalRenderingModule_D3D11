@@ -1,36 +1,23 @@
-\chapter{Testy - wydajność i ograniczenia}
-	\begin{comment}
-		Testy:
-			- Porównanie dla trybu "Natywnego", "URM::Core", "URM::Engine".
-			- Porównanie złożoności kodu.
-			1) Wydajność przetwarzania wierzchołków.
-				* Testy wyświetlania obiektów o bardzo złożonej topologii.
-				- Oszacowanie maksymalnej ilości wierzchołków.
-				- Sprawdzenie narzutu na CPU i GPU.
-				+ Optymalizacje vertex shader'a.
-				
-			2) Wydajność generowania oświetlenia
-				* Sprawdzenie narzutu wydajności wielu źródeł światła.
-				- Oszacowanie maksymalnego limitu ilości świateł w scenie.
-				+ Dodanie bardziej zaawansowanego silnika obliczania efektów oświetlenia.
-				
-			3) Testy wydajności pixel shader'a.
-				- Sprawdzenia skalowania wydajności zależnie od rozdzielczości.
-				- Sprawdzenie bottleneck'u (CPU / GPU).
-				
-			4) Instance rendering.
-				- Sprawdzenie jak moduł radzi sobie z rysowaniem wielu instancji tego samego lub różnych obiektów.
-				- Porównanie wydajności z różnymi shader'ami i tym samym shader'em.
-				
-			5) Wydajność wczytywania modeli i tekstur z pliku.
-				- Porównanie różnych formatów.
-				- Porównanie różnych opcji preprocessingu.
-				- Porównanie pierwszego i kolejnych wczytań modelu (AssetManager).
-				
-			6) Testy wydajności macierzy transformacji w Transform.
-				- Określenie złożoności obliczeniowej poszczególnych funkcji.
-				- Oszacowanie maksymalnej głębokości oraz szerokości drzewa obiektów.
-				- Sprawdzenie narzutu wielokrotnego ustalania pozycji.
-				+ Cache'ing.
-				
-	\end{comment}
+\chapter{Przyjęta metoda rysowania sceny}
+\label{ChapterSceneDrawingMethod}
+	Ze względu na założenie uniwersalności - w tym pod względem platformy docelowej - jako podstawa i punkt wyjścia przyjęty został sposób rysowania \textit{Forward Rendering}, ze względu na lepszą skalowalność między systemami o różnej mocy obliczeniowej oraz możliwość użycia większości efektów graficznych. W związku z tym wyborem koszt obliczeniowy oraz pamięciowy rysowania sceny jest bazowo niski, lecz dodanie dużej ilości źródeł światła wiąże się ze zwiększonym narzutem obliczeniowym.
+	
+\section{Modyfikacja sposobu obliczania oświetlenia}
+	Wyraźnym odejściem względem klasycznego \textit{Forward Rendering} jest sposób obliczania oświetlenia. Podstawową metodę można przedstawić w uproszczonej formie przy pomocy pseudokodu:
+	
+	\begin{lstlisting}[label={lst:shaderForwardLightCalculations}]
+UNIFORM Light[] lights; // Przekazane do shader'a dane o źródłach światła,
+UNIFORM int numLights;  // oraz o ilości aktywnych źródeł w tablicy.
+		
+Color resultColor = BLACK;
+// Pętla sumująca obliczone wartości oświetlenia
+for (i = 0; i < numLights; i += 1) {
+    resultColor += CalculateLight(lights[i]);
+}
+
+return resultColor;
+	\end{lstlisting}
+	
+	Takie podejście ma jednak dwa ograniczenia - wydajność oraz ograniczenie maksymalnej ilości źródeł światła w scenie.	Pierwsze wynika ze sposobu działania współczesnych układów graficznych oraz kompilatorów. Dokładniej ograniczenie wydajności wynika z tzw. \textit{Register spilling}, czyli sytuacji w której na układzie graficznym brakuje rejestrów do pełnego pokrycia zmiennych, przez co koniecznym jest korzystanie z powolnej pamięci globalnej \cite{amd:gpuopen:RegisterSpilling}. Możliwym jest też spadek wydajności przez zmniejszenie skuteczności mechanizmu \textit{rozwijania pętli} kompilatora, przez znaczne zwiększenie maksymalnej jej długości. Drugie ograniczenie spowodowane jest limitem ilości elementów bufora stałych w API Direct3D - 4096 \cite{microsoft:Direct3D11:ResourceLimits}, co ogranicza ilość źródeł światła do około 1400. 
+	
+	Oba problemy zostały rozwiązane dzieląc pełną listę świateł na fragmenty o stałej wielkości (na przykład 64). Następnie zamiast wywoływać proces renderowania dla wszystkich źródeł, uruchamiany jest po kolei dla kolejnych segmentów, a wynik dodawany jest do bufora kolorów przy pomocy mechanizmu \textit{Blending}, opartego o klasę z segmentu \textit{D3DBlendState}. Aby takie podejście działało poprawnie pierwsze wywołanie procesu rysującego odbywa się przy wyłączonym blendingu.

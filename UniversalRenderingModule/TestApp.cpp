@@ -42,7 +42,7 @@ extern "C" {
 	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
 
-struct VertexConstantBuffer {
+struct VertexConstantBufferData {
 	Matrix worldViewPerspective;
 	Matrix worldMatrix;
 	Matrix inverseWorldMatrix;
@@ -87,7 +87,7 @@ struct WVPMatrix {
 	Matrix worldViewPerspective;
 	Matrix world;
 
-	void Apply(VertexConstantBuffer& buffer) const {
+	void Apply(VertexConstantBufferData& buffer) const {
 		buffer.worldViewPerspective = XMMatrixTranspose(worldViewPerspective);
 		buffer.worldMatrix = XMMatrixTranspose(world);
 		buffer.inverseWorldMatrix = XMMatrixInverse(nullptr, world);
@@ -163,7 +163,7 @@ namespace {
 
 	void TestDrawMesh(TestDrawData& data, URM::Engine::PixelConstantBufferData pcb, std::weak_ptr<URM::Engine::MeshObject> mesh, WVPMatrix transformMatrix) {
 		auto nodeWorldMatrix = mesh.lock()->GetTransform().GetWorldSpaceMatrix();
-		VertexConstantBuffer cBufferData;
+		VertexConstantBufferData cBufferData;
 		transformMatrix.world = nodeWorldMatrix * transformMatrix.world;
 		transformMatrix.worldViewPerspective = nodeWorldMatrix * transformMatrix.worldViewPerspective;
 		transformMatrix.Apply(cBufferData);
@@ -589,7 +589,7 @@ namespace {
 		auto cube = scene.GetRoot().lock()->AddChild(cubeModel);
 		cube->GetTransform().SetLocalPosition({2.0f, 0.0f, 0.0f});
 
-		URM::Core::D3DConstantBuffer vertexConstantBuffer = URM::Core::D3DConstantBuffer::Create<VertexConstantBuffer>(core, URM::Core::ShaderStages::VERTEX);
+		URM::Core::D3DConstantBuffer vertexConstantBuffer = URM::Core::D3DConstantBuffer::Create<VertexConstantBufferData>(core, URM::Core::ShaderStages::VERTEX);
 		URM::Core::D3DConstantBuffer pixelConstantBuffer = URM::Core::D3DConstantBuffer::Create<URM::Engine::PixelConstantBufferData>(core, URM::Core::ShaderStages::PIXEL);
 		URM::Core::D3DConstantBuffer lightsConstantBuffer = URM::Core::D3DConstantBuffer::Create<URM::Engine::PixelLightBufferData>(core, URM::Core::ShaderStages::PIXEL);
 		URM::Core::D3DViewport viewport(URM::Core::D3DViewportData(core.GetWindow().GetSize()));

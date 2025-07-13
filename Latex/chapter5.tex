@@ -1,5 +1,5 @@
 \chapter{Architektura oraz założenia systemu}
-Przed faktyczym rozpoczęciem prac nad złożonym systemem programowym należy najpierw zastanowić się nad jego architekturą.
+Przed faktycznym rozpoczęciem prac nad złożonym systemem programowym należy najpierw zastanowić się nad jego architekturą.
 Ułatwia to określenie wymagań, celów, a także potencjalnych trudności które można napotkać w trakcie prac. 
 Daje to możliwość zrewidowania architektury zanim poświęci się dużą ilość czasu na pisanie systemu z błędną architekturą.
 
@@ -8,10 +8,10 @@ Założeniem projektu jest stworzenie uniwersalnego, modularnego systemu rysują
 Systemy tego typu przyjmują najczęściej formę punktu między dwoma ekstremami. 
 
 Po jednej stronie spektrum znajduje się system prawie całkowicie niezależny. 
-System taki zbliżony jest swoim działaniem do alpikacji wyświetlającej trójwymiarowy model w przestrzeni.
+System taki zbliżony jest swoim działaniem do aplikacji wyświetlającej trójwymiarowy model w przestrzeni.
 Moduł jest w takim przypadku odpowiedzialny za większość operacji związanych z rysowaniem, 
     w tym za inicjalizację okna, ruch kamery w odpowiedzi na interakcje z użytkownikiem,
-    generowanie modelu 3D na podstawie pliku wejściowego, czy obliczanie zaawansowancyh efektów świetlnych.
+    generowanie modelu 3D na podstawie pliku wejściowego, czy obliczanie zaawansowanych efektów świetlnych.
 Aplikacja klienta w takim przypadku przekazuje jedynie ścieżkę do modelu oraz ogólne parametry sceny, takie jak pozycja oraz kierunek światła.
 
 Przeciwieństwem jest moduł będący niewiele więcej niż abstrakcją nad niskopoziomowymi API graficznymi.
@@ -23,15 +23,15 @@ Wadą takiego rozwiązania jest zwiększony nakład pracy dla programisty aplika
 \section{Założenia projektowe - struktura warstwowa}
 Projektowany system przyjmuje formę hybrydową.
 Głównym założeniem wyróżniającym omawiany projekt względem innych, podobnych bibliotek, jest modularna struktura warstwowa.
-Kolejne segmenty budują na poprzednich abstraktując coraz więcej elementów procesu renderowania.
+Kolejne segmenty budują na poprzednich abstrahując coraz więcej elementów procesu renderowania.
 
 Logistycznie projekt został podzielony na następujące warstwy:
 
 \subsection{\textbf{Core} - Warstwa rdzeniowa}
 Grupuje często używane funkcje oraz struktury z DirectX do łatwych w użyciu elementów obiektowych, takich jak Window, Shader, Framebuffer, czy Mesh.
-Udostępnia funkcjonalność wczytywania z dysku plików tesktur i modeli.
+Udostępnia funkcjonalność wczytywania z dysku plików tekstur i modeli.
 Do zadań tej warstwy należy też zarządzenia pamięcią oraz cyklem życia obiektów.
-Obiekty automatycznie zarządzają zasobami stosując inteligentne wskaźniki ze standardu C++11 oraz ComPtr z biblitoek WinAPI.
+Obiekty automatycznie zarządzają zasobami stosując inteligentne wskaźniki ze standardu C++11 oraz ComPtr z bibliotek WinAPI.
 
 \subsection{\textbf{Scene} - Warstwa sceny}
 Na tym poziomie znajdują się wysokopoziomowe struktury oraz metody wczytywania i zarządzania sceną oraz jej komponentami.

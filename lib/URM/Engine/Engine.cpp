@@ -12,7 +12,7 @@ namespace URM::Engine {
 		Matrix wvp;
 		Matrix world;
 
-		void Apply(VertexConstantBuffer& buffer) const {
+		void Apply(VertexConstantBufferData& buffer) const {
 			buffer.WVP = XMMatrixTranspose(wvp);
 			buffer.worldMatrix = XMMatrixTranspose(world);
 			buffer.inverseWorldMatrix = XMMatrixInverse(nullptr, world);
@@ -87,7 +87,7 @@ namespace URM::Engine {
 		this->mCore.SetPrimitiveTopology(params.topology);
 		params.rasterizerState.Bind(this->mCore);
 
-		this->mVertexConstantBuffer.Bind(this->mCore, VertexConstantBuffer::SEMANTIC_SHADER_CONSTANT_BUFFER_INDEX);
+		this->mVertexConstantBuffer.Bind(this->mCore, VertexConstantBufferData::SEMANTIC_SHADER_CONSTANT_BUFFER_INDEX);
 		this->mPixelConstantBuffer.Bind(this->mCore, PixelConstantBufferData::SEMANTIC_SHADER_CONSTANT_BUFFER_INDEX);
 		this->mPixelLightsConstantBuffer.Bind(this->mCore, PixelLightBufferData::SEMANTIC_SHADER_CONSTANT_BUFFER_INDEX);
 
@@ -129,7 +129,7 @@ namespace URM::Engine {
 			for (auto& mesh : meshes) {
 				auto sceneMesh = mesh.lock();
 
-				VertexConstantBuffer vcb;
+				VertexConstantBufferData vcb;
 				auto worldMatrix = sceneMesh->GetTransform().GetWorldSpaceMatrix();
 				auto meshRenderMatrix = renderMatrix;
 				meshRenderMatrix.world = worldMatrix;
@@ -219,7 +219,7 @@ namespace URM::Engine {
 
 	Engine::Engine(const Core::WindowCreationParams& windowParams) : mCore(windowParams),
 	                                                                 mScene(mCore),
-	                                                                 mVertexConstantBuffer(Core::D3DConstantBuffer::Create<VertexConstantBuffer>(mCore, Core::ShaderStages::VERTEX)),
+	                                                                 mVertexConstantBuffer(Core::D3DConstantBuffer::Create<VertexConstantBufferData>(mCore, Core::ShaderStages::VERTEX)),
 	                                                                 mPixelConstantBuffer(Core::D3DConstantBuffer::Create<PixelConstantBufferData>(mCore, Core::ShaderStages::PIXEL)),
 	                                                                 mPixelLightsConstantBuffer(Core::D3DConstantBuffer::Create<PixelLightBufferData>(mCore, Core::ShaderStages::PIXEL))
 	{

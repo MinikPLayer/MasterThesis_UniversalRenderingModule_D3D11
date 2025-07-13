@@ -113,6 +113,22 @@ def buffers_uml_processor(lines_list: list[str]) -> list[str]:
 
     return processed_lines
 
+def engine_uml_processor(lines_list: list[str]) -> list[str]:
+    # Custom processing for Engine module
+    processed_lines = []
+    for line in lines_list:
+        line = line.replace(
+            "+Draw(RenderingParams& params, std::weak_ptr<CameraObject> mainCamera, std::vector<std::weak_ptr<MeshObject>>& meshes, std::vector<std::weak_ptr<LightObject>>& lights) : void",
+            "+Draw(RenderingParams& params, CameraObject* mainCamera, vector<MeshObject*>& meshes, vector<LightObject*>& lights)"
+        ).replace(
+            "+function<void(Engine& engine)",
+            "+onUpdate : std::function<void(Engine&)>"
+        )
+
+        processed_lines.append(line)
+
+    return processed_lines
+
 ENABLE_PLANTUML_IMAGE_GENERATOR = True
 REMOVE_OLD_FILES = True
 MODULES = [
@@ -128,7 +144,8 @@ MODULES = [
     Module("Utils", Direction.LEFT_TO_RIGHT, ["Core/Utils.h"], custom_uml_processor=utils_uml_processor),
     Module("Logging", Direction.LEFT_TO_RIGHT, ["Core/Log.h"]),
     Module("Stopwatch", Direction.LEFT_TO_RIGHT, ["Core/Stopwatch.h"]),
-    Module("Engine", Direction.TOP_TO_BOTTOM, ["Engine/Engine.h", "Engine/Timer.h"]),
+    Module("Engine", Direction.TOP_TO_BOTTOM, ["Engine/Engine.h", "Engine/Timer.h"], custom_uml_processor=engine_uml_processor),
+    Module("ConstantBuffers", Direction.LEFT_TO_RIGHT, ["Engine/ConstantBufferTypes.h"]),
     Module("Scene", Direction.LEFT_TO_RIGHT, ["Engine/Scene.h"]),
     Module("SceneObject", Direction.LEFT_TO_RIGHT, ["Engine/SceneObject.h", "Engine/Transform.h"]),
     Module("sceneobjects_model", Direction.LEFT_TO_RIGHT, ["Engine/SceneObject.h", "Engine/MeshObject.h", "Engine/ModelObject.h"], custom_uml_processor=scene_objects_model_uml_processor),

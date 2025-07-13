@@ -280,12 +280,36 @@
 		\label{UML_SceneObjects_Camera}
 	\end{figure}
 	
+\subsection{Struktury buforów stałych}
+	Do poprawnego działania dane ze sceny muszą zostać przekazane do programów cieniujących. Mechanizm udostępniony przez klasę \textit{D3DConstantBuffer} opiera swoje działanie o zdefiniowane struktury danych, przekazywanych następnie przez mechanizm ConstantBuffer z pakietu Direct3D. W ramach modułu udostępniony został standard schematu przekazywania danych oraz 4 podstawowe struktury, pokazane na rys. \ref{UML_StandardConstantBuffers}. Schemat indeksów buforów został zdefiniowany w celu ujednolicenia działania shader'ów i dla ułatwienia pracy został zawarty jako stałe \textit{SEMANTIC\_SHADER\_CONSTANT\_BUFFER\_INDEX} w ramach klas podstawowych.
+	\begin{itemize}
+		\item \textbf{VertexConstantBuffer} - podstawowe dane o rysowanym obiekcie, takie jak macierz WorldViewProjection, wykorzystywana do ustalania ostatecznej pozycji w przestrzeni oraz  WorldMatrix z jej odwrotnością do obliczania wektorów pomocniczych oświetlenia. Zgodnie ze schematem przekazywany jest w ramach rejestru \textbf{b0}.
+		\item \textbf{PixelConstantBufferData} - zawiera informacje o pozycji kamery w przestrzeni, konieczne do poprawnego wyliczania oświetlenia. Przekazywana w rejestrze \textbf{b1}.
+		\item \textbf{ConstantBuffer materiału} - definiowany oraz przekazywany przez używany materiał. Standardowo jego wartość zostaje przypisana w rejestrze \textbf{b2}.
+		\item \textbf{PixelLightBufferData} - informacje o źródłach światła w rysowanej przestrzeni. Przyjmuje formę tablicy elementów typu \textbf{PixelLight}, będącego przekazywaną do shader'a reprezentacją obiektu \textit{LightObject}. Bufor przypisany jest w rejestrze \textbf{b3}.
+	\end{itemize}
+	
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[width=\textwidth]{images/UML/constantbuffers.png}
+		\caption{Uwzględnione w ramach modułu struktury danych do wykorzystania z mechanizmem ConstantBuffer.}
+		\label{UML_StandardConstantBuffers}
+	\end{figure}
+	
 \subsection{Engine}
-	Klasa silnika, spajająca większość opisanych do tego momentu funkcjonalności modułu.
+	Klasa silnika, opisana na rys \ref{UML_Engine} spaja większość opisanych do tego momentu funkcjonalności modułu. Odpowiedzialna jest między innymi za przechowywanie referencji do sceny i elementów warstwy \textit{Core} w ramach struktury \textbf{RenderingParams}, inicjowanie systemu renderującego oraz okna czy czyszczenie i prezentowanie bufora rysowania. Przede wszystkim odpowiada ona jednak za ostateczne rysowanie sceny, czego pełny mechanizm został przedstawiony w rozdziale \ref{ChapterSceneDrawingMethod}. 
+	
+	Silnik operuje w dwóch, niezależnych od siebie trybach:
+	\begin{itemize}
+		\item \textbf{Tryb ręczny} - programista wykorzystuje metody udostępnione w ramach modułu do ręcznego rysowania sceny. Są to głównie \textit{Clear()}, \textit{Update()}, grupa metod \textit{Draw(...)} oraz \textit{Present()}. Służą one odpowiednio do czyszczenia bufora, aktualizacji komponentów (okno oraz instancja klasy \textit{Timer}), rysowania przekazanych w parametrach elementów oraz wyświetlania wygenerowanej klatki na ekran. Taka metoda działania umożliwia pełną kontrolę nad procesem rysowania, co może być przydatne na przykład przez integrację okna modułu z zewnętrzną aplikacją, która rysuje złożoną scenę dopiero w momencie wciśnięcia przycisku przez użytkownika. Dzięki udostępnieniu wielu wariantów metody \textit{Draw()}, w tym takich przyjmujących ręcznie mesh'e, oświetlenie oraz kamerę, możliwa jest też implementacja bardziej złożonych funkcjonalności rysowania, takich jak segmentowanie obiektów na warstwy czy efekty wymagające do działania rysowania wieloetapowego \textit{(Multipass Rendering)}.
+		\item \textbf{Tryb automatyczny} - w tym trybie klasa przejmuje na siebie wszystkie obowiązki związane z obsługą zdarzeń komponentów i rysowaniem sceny. Metoda \textit{RunLoop()} (lub jej odpowiednik śledzący czas wykonywania poszczególnych kroków - \textit{RunLoopTrace()}) przejmuje kontrolę nad wątkiem ją wywołującym aż do zamknięcia okna. Podczas tego czasu wywoływany jest w pętli proces składający się z wywołań metod \textit{Clear()}, \textit{Update()}, \textit{Draw()} i \textit{Present()}, a jako parametry rysowania przyjmowana jest wartość ze zmiennej \textit{renderParameters}.
+	\end{itemize}
+	
+	Silnik zawiera w sobie także instancję klasy \textbf{Timer}, która odpowiedzialna jest za śledzenie czasu między klatkami obrazu \textit{(deltaTime)} oraz od rozpoczęcia pracy programu \textit{(elapsedTime)}. Jej wykorzystanie możliwe jest w ramach mechanizmu OnUpdate, wywołującego wewnątrz metody Update() funkcję, do której odniesienie znajduje się w publicznej zmiennej onUpdate. Jako parametr przekazywana jest instancja klasy \textit{Engine}, co pozwala na wykorzystanie jej komponentów przez programistę i obiekty sceny, także w trybie automatycznym.
 	
 	\begin{figure}[h!]
 		\centering
 		\includegraphics[width=\textwidth]{images/UML/engine.png}
-		\caption{Klasa reprezentująca wirtualną kamerę renderującą scenę oraz jej wersja sterowana przez użytkownika.}
+		\caption{Klasa reprezentująca silnik modułu oraz przynależne do niego klasy.}
 		\label{UML_Engine}
 	\end{figure}
