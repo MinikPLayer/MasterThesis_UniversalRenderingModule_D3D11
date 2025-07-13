@@ -18,11 +18,17 @@ protected:
 
 	void AddLight() {
 		auto newLight = lightsObject->AddChild(new URM::Engine::LightObject());
-		newLight->color = Color(
-			sin(currentLightCount * 0.9f) * 0.5f + 0.5f,
-			sin(currentLightCount * 0.65f) * 0.5f + 0.5f,
-			sin(currentLightCount * 0.5f) * 0.5f + 0.5f
-		);
+		if (this->mEnableAutoScaling) {
+			newLight->color = Color(
+				sin(currentLightCount * 0.9f) * 0.5f + 0.5f,
+				sin(currentLightCount * 0.65f) * 0.5f + 0.5f,
+				sin(currentLightCount * 0.5f) * 0.5f + 0.5f
+			);
+		}
+		else {
+			newLight->color = this->currentLightCount < 64 ? Color(1.0f, 0.0f, 0.0f) : Color(0.0f, 1.0f, 0.0f);
+		}
+
 		newLight->ambientIntensity = 0.0f;
 		newLight->diffuseIntensity = 0.0f;
 		newLight->specularIntensity = 0.5f;
@@ -34,7 +40,7 @@ protected:
 			AddLight();
 		}
 
-		auto distance = this->mEnableAutoScaling ? 10.0f : 6.0f;
+		auto distance = this->mEnableAutoScaling ? 10.0f : 4.0f;
 		for (int i = 0; i < currentLightCount; i++) {
 			auto light = lightsObject->GetChildByIndex(i);
 			auto x = sin(i * 0.5f) * distance * i / currentLightCount;
@@ -82,7 +88,7 @@ protected:
 		cube->GetTransform().SetLocalPosition({ 0.0f, -2.0f, 0.0f });
 
 		auto camera = engine.GetScene().GetMainCamera().lock();
-		camera->GetTransform().SetPosition({ 0, 2, 5 });
+		camera->GetTransform().SetPosition(this->mEnableAutoScaling ? Vector3(0, 2, 5) : Vector3(0, 1, 5));
 		camera->GetTransform().LookAt({ 0, 0, 0 });
 
 		const unsigned int startLightsCount = this->mEnableAutoScaling ? 16 : 128;

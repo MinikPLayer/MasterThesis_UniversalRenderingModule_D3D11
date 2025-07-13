@@ -21,3 +21,15 @@ return resultColor;
 	Takie podejście ma jednak dwa ograniczenia - wydajność oraz ograniczenie maksymalnej ilości źródeł światła w scenie.	Pierwsze wynika ze sposobu działania współczesnych układów graficznych oraz kompilatorów. Dokładniej ograniczenie wydajności wynika z tzw. \textit{Register spilling}, czyli sytuacji w której na układzie graficznym brakuje rejestrów do pełnego pokrycia zmiennych, przez co koniecznym jest korzystanie z powolnej pamięci globalnej \cite{amd:gpuopen:RegisterSpilling}. Możliwym jest też spadek wydajności przez zmniejszenie skuteczności mechanizmu \textit{rozwijania pętli} kompilatora, przez znaczne zwiększenie maksymalnej jej długości. Drugie ograniczenie spowodowane jest limitem ilości elementów bufora stałych w API Direct3D - 4096 \cite{microsoft:Direct3D11:ResourceLimits}, co ogranicza ilość źródeł światła do około 1400. 
 	
 	Oba problemy zostały rozwiązane dzieląc pełną listę świateł na fragmenty o stałej wielkości (na przykład 64). Następnie zamiast wywoływać proces renderowania dla wszystkich źródeł, uruchamiany jest po kolei dla kolejnych segmentów, a wynik dodawany jest do bufora kolorów przy pomocy mechanizmu \textit{Blending}, opartego o klasę z segmentu \textit{D3DBlendState}. Aby takie podejście działało poprawnie pierwsze wywołanie procesu rysującego odbywa się przy wyłączonym blendingu.
+	
+	Nowe podejście także może zmniejszać wydajność przy zbyt małej ilości źródeł światła na wywołanie procesu ze względu na konieczność każdorazowego rysowania geometrii i zmiany kontekstów. W związku z tym przeprowadzone zostały testy, z których została określona optymalna wartość świateł na pass - \textbf{64}.
+	
+	Wizualizacja procesu została pokazana na rys. \ref{Rendering_MultiPassLighting}.
+	
+		
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[width=\textwidth]{images/lightsTest_combined.png}
+		\caption{Wizualizacja procesu wieloetapowego obliczania oświetlenia.}
+		\label{Rendering_MultiPassLighting}
+	\end{figure}
