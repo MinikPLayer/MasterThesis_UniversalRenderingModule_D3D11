@@ -7,11 +7,6 @@
 #include <variant>
 
 namespace URM::Core {
-	enum ShaderStages {
-		VERTEX   = 0,
-		PIXEL    = 1,
-	};
-
 	class Shader {
 	protected:
 		ComPtr<ID3DBlob> mBytecode;

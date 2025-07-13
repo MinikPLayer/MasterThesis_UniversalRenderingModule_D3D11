@@ -4,6 +4,11 @@
 #include "ShaderPipeline.h"
 
 namespace URM::Core {
+	enum ShaderStages {
+		VERTEX = 0,
+		PIXEL = 1,
+	};
+
 	class D3DConstantBuffer : public ID3DBuffer {
 		ShaderStages mStage;
 

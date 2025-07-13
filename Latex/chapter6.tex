@@ -83,7 +83,8 @@
 \subsection{Bufory}
 	Kolejnym elementem koniecznym do poprawnego korzystania z API D3D są bufory, używane jako środek przesyłu danych 
 	Do ich łatwiejszej obsługi utworzona została klasa abstrakcyjna \textbf{ID3DBuffer}, której implementacje, \textbf{D3DVertexBuffer}, \textbf{D3DIndexBuffer} oraz \textbf{D3DConstantBuffer} stanowią rozwiązania do wykorzystania odpowiednio buforów wierzchołków, indeksów oraz stałych, a ich kompozycja została pokazana na rys. \ref{UML_Buffer}
-	
+	Niektóre typy parametrów zostały pominięte na diagramie w celu poprawy czytelności.
+	Metoda \textit{Bind()} służy do ustawienia opisywanego przez obiekt obiektu jako aktywnego, a przy pomocy \textit{UpdateWithData(core, data)} możliwe jest zaktualizowanie danych zawartych w buforze.
 		
 	\begin{figure}[h!]
 		\centering
@@ -93,6 +94,7 @@
 	\end{figure}
 	
 \subsection{Mesh i typy wierzchołków}
+\label{SSMeshVertexTypeConcept}
 	Zbiór połączonych wielokątów wraz z opisującymi go metadanymi nazywany jest Mesh'em, którego schemat przedstawiony został na rys. \ref{UML_Mesh}.
 	
 	Zgodnie z założeniami projektu i ten element został zaprojektowany w modularnej formie. Wykorzystując szablon typów pozwala na pracę z różnymi typami wierzchołków. Kilka typów standardowych zostało zaimplementowanych w ramach modułu \textbf{StandardVertexTypes}, opisanego na diagramie \ref{UML_VertexTypes}.
@@ -154,24 +156,39 @@
 	\end{figure}
 	
 \subsection{Shader}
-	W ramach modułu programy typy shader zostały zunifikowane do pojedynczej klasy, która reprezentuje poszczególne etapy procesu renderowania - \textbf{ShaderPipeline}. W aktualnej formie uwzględnia on etapy \textit{Vertex} oraz \textit{Pixel}, lecz dzięki modularnej budowanie możliwe jest uwzględnienie dodatkowych kroków, takich jak \textit{Geometry} czy \textit{Tesselation}.
+	Do reprezentacji segmentu programów cieniujących powstała abstrakcyjna klasa \textbf{Shader}, na podstawie której zaimplementowane zostały klasy \textbf{VertexShader} oraz \textbf{PixelShader}, służące odpowiednio do obsługi programów przetwarzania wierzchołków oraz wyliczania koloru pixeli. Oddają one do dyspozycji metody wczytywania z pliku w konstruktorze oraz przypisywania zawieranego przez nie programu jako aktywnego przy pomocy funkcji \textit{Bind()}.
 	
-	W ramach tego segmentu uwzględniony został także \textbf{D3DInputLayout}, służący jako warstwa abstrakcji nad układem wejściowym do shader'ów. Wykorzystuje on opisywany wcześniej koncept \textit{VertexTypeConcept} do automatycznego dopasowania w procesie rysowania modeli, a jego standardowa wersja wykorzystująca typ \textit{VertexPositionNormalTexture} oznaczona została jako \textbf{ModelLoaderLayout}.
+	W ramach segmentu uwzględniony został także \textbf{D3DInputLayout}, służący jako warstwa abstrakcji nad układem danych wejściowych do shader'ów. Wykorzystuje on opisany w rozdziale \ref{SSMeshVertexTypeConcept} koncept \textit{VertexTypeConcept} do automatycznego dostosowania się do danych, a jego standardowa wersja wykorzystująca typ \textit{VertexPositionNormalTexture} oznaczona została jako \textbf{ModelLoaderLayout}.
 	
 	Diagram UML segmentu został przedstawiony na rys. \ref{UML_ShaderPipeline}.
 	
 	\begin{figure}[h!]
 		\centering
 		\includegraphics[width=\textwidth]{images/UML/shader.png}
-		\caption{Schemat kompozycji klasy Shader oraz D3DInputLayout.}
+		\caption{Schemat kompozycji klas Shader oraz D3DInputLayout.}
 		\label{UML_ShaderPipeline}
 	\end{figure}
 	
 	\vfill
 	\clearpage
 	
+\subsection{Materiały}
+	Programy cieniujące poza odniesieniem do używanego kodu w ramach klasy \textit{Shader} potrzebują także informacji o parametrach wyświetlanego obiektu, takich jak jego kolor, użyta tekstura i inne właściwości powierzchni.	Do przechowywania tych informacji utworzona została abstrakcyjna klasa \textbf{Material}, a także jej 2 standardowe implementacje - \textbf{MaterialSimple} oraz \textbf{MaterialPBR}, opisujące odpowiednio uproszczony model oświetlenia z danymi powierzchni w strukturze \textbf{MaterialSimpleData} i bardziej złożony mechanizm oparty o PBR, gdzie dane materiału znajdują się w \textbf{MaterialPBRData}.
+	
+	Każda implementacja klasy \textit{Material} musi zdefiniować metodę \textit{GetShader()}, która zwraca referencję do obiektu programu cieniującego. Dzięki temu każdy materiał może posiadać odrębny, różniący się od innych shader i w ten sposób rozszerzać działanie modułu poprzez utworzenie zewnętrznych implementacji. Możliwe jest także mieszanie różnych typów materiałów (a tym samym shader'ów), gdyż jest on przypisany do mesh'y, a nie globalnie.
+		
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[width=\textwidth]{images/UML/materials.png}
+		\caption{Schemat kompozycji abstrakcyjnej klasy Material oraz jej standardowych implementacji.}
+		\label{UML_Material}
+	\end{figure}
+	
+	\vfill
+	\clearpage
+	
 \section{Engine}
-	Podczas implementacji z przyczyn logistycznych zintegorwana została warstwa sceny oraz renderująca. Mimo tego zachowane zostało założenie budowy modularnej oraz możliwość użycia poszczególnych elementów bez konieczności korzystania z pozostałych na tym samym lub wyższym logicznie poziomie.
+	Podczas implementacji z przyczyn logistycznych zintegrowana została warstwa sceny oraz renderująca w ramach jednego projektu. Mimo tego zachowane zostało założenie budowy modularnej oraz możliwość użycia poszczególnych elementów bez konieczności korzystania z pozostałych na tym samym lub wyższym logicznie poziomie.
 	
 \subsection{Scene}
 	Główna struktura zawierająca pełne informacje o rysowanej scenie, której diagram został przedstawiony na rys. \ref{UML_Scene}. Przechowuje ona współdzieloną referencję do głównego wierzchołka struktury obiektów, kamery ustawionej jako głównej, menadżera zasobów oraz struktury rdzeniowej \textit{(D3DCore)}. Posiada ona także listę odniesień do istniejących w scenie świateł oraz mesh'y, co pozwala na optymalizację ich rysowania ze względu na eliminację konieczności każdorazowego przechodzenia sceny w ich poszukiwaniu podczas procesu renderowania.
@@ -263,5 +280,12 @@
 		\label{UML_SceneObjects_Camera}
 	\end{figure}
 	
-	\vfill
-	\clearpage
+\subsection{Engine}
+	Klasa silnika, spajająca większość opisanych do tego momentu funkcjonalności modułu.
+	
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[width=\textwidth]{images/UML/engine.png}
+		\caption{Klasa reprezentująca wirtualną kamerę renderującą scenę oraz jej wersja sterowana przez użytkownika.}
+		\label{UML_Engine}
+	\end{figure}

@@ -97,22 +97,38 @@ def d3dutils2_uml_processor(lines_list: list[str]) -> list[str]:
 
     return processed_lines
 
+def buffers_uml_processor(lines_list: list[str]) -> list[str]:
+    # Custom processing for Buffers module
+    processed_lines = []
+    for line in lines_list:
+        line = line.replace("const ", "").replace("std::", "").replace("D3DCore& ", "")
+        # if "(" in line and ")" in line:
+        #     parameters = line.split("(")[1].split(")")[0].strip().split(",")
+        #     line = line.replace(",", ", ")
+        #     for p in parameters:
+        #         p_stages = p.split(" ")
+        #         line = line.replace(p, p_stages[-1])
+
+        processed_lines.append(line)
+
+    return processed_lines
+
 ENABLE_PLANTUML_IMAGE_GENERATOR = True
 REMOVE_OLD_FILES = True
 MODULES = [
     Module("Core", Direction.LEFT_TO_RIGHT, ["Core/D3DCore.h", "Core/Window.h"]),
-    Module("D3DUtils", Direction.LEFT_TO_RIGHT, ["Core/D3DViewport.h", "Core/D3DRasterizerState.h", "Core/D3DBlendState.h", "Core/D3DDepthStencilState.h", "Core/D3DInputLayout.h"], custom_uml_processor=d3dutils2_uml_processor),
-    Module("Buffer", Direction.LEFT_TO_RIGHT, ["Core/ID3DBuffer.h", "Core/D3DConstantBuffer.h", "Core/D3DIndexBuffer.h", "Core/D3DVertexBuffer.h"]),
+    Module("D3DUtils", Direction.LEFT_TO_RIGHT, ["Core/D3DViewport.h", "Core/D3DRasterizerState.h", "Core/D3DBlendState.h", "Core/D3DDepthStencilState.h"], custom_uml_processor=d3dutils2_uml_processor),
+    Module("Buffer", Direction.LEFT_TO_RIGHT, ["Core/ID3DBuffer.h", "Core/D3DConstantBuffer.h", "Core/D3DIndexBuffer.h", "Core/D3DVertexBuffer.h"], custom_uml_processor=buffers_uml_processor),
     Module("Mesh", Direction.TOP_TO_BOTTOM, ["Core/IMesh.h", "Core/Mesh.h", "Core/MaterialProperty.h"]),
     Module("ModelLoader", Direction.LEFT_TO_RIGHT, ["Core/ModelLoader.h"]),
     Module("Texture", Direction.LEFT_TO_RIGHT, ["Core/D3DTexture2D.h", "Core/D3DSampler.h"]),
-    Module("Shader", Direction.LEFT_TO_RIGHT, ["Core/ShaderPipeline.h"]),
+    Module("Shader", Direction.LEFT_TO_RIGHT, ["Core/ShaderPipeline.h", "Core/D3DInputLayout.h"]),
     Module("Materials", Direction.TOP_TO_BOTTOM, ["Core/Material.h", "Core/StandardMaterials.h"]),
     Module("VertexTypes", Direction.LEFT_TO_RIGHT, ["Core/StandardVertexTypes.h"]),
     Module("Utils", Direction.LEFT_TO_RIGHT, ["Core/Utils.h"], custom_uml_processor=utils_uml_processor),
     Module("Logging", Direction.LEFT_TO_RIGHT, ["Core/Log.h"]),
     Module("Stopwatch", Direction.LEFT_TO_RIGHT, ["Core/Stopwatch.h"]),
-    Module("Engine", Direction.LEFT_TO_RIGHT, ["Engine/Engine.h", "Engine/Timer.h"]),
+    Module("Engine", Direction.TOP_TO_BOTTOM, ["Engine/Engine.h", "Engine/Timer.h"]),
     Module("Scene", Direction.LEFT_TO_RIGHT, ["Engine/Scene.h"]),
     Module("SceneObject", Direction.LEFT_TO_RIGHT, ["Engine/SceneObject.h", "Engine/Transform.h"]),
     Module("sceneobjects_model", Direction.LEFT_TO_RIGHT, ["Engine/SceneObject.h", "Engine/MeshObject.h", "Engine/ModelObject.h"], custom_uml_processor=scene_objects_model_uml_processor),

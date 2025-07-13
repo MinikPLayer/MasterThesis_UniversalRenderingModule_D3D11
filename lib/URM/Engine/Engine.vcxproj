@@ -240,6 +240,7 @@
   <ItemGroup>
     <ClInclude Include="AssetManager.h" />
     <ClInclude Include="CameraObject.h" />
+    <ClInclude Include="ConstantBufferTypes.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="FlyCameraObject.h" />
     <ClInclude Include="framework.h" />

@@ -1,22 +1,13 @@
 #include "pch.h"
 #include "Engine.h"
 #include "MeshObject.h"
+#include "ConstantBufferTypes.h"
 #include <URM/Core/Stopwatch.h>
 #include <URM/Core/Log.h>
 
 #undef min
 
 namespace URM::Engine {
-	// TODO: Move these structs to another file.
-	struct VertexConstantBuffer {
-		static constexpr UINT SEMANTIC_SHADER_CONSTANT_BUFFER_INDEX = 0;
-
-		// ReSharper disable once CppInconsistentNaming
-		Matrix WVP;
-		Matrix worldMatrix;
-		Matrix inverseWorldMatrix;
-	};
-
 	struct WVPMatrix {
 		Matrix wvp;
 		Matrix world;
