@@ -152,6 +152,7 @@ MODULES = [
     Module("sceneobjects_light", Direction.LEFT_TO_RIGHT, ["Engine/SceneObject.h", "Engine/LightObject.h"], custom_uml_processor=scene_objects_uml_processor),
     Module("sceneobjects_camera", Direction.LEFT_TO_RIGHT, ["Engine/SceneObject.h", "Engine/CameraObject.h", "Engine/FlyCameraObject.h"], custom_uml_processor=scene_objects_uml_processor),
     Module("Assets", Direction.LEFT_TO_RIGHT, ["Engine/AssetManager.h"]),
+    Module("Tests", Direction.TOP_TO_BOTTOM, ["../../URMBenchmarks/ITest.h", "../../URMBenchmarks/AverageAccumulator.h"])
 ]
 
 def normalizePath(path: str) -> str:

@@ -1,5 +1,6 @@
-\chapter{Testy - wydajność i ograniczenia}
-	\begin{comment}
+\chapter{Testy modułu}
+	
+	\iffalse
 		Testy:
 			- Porównanie dla trybu "Natywnego", "URM::Core", "URM::Engine".
 			- Porównanie złożoności kodu.
@@ -33,4 +34,42 @@
 				- Sprawdzenie narzutu wielokrotnego ustalania pozycji.
 				+ Cache'ing.
 				
-	\end{comment}
+	\fi
+	
+	Do lepszego zrozumienia oraz wykorzystania nowo powstałej biblioteki warto znać jej lepsze oraz słabsze strony, a także teoretyczne i praktyczne ograniczenia. W związku z tym przeprowadzone zostały testy różnych aspektów omawianego projektu, aby ustalić limity ilościowe i wydajnościowe, a także ich przyczyny w celu opracowania możliwości ich poprawy.
+	
+	\section{Framework testowy}
+	Do łatwiejszego tworzenia testów utworzona została abstrakcyjna klasa interfejs - \textbf{ITest}, która ujednolica API testów do późniejszego wykorzystania. Obiekty dziedziczące implementują metody \textit{OnInit()} do inicjalizacji oraz \textit{OnUpdate()} do aktualizacji co klatkę obrazu.
+	
+	Podzbiorem testów są także pomiary wydajności i/lub limitu ilości testowanego parametru. Do obsługi tego zbioru oddana została druga klasa - \textbf{AutoTest}. Dziedziczy ona z \textit{ITest}, ale zastępuje \textit{Init()} i \textit{Update()}, pozostawiając opisane już metody abstrakcyjne do implementacji przez klasy dziedziczące. Różnicą względem rodzica jest próba automatycznego dopasowania złożoności testu do założonego poziomu wydajności. 
+	
+	\subsection{Metoda określania wydajności przez AutoTest}
+	Każdy oparty o \textit{AutoTest} skrypt musi posiadać wartość mierzalną, nazwaną w uproszczeniu ilością (\textit{count}). Zwiększenie tej wartości powinno z założenia liniowo zmniejszać wydajność renderowania, a co za tym idzie zwiększać czas generowania klatki obrazu. Informacja o długości rysowania jest następnie agregowana przez 100 wpisów przy pomocy obiektu klasy \textbf{AverageAccumulator} do wartości średniej, która zostaje przyrównana z czasem oczekiwanym, definiowanym przez test za pomocą metody \textit{GetTargetFPS()}. Na podstawie wzajemnej proporcji tych wartości obliczana jest teoretyczna ilość potrzebnych do dodania elementów, aby osiągnąć zamierzony cel. Przed aplikacją za pomocą funkcji \textit{IncreaseCount()}, ilość zostaje pomniejszona przez pomnożenie o wartość z wirtualnej metody \textit{GetTargetCurveMultiplier()}, aby zmniejszyć prawdopodobieństwo przeszacowania celu. Cykl ten powtarzany jest aż do zejścia czasu rysowania klatki poniżej progu. Następnym krokiem jest stopniowa reprodukcja operacji, ale zmniejszając ilość o 1 za pomocą \textit{DecreaseCount()}, aż do ponownego przekroczenia docelowej długości renderowania w 3 bezpośrednio następujących po sobie pomiarach. Taka forma pomiaru pozwala na powtarzalne określenie maksymalnej ilości elementów spełniających założony cel wydajnościowy. Wykres czasu klatki z przykładowego testu oświetlenia został przedstawiony w całości na rys. \ref{Test_LightsTest_FullFrameTime} oraz ograniczony do partii autoregulacji na rys. \ref{Test_LightsTest_AutoFrameTime}.
+	
+	\begin{figure}[h!]
+		\begin{subfigure}{.5\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{images/LightsTestResult_full.png}
+			\caption{Pełny wykres czasu generowania klatki.}
+			\label{Test_LightsTest_FullFrameTime}
+		\end{subfigure}
+		\begin{subfigure}{.5\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{images/LightsTestResult_auto.png}
+			\caption{Czas rysowania obrazu ograniczony do fragmentu autoregulacji.}
+			\label{Test_LightsTest_AutoFrameTime}
+		\end{subfigure}
+		\caption{Wykres pokazujący działanie mechanizmu \textit{AutoTest} podczas testu oświetlenia.}
+	\end{figure}
+	
+	\subsection{Eliminacja błędów}
+	Aby test był wiarygodny należy zabezpieczyć go na wypadek wystąpienia różnego rodzaju błędów. Poniżej przedstawiona została lista potencjalnych problemów oraz podjęte działania w celu ich eliminacji.
+	\begin{itemize}
+		\item \textbf{Anomalie pomiaru} - generowanie klatek obrazu nie zawsze odbywa się całkowicie stabilnie. Skokowe obciążenie systemu procesem w tle, nieprzewidziane zwalnianie zasobów przez system operacyjny, a nawet błędy sprzętowe mogą powodować skok czasu generowania pojedynczych klatek obrazu. Takie pomiary eliminowane są przy pomocy algorytmu IQR, służącego do wykrywania anomalii, w tym przypadku przyjmujących formę czasu wyraźnie odbiegającego od pozostałych pomiarów. Taki sposób filtracji jest możliwy ze względu na obraną metodę, która powinna generować niezmienną wartość pomiarów między zmianami ilości.
+		\item \textbf{Wpływ dodawania elementów na czas generowania klatki} - alokacja i inicjalizacja dużej ilości obiektów może generować wyraźne spadki wydajności w ramach pojedynczej klatki. Zostały zaimplementowane dwa mechanizmy mające na celu obronę przed taką sytuacją. Pierwszym jest opisany już IQR, który powinien eliminować wyraźne anomalie. Drugi to zatrzymanie czasomierza w \textit{AverageAccumulator} na czas przetwarzania wyników pomiarów (w tym ewentualne zwiększenie bądź zmniejszenie ilości elementów), a następne wznowienie już po wykonaniu opisanych czynności. 
+		\item \textbf{Przeszacowanie zwiększenia ilości elementów} - mechanizm odpowiedzialny za ograniczenie takiej sytuacji został już opisany i jest nim podejście, w którym najpierw szacunkowo zostaje określona ilość powodująca spadek wydajności poniżej progu, aby potem bardzo powolną redukcją nastąpiło określenie wartości docelowej. Dodatkowym sposobem jest nadpisywalna metoda \textit{GetTargetCurveMultiplier()}, dzięki której bardziej złożone testy mogą zmniejszyć prawdopodobieństwo przeszacowania, kosztem zwiększonego czasu trwania testu.
+		\item \textbf{Niedokładność czasu pomiaru} - użycie klasy \textit{high\_resolution\_clock} ze standardowej biblioteki C++ umożliwia dokonywanie pomiaru czasu z bardzo wysoką precyzją liczoną w nanosekundach.
+	\end{itemize}
+	
+	\section{Testy wydajności}
+	Poniżej przedstawione zostały zaimplementowane testy wydajności wraz z krótkim opisem, porównaniem działania między systemami testowymi oraz analizą z czego wynikają jego ograniczenia.

@@ -88,8 +88,10 @@ public:
 				auto now = std::chrono::high_resolution_clock::now();
 				if(std::chrono::duration_cast<std::chrono::seconds>(now - lastPrint).count() > 0.5) {
 					lastPrint = now;
-					spdlog::info("[IAutoTest] Current FPS: {:.1f}. Current count: {}", 1.0 / averageFrameTime.value(), GetCount());
+					//spdlog::info("[IAutoTest] Current FPS: {:.1f}. Current count: {}", 1.0 / averageFrameTime.value(), GetCount());
 				}
+
+				OutputDebugString(URM::Core::StringUtils::StringToWString(fmt::format("{}\n", averageFrameTime.value())).c_str());
 
 				// Running faster than the target FPS, increase the count
 				if (!mWasBelowTargetFrameTime && averageFrameTime < mTargetFpsFrameTime) {
@@ -101,14 +103,14 @@ public:
 						mIsDone = true;
 					}
 
-					spdlog::info("[IAutoTest] Running faster than target FPS, increasing count by {} ({:.1f}%) to {}. Current average frame time: {:.3f} ms", 
-						increaseCount, 100 * increaseRate, GetCount(), averageFrameTime.value() * 1000.0);
+					//spdlog::info("[IAutoTest] Running faster than target FPS, increasing count by {} ({:.1f}%) to {}. Current average frame time: {:.3f} ms", 
+					//	increaseCount, 100 * increaseRate, GetCount(), averageFrameTime.value() * 1000.0);
 					targetHitCount = 0;
 				}
 				// Running slower than the min FPS, decrease the count
 				else if(averageFrameTime > mTargetFpsFrameTime) {
 					if (!DecreaseCount()) {
-						spdlog::info("[IAutoTest] Cannot decrease count, stopping test.");
+						//spdlog::info("[IAutoTest] Cannot decrease count, stopping test.");
 						mIsDone = true;
 					}
 

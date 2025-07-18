@@ -107,6 +107,10 @@ protected:
 		});
 	}
 
+	virtual float GetTargetCurveMultiplier() {
+		return 0.7f;
+	}
+
 public:
 	virtual URM::Core::WindowCreationParams GetWindowParams(HINSTANCE instance) const {
 		return URM::Core::WindowCreationParams(1920, 1080, "URM Benchmarks", instance);
