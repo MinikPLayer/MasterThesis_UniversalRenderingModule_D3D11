@@ -85,5 +85,8 @@
     <CopyFileToFolders Include="Assets\Big\sponza.glb">
       <Filter>Resource Files</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="run_tests.ps1">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>

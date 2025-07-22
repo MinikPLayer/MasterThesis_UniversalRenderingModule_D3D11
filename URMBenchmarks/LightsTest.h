@@ -53,7 +53,7 @@ protected:
 
 	bool IncreaseCount(size_t amount) override {
 		if (!this->mEnableAutoScaling) {
-			return false;
+			return true;
 		}
 
 		return AddLights(amount);
@@ -61,7 +61,7 @@ protected:
 
 	bool DecreaseCount() override {
 		if (!this->mEnableAutoScaling) {
-			return false;
+			return true;
 		}
 
 		if(currentLightCount == 0) {

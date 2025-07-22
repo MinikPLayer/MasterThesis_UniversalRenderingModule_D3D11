@@ -11,6 +11,9 @@
 #include "ObjectsTransformThroughputTest.h"
 #include "HighPolyModelTest.h"
 #include "MaterialTest.h"
+#include <iostream>
+
+#include <fstream>
 
 using namespace URM;
 
@@ -50,30 +53,53 @@ bool SetupTest() {
 	int argCount = __argc;
 	char** args = __argv;
 
-	for (int i = 1; i < argCount; i++) {
-		auto stringArg = std::string(args[i]);
-		for (auto& testEntry : tests) {
-			if (testEntry.first == stringArg) {
-				test = tests.at(stringArg)();
-				return true;
+	// Path, command, argument
+	if (argCount == 3) {
+		auto stringArg = std::string(args[1]);
+		auto parameter = std::string(args[2]);
+		if (stringArg == "save_tests_list_to_file") {
+			auto file = std::ofstream(parameter);
+			if (!file.good()) {
+				spdlog::error("Cannot open file to save tests list at {}", parameter);
+				return false;
+			}
+
+			for (auto& t : tests) {
+				file << t.first << "\n";
+			}
+			file.close();
+
+			spdlog::info("Tests saved to {}\n", parameter);
+
+			return false;
+		}
+		else if (stringArg == "run") {
+			for (auto& testEntry : tests) {
+				if (testEntry.first == parameter) {
+					test = tests.at(parameter)();
+					return true;
+				}
 			}
 		}
 	}
 
 	std::stringstream ss;
-	ss << "Usage: URMBenchmark.exe {test}\n";
+	ss << "Usage: URMBenchmark.exe {run / save_tests_list_to_file} {test / file_path}\n";
 	ss << "Available tests: \n";
 	for (auto& testEntry : tests) {
-		ss << fmt::format("\ - {}", testEntry.first) << "\n";
+		ss << fmt::format("\ - {}", testEntry.first) << std::endl;
 	}
 
 	spdlog::info(ss.str());
 	MessageBox(nullptr, URM::Core::StringUtils::StringToWString(ss.str()).c_str(), L"No test provided", MB_OK | MB_ICONERROR);
+
 	return false;
 }
 
 int WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) 
 {
+	URM::Core::Logger::InitLogger();
+
 	if (!SetupTest()) {
 		return 1;
 	}

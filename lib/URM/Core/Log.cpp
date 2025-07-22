@@ -11,15 +11,30 @@
 namespace URM::Core {
 	bool Logger::mLoggerInitialized = false;
 
+	void WriteToConsole(std::string message, bool tryAllocate = true) {
+		HANDLE stdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+		if (stdOut != NULL && stdOut != INVALID_HANDLE_VALUE)
+		{
+			DWORD written = 0;
+			WriteConsoleA(stdOut, message.c_str(), (DWORD)message.size(), &written, NULL);
+		}
+	}
+
 	void Logger::InitLogger() {
 		if (Logger::mLoggerInitialized) {
 			return;
 		}
 
+		// Attach to console if available.
+		AttachConsole(ATTACH_PARENT_PROCESS);
+
 		auto msvcSink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
 		auto stdoutSink = std::make_shared<spdlog::sinks::stdout_sink_mt>();
+		auto consoleSink = std::make_shared<spdlog::sinks::callback_sink_mt>([](const spdlog::details::log_msg& msg) {
+			WriteToConsole(msg.payload.data());
+		});
 
-		auto finalLogger = std::make_shared<spdlog::logger>(spdlog::logger("logger", {msvcSink, stdoutSink}));
+		auto finalLogger = std::make_shared<spdlog::logger>(spdlog::logger("logger", {msvcSink, stdoutSink, consoleSink}));
 
 #if !NDEBUG
 		finalLogger->set_level(spdlog::level::trace);
