@@ -99,6 +99,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)/lib</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -137,6 +138,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)/lib</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -176,12 +178,15 @@
     <ClInclude Include="VertexThroughputTest.h" />
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="Assets\sphere_327680_triangles.fbx">
+    <CopyFileToFolders Include="..\UniversalRenderingModule\cube.glb">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\UniversalRenderingModule\suzanne.glb">
       <FileType>Document</FileType>
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="Assets\roman_marble_3.000.000_triangles.glb">
+    <CopyFileToFolders Include="Assets\Big\roman_marble_3.000.000_triangles.glb">
       <FileType>Document</FileType>
     </CopyFileToFolders>
   </ItemGroup>
@@ -191,10 +196,7 @@
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="..\UniversalRenderingModule\cube.glb">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\UniversalRenderingModule\suzanne.glb">
+    <CopyFileToFolders Include="Assets\Big\sponza.glb">
       <FileType>Document</FileType>
     </CopyFileToFolders>
   </ItemGroup>

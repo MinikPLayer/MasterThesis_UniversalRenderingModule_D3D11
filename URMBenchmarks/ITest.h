@@ -59,6 +59,22 @@ protected:
 	virtual unsigned int GetScore() {
 		return GetCount();
 	}
+
+	void FinishTest(bool success) {
+		auto score = GetScore();
+		MessageBox(nullptr, URM::Core::StringUtils::StringToWString(fmt::format("Test score: {}", score)).c_str(), L"Test Complete", MB_OK | MB_ICONINFORMATION);
+		auto clipboardData = fmt::format("{}", score);
+
+		OpenClipboard(nullptr);
+		EmptyClipboard();
+		HGLOBAL hClipboardData = GlobalAlloc(GMEM_DDESHARE, (clipboardData.size() + 1) * sizeof(char));
+		char* pchData = static_cast<char*>(GlobalLock(hClipboardData));
+		strcpy_s(pchData, clipboardData.size() + 1, clipboardData.c_str());
+		GlobalUnlock(hClipboardData);
+		SetClipboardData(CF_TEXT, hClipboardData);
+		CloseClipboard();
+	}
+
 public:
 
 	void Init(URM::Engine::Engine& engine) override {
@@ -101,6 +117,7 @@ public:
 					if (!IncreaseCount(increaseCount)) {
 						spdlog::info("[IAutoTest] Cannot increase count, stopping test.");
 						mIsDone = true;
+						FinishTest(false);
 					}
 
 					//spdlog::info("[IAutoTest] Running faster than target FPS, increasing count by {} ({:.1f}%) to {}. Current average frame time: {:.3f} ms", 
@@ -112,6 +129,7 @@ public:
 					if (!DecreaseCount()) {
 						//spdlog::info("[IAutoTest] Cannot decrease count, stopping test.");
 						mIsDone = true;
+						FinishTest(false);
 					}
 
 					targetHitCount = 0;
@@ -119,8 +137,11 @@ public:
 				}
 				else {
 					if (targetHitCount++ >= 3) {
-						spdlog::info("[IAutoTest] Target FPS reached, stopping test.\nScore: {}", GetScore());
+						auto score = GetScore();
+						spdlog::info("[IAutoTest] Target FPS reached, stopping test.\nScore: {}", score);
 						mIsDone = true;
+
+						FinishTest(true);
 					}
 				}
 			}

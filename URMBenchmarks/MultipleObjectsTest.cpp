@@ -13,7 +13,8 @@ void MultipleObjectsTest::OnInit(URM::Engine::Engine& engine) {
 	this->IncreaseCount(1);
 
 	auto light = new URM::Engine::LightObject();
-	light->GetTransform().SetPosition({ 0, 3, 5 });
+	light->attenuationExponent = 0.0f;
+	light->GetTransform().SetPosition({ 0, 2, 0});
 	engine.GetScene().GetRoot().lock()->AddChild(light);
 
 	auto camera = engine.GetScene().GetMainCamera().lock();

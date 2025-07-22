@@ -56,7 +56,7 @@ protected:
 			return false;
 		}
 
-		AddLights(amount);
+		return AddLights(amount);
 	}
 
 	bool DecreaseCount() override {
@@ -108,7 +108,7 @@ protected:
 	}
 
 	virtual float GetTargetCurveMultiplier() {
-		return 0.7f;
+		return 0.75f;
 	}
 
 public:

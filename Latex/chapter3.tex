@@ -1,30 +1,53 @@
-\chapter{Platforma testowa}
+\chapter{Platforma testowa i konfiguracja}
 
-Przed przystąpieniem do prac nad projektem określić należy najpierw
-platformę testową, na której i dla której budowany oraz testowany jest
-system. Dzięki takiemu podejściu możliwe jest lepsze określenie zakresu
+Przed przystąpieniem do finalnych testów określić należy najpierw
+platformę testową. Dzięki takiemu podejściu możliwe jest lepsze określenie zakresu
 badań oraz łatwiejsze monitorowanie zmian w wydajności.
 
-Wybraną podstawową platformą deweloperską jest komputer składający się z
-następujących komponentów:
+Wybraną podstawową platformą deweloperską jest laptop \textbf{Lenovo Legion Slim 5-14}, składający się z następujących komponentów:
 
 \begin{itemize}
-	\item \textbf{CPU}: AMD Ryzen 9 7900X @ 140W
-	\item \textbf{GPU}: NVIDIA RTX 4070 12GB
-	\item \textbf{RAM}: 64GB DDR5, 6000 MT/s
+	\item \textbf{CPU}: AMD Ryzen 7 7840HS @ 55W
+	\item \textbf{GPU 1}: NVIDIA RTX 4060 8GB @ 90W
+	\item \textbf{GPU 2}: AMD Radeon 780M (zintegrowana)
+	\item \textbf{RAM}: 32GB LPDDR5x, 6400 MT/s
 	\item \textbf{SSD}: Samsung 980 Pro 2TB
 	\item \textbf{Sterownik graficzny NVIDIA}: 565.90
-	\item \textbf{Wersja systemu operacyjnego}: Windows 11 Pro, x64, wersja 24H2
+	\item \textbf{System operacyjny}: Windows 11 Pro x64, wersja 24H2
 \end{itemize}
 
-Dodatkowo do weryfikacji wyników użyty został także laptop testowy \textbf{ASUS Vivobook S16 2025}, którego specyfikacja
-prezentuje się następująco:
+Do wyeliminowania zmiennych termicznych testy przeprowadzone zostały ze zbalansowanym trybem energetycznym, ale z manualnie ustawioną prędkością wentylatorów na maksymalne obroty.
 
-\begin{itemize}
-	\item \textbf{CPU}: AMD Ryzen AI 9 HX 370
-	\item \textbf{GPU1}: AMD Radeon 890M
-	\item \textbf{RAM}: 32GB LPDDR5x, 7500 MT/s
-	\item \textbf{SSD}: Samsung 980 Pro 2TB
-	\item \textbf{Sterownik graficzny AMD}: 24.30.22.03
-	\item \textbf{Wersja systemu operacyjnego}: Windows 11 Pro, x64, wersja 24H2
-\end{itemize}
+Ustawione ręcznie limity podzespołów prezentują się następująco:
+
+\begin{center}
+	\begin{tabular}{ |l r| }
+		\hline
+		\textbf{Parametr} & \textbf{Wartość} \\
+		\hline
+		CPU - Peak & \textbf{55W} \\
+		CPU - Short term & \textbf{55W} \\
+		CPU - Long Term & \textbf{55W} \\
+		CPU - Cross load & \textbf{55W} \\
+		CPU - Temperature limit & \textbf{100°C} \\
+		GPU - TDP & \textbf{90W} \\
+		GPU - Dynamic Boost & \textbf{0W} \\
+		GPU - Temperature limit & \textbf{87°C} \\
+		\hline
+	\end{tabular}
+\end{center}
+
+Do kompilacji programu użyty został system budowy MSBuild w wersji 17.14.8.25101 wraz z kompilatorem \textit{cl} o numerze edycji 19.44.35207.1. Do jego konfiguracji użyte zostały następujące parametry:
+
+\begin{center}
+	\begin{tabular}{ |l r| }
+		\hline
+		\textbf{Parametr} & \textbf{Wartość} \\
+		\hline
+		Optimization & \textbf{Maximum (O2)} \\
+		Enable Intrinsic Functions & \textbf{Yes (/Oi)} \\
+		Favor Size Or Speed & \textbf{Favor fast code (/Ot))} \\
+		Whole Program Optimization & \textbf{Yes (/GL)} \\
+		\hline
+	\end{tabular}
+\end{center}

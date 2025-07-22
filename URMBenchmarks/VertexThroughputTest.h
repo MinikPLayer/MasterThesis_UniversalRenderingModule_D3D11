@@ -68,6 +68,7 @@ class VertexThroughputTest : public AutoTest {
 		const float scale = 8.0f;
 		const Vector3 modelSize = { 0, scale, 0 };
 		auto light = new URM::Engine::LightObject();
+		light->attenuationExponent = 0.0f;
 		light->GetTransform().SetPosition({ 0, 3, 5 });
 		root->AddChild(light);
 		mModelsObject = root->AddChild(new URM::Engine::SceneObject());
@@ -82,11 +83,11 @@ class VertexThroughputTest : public AutoTest {
 	}
 
 	void OnUpdate(URM::Engine::Engine& engine) override {
-		mModelsObject->GetTransform().SetLocalRotation({
-			0.0f,
-			engine.GetTimer().GetElapsedTime() * 90.0f,
-			0.0f
-		});
+		//mModelsObject->GetTransform().SetLocalRotation({
+		//	0.0f,
+		//	engine.GetTimer().GetElapsedTime() * 90.0f,
+		//	0.0f
+		//});
 	}
 
 public:

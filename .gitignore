@@ -364,6 +364,4 @@ FodyWeavers.xsd
 
 vcpkg_installed/
 diagrams/generator_output/
-/URMBenchmarks/Assets/roman_marble_3.000.000_triangles.glb
-/URMBenchmarks/Assets/sphere_327680_triangles.fbx
-/URMBenchmarks/Assets
+/URMBenchmarks/Assets/Big
