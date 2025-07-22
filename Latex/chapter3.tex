@@ -6,33 +6,40 @@ badań oraz łatwiejsze monitorowanie zmian w wydajności.
 
 Wybraną podstawową platformą deweloperską jest laptop \textbf{Lenovo Legion Slim 5-14}, składający się z następujących komponentów:
 
-\begin{itemize}
-	\item \textbf{CPU}: AMD Ryzen 7 7840HS @ 55W
-	\item \textbf{GPU 1}: NVIDIA RTX 4060 8GB @ 90W
-	\item \textbf{GPU 2}: AMD Radeon 780M (zintegrowana)
-	\item \textbf{RAM}: 32GB LPDDR5x, 6400 MT/s
-	\item \textbf{SSD}: Samsung 980 Pro 2TB
-	\item \textbf{Sterownik graficzny NVIDIA}: 565.90
-	\item \textbf{System operacyjny}: Windows 11 Pro x64, wersja 24H2
-\end{itemize}
+\begin{center}
+	\begin{tabular}{ |l r| }
+		\hline
+		\textbf{Kategoria} & \textbf{Komponent} \\
+		\hline
+		CPU & \textbf{AMD Ryzen 7 7840HS} \\
+		GPU1 & \textbf{NVIDIA RTX 4060 8GB} \\
+		GPU2 & \textbf{AMD Radeon 780M (zintegrowana)} \\
+		RAM & \textbf{32GB LPDDR5x 6400 MT/s} \\
+		SSD & \textbf{Samsung 980 Pro 2TB} \\
+		Sterownik graficzny NVIDIA & \textbf{577.0} \\
+		Sterownik graficzny AMD & \textbf{Adrenaline 24.10.34.01} \\
+		System operacyjny & \textbf{Windows 11 Pro x64, wersja 24H2} \\
+		\hline
+	\end{tabular}
+\end{center}
 
-Do wyeliminowania zmiennych termicznych testy przeprowadzone zostały ze zbalansowanym trybem energetycznym, ale z manualnie ustawioną prędkością wentylatorów na maksymalne obroty.
+Testy na dwóch różnych układach graficznych o wyraźnie odbiegających od siebie osiągach pozwoliły na określenie gdzie leży ograniczenie danego testu - po stronie procesora, czy GPU.
 
-Ustawione ręcznie limity podzespołów prezentują się następująco:
+Do wyeliminowania zmiennych termicznych testy przeprowadzone zostały ze zbalansowanym trybem energetycznym, ale z manualnie ustawioną prędkością wentylatorów na maksymalne obroty. Ustawione ręcznie limity APU (połączonych CPU i GPU2) oraz GPU1 prezentują się następująco:
 
 \begin{center}
 	\begin{tabular}{ |l r| }
 		\hline
 		\textbf{Parametr} & \textbf{Wartość} \\
 		\hline
-		CPU - Peak & \textbf{55W} \\
-		CPU - Short term & \textbf{55W} \\
-		CPU - Long Term & \textbf{55W} \\
-		CPU - Cross load & \textbf{55W} \\
-		CPU - Temperature limit & \textbf{100°C} \\
-		GPU - TDP & \textbf{90W} \\
-		GPU - Dynamic Boost & \textbf{0W} \\
-		GPU - Temperature limit & \textbf{87°C} \\
+		APU - Peak & \textbf{55W} \\
+		APU - Short term & \textbf{55W} \\
+		APU - Long Term & \textbf{55W} \\
+		APU - Cross load & \textbf{55W} \\
+		APU - Temperature limit & \textbf{100°C} \\
+		GPU1 - TDP & \textbf{90W} \\
+		GPU1 - Dynamic Boost & \textbf{0W} \\
+		GPU1 - Temperature limit & \textbf{87°C} \\
 		\hline
 	\end{tabular}
 \end{center}

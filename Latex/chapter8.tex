@@ -70,6 +70,3 @@
 		\item \textbf{Przeszacowanie zwiększenia ilości elementów} - mechanizm odpowiedzialny za ograniczenie takiej sytuacji został już opisany i jest nim podejście, w którym najpierw szacunkowo zostaje określona ilość powodująca spadek wydajności poniżej progu, aby potem bardzo powolną redukcją nastąpiło określenie wartości docelowej. Dodatkowym sposobem jest nadpisywalna metoda \textit{GetTargetCurveMultiplier()}, dzięki której bardziej złożone testy mogą zmniejszyć prawdopodobieństwo przeszacowania, kosztem zwiększonego czasu trwania testu.
 		\item \textbf{Niedokładność czasu pomiaru} - użycie klasy \textit{high\_resolution\_clock} ze standardowej biblioteki C++ umożliwia dokonywanie pomiaru czasu z bardzo wysoką precyzją liczoną w nanosekundach.
 	\end{itemize}
-	
-	\section{Testy wydajności}
-	Poniżej przedstawione zostały zaimplementowane testy wydajności wraz z krótkim opisem, porównaniem działania między systemami testowymi oraz analizą z czego wynikają jego ograniczenia.
