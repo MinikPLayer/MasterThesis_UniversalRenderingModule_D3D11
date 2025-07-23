@@ -6,7 +6,7 @@
 // It creates a hierarchy of objects and applies rotation transformation to the parent object, 
 // Which updates the transformations of all child objects.
 class ObjectsTransformThroughputTest : public AutoTest {
-	int mElementsPerLevel = 1000;
+	int mElementsPerLevel = 5000;
 
 	std::shared_ptr<URM::Engine::SceneObject> mObjectsParent;
 	std::shared_ptr<URM::Engine::SceneObject> mLastObject;

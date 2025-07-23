@@ -1,0 +1,98 @@
+\chapter{Dema funkcjonalności}
+Poza samymi testami zaimplementowane zostało także kilka programów typu demo, przedstawiających poszczególne funkcjonalności modułu.
+
+\section{Sponza}
+Stworzona pierwotnie przez Marko Dabrovic'a, następnie ulepszona przez niemiecką firmę Crytek \cite{github:Khronos:Sponza}, a w 2022 roku ponownie usprawniona przez amerykańskiego giganta Intel \cite{Intel:GPUResearch:Sponza} reprezentacja rzeczywistego atrium pałacu Sponza, znajdującego się w Chorwackiej miejscowości Dubrovnik stała się jednym z najpopularniejszych modeli służacych do testowania i porównywania programów grafiki 3D, a w szczególności modułów odpowiedzialnych za oświetlenie globalne. W ramach tej sekcji przedstawiona została najprostsza wersja od firmy Intel w dwóch wersjach - uproszczonej oraz PBR. W obu manualnie dobrane zostało oświetlenie oraz kolor nieba celem utworzenia kompozycji reprezentującej zbliżone do realnego zastosowanie modułu. W poniższej tabeli przedstawiona została także zmierzona wydajność renderowania, a wygenerowane zrzuty ekranu na rys. \ref{test_sponza_1}, \ref{test_sponza_2} i \ref{test_sponza_3}.
+
+\begin{center}
+	\begin{tabular}{ |l r r r|}
+		\hline
+		\textbf{Układ graficzny} & \textbf{FPS - uproszczony} & \textbf{FPS - PBR} & \textbf{Wydajność PBR} \\
+		\hline
+		NVIDIA 4060 & \textbf{955} & \textbf{718} & \textbf{75.18\%} \\
+		Radeon 780M & \textbf{380} & \textbf{287} & \textbf{75.53\%} \\
+		Procent wydajności & \textbf{39.79\%} & \textbf{39.79\%} & - \\
+		\hline
+	\end{tabular}
+\end{center}
+
+	
+\begin{figure}[h!]
+	\begin{subfigure}{.5\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{images/demo_sponza_1.png}
+		\caption{Widok uproszczony.}
+	\end{subfigure}
+	\begin{subfigure}{.5\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{images/demo_sponza_1_pbr.png}
+		\caption{Tryb PBR.}
+	\end{subfigure}
+	\caption{Hala atrium Sponza wygenerowana przez moduł.}
+	\label{test_sponza_1}
+\end{figure}
+
+\begin{figure}[h!]
+	\begin{subfigure}{.5\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{images/demo_sponza_2.png}
+		\caption{Tryb klasyczny.}
+	\end{subfigure}
+	\begin{subfigure}{.5\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{images/demo_sponza_2_pbr.png}
+		\caption{Widok PBR.}
+	\end{subfigure}
+	\caption{Zakrzywione stropy w korytarzach Sponza.}
+	\label{test_sponza_2}
+\end{figure}
+
+\begin{figure}[h!]
+	\begin{subfigure}{.5\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{images/demo_sponza_4.png}
+		\caption{Shader uproszczony.}
+	\end{subfigure}
+	\begin{subfigure}{.5\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{images/demo_sponza_4_pbr.png}
+		\caption{Wersja oparta o Physically Based Rendering.}
+	\end{subfigure}
+	\caption{Widok z piętra pałacu.}
+	\label{test_sponza_3}
+\end{figure}
+
+\vfill
+\clearpage
+
+\section{Demo detali - Roman Marble Plinth}
+Opisywany już w rozdziale testów model \textit{Roman Marble Ornate Plinth} z pakietu Quixel Megascans został głównym obiektem tej sekcji, ze względu na dużą ilość detali geometrii i tekstur. Przedstawiony w dwóch wersjach na rys. \ref{test_highpoly} model charakteryzuje się wysokim narzutem wydajnościowym przy rysowaniu, co dało wyraźny znak przy określaniu wydajności dema, czego szczegóły zostały przedstawione w poniższej tabeli.
+
+\begin{center}
+	\begin{tabular}{ |l r r r|}
+		\hline
+		\textbf{Układ graficzny} & \textbf{FPS - uproszczony} & \textbf{FPS - PBR} & \textbf{Wydajność PBR} \\
+		\hline
+		NVIDIA 4060 & \textbf{360} & \textbf{445} & \textbf{123.61\%} \\
+		Radeon 780M & \textbf{84} & \textbf{84} & \textbf{100.00\%} \\
+		Procent wydajności & \textbf{23.33\%} & \textbf{18.88\%} & - \\
+		\hline
+	\end{tabular}
+\end{center}
+
+\begin{figure}[h!]
+	\begin{subfigure}{.5\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{images/demo_highPoly.png}
+		\caption{Wersja uproszczona.}
+	\end{subfigure}
+	\begin{subfigure}{.5\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{images/demo_highPoly_PBR.png}
+		\caption{Tryb PBR.}
+	\end{subfigure}
+	\caption{Model cokołu w dwóch trybach działania modułu.}
+	\label{test_highpoly}
+\end{figure}
+
+\section{Materiały}
