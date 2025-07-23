@@ -1,0 +1,12 @@
+Test	Target FPS	dGPU	iGPU	Percentage	Uwagi
+Lights	60	1647	934	56.71%	100% GPU 
+Objects	60	14370	9341	65.00%	Niskie u?ycie GPU. Wysokie zu?ycie pojedynczego rdzenia.
+Transform	60	110407	97083	87.93%	1% zu?ycia GPU.
+Vertex	60	12072936	3018234	25.00%	100% GPU 
+					
+Demo	dGPU	iGPU	Percentage		
+Sponza	955	380	39.79%		
+Sponza PBR	718	287	39.97%		
+Material	3400	2250	66.18%		
+HighPoly	360	84	23.33%		
+HighPoly PBR	445	84	18.88%		

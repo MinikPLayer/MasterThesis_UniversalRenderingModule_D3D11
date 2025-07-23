@@ -21,6 +21,18 @@ class VertexThroughputTest : public AutoTest {
 
 	void AddModel() {
 		auto newModel = mModelsObject->AddChild(new URM::Engine::ModelObject("roman_marble_3.000.000_triangles.glb"));
+		const auto distance = 4.0f;
+		const auto targetObjectCount = 5;
+
+		float i = this->mCurrentVaseCount % targetObjectCount;
+		auto iOffset = this->mCurrentVaseCount / targetObjectCount;
+
+		i += 1.0f / (iOffset + 1);
+
+		auto x = sin(i * 0.5f) * distance * i / targetObjectCount;
+		auto z = cos(i * 0.5f) * distance * i / targetObjectCount;
+		newModel->GetTransform().SetLocalPosition({ x, -0.9f, z });
+
 		mPerVaseVerticesCount = CalculateVerticesCount(newModel);
 		mCurrentVaseCount++;
 	}
@@ -30,13 +42,12 @@ class VertexThroughputTest : public AutoTest {
 			AddModel();
 		}
 
-		const auto distance = 10.0f;
-		for (int i = 0; i < mCurrentVaseCount; i++) {
-			auto model = mModelsObject->GetChildByIndex(i);
-			auto x = sin(i * 0.5f) * distance * i / mCurrentVaseCount;
-			auto z = cos(i * 0.5f) * distance * i / mCurrentVaseCount;
-			model->GetTransform().SetLocalPosition({ x, -0.9f, z });
-		}
+		//for (int i = 0; i < mCurrentVaseCount; i++) {
+		//	auto model = mModelsObject->GetChildByIndex(i);
+		//	auto x = sin(i * 0.5f) * distance * i / mCurrentVaseCount;
+		//	auto z = cos(i * 0.5f) * distance * i / mCurrentVaseCount;
+		//	model->GetTransform().SetLocalPosition({ x, -0.9f, z });
+		//}
 
 		return true;
 	}

@@ -62,7 +62,7 @@ protected:
 
 	void FinishTest(bool success) {
 		auto score = GetScore();
-		MessageBox(nullptr, URM::Core::StringUtils::StringToWString(fmt::format("Test score: {}", score)).c_str(), L"Test Complete", MB_OK | MB_ICONINFORMATION);
+		MessageBox(nullptr, URM::Core::StringUtils::StringToWString(fmt::format("Test score: {}\nTarget FPS: {}", score, GetTargetFPS())).c_str(), L"Test Complete", MB_OK | MB_ICONINFORMATION);
 		auto clipboardData = fmt::format("{}", score);
 
 		OpenClipboard(nullptr);
@@ -104,7 +104,7 @@ public:
 				auto now = std::chrono::high_resolution_clock::now();
 				if(std::chrono::duration_cast<std::chrono::seconds>(now - lastPrint).count() > 0.5) {
 					lastPrint = now;
-					//spdlog::info("[IAutoTest] Current FPS: {:.1f}. Current count: {}", 1.0 / averageFrameTime.value(), GetCount());
+					spdlog::info("[IAutoTest] Current FPS: {:.2f}. Current count: {}\n", 1.0 / averageFrameTime.value(), GetCount());
 				}
 
 				OutputDebugString(URM::Core::StringUtils::StringToWString(fmt::format("{}\n", averageFrameTime.value())).c_str());
