@@ -96,3 +96,17 @@ Opisywany już w rozdziale testów model \textit{Roman Marble Ornate Plinth} z p
 \end{figure}
 
 \section{Materiały}
+Ostatnim demo przedstawiającym główne funkcjonalności modułu jest pokazanie możliwości zaimplementowanego systemu materiałów. Scena testu, pokazana na rys. \ref{demo_materials} składa się z 3 głównych części.
+ 
+Głównym, środkowym elementem jest zbiór modeli kul o różnych parametrach materiałów. Elementy czerwone mają przypisany materiał typu PBR, a ich umieszczenie pokazuje różnice między jego parametrami. W osi pionowej od góry do dołu rośnie wartość chropowatości powierzchni - \textit{roughness}, a w poziomej od lewej do prawej parametr metaliczności. Kule zielone rysowane są przy pomocy uproszczonego materiału, a kolejne instancje zwiększają konfigurację chropowatości od lewej do prawej. 
+
+Pozostałe segmenty przyjmują postać wydłużonych w pionie sześcianów, pokazujących bezproblemową możliwość doimplementowania dodatkowych materiałów. Wykorzystują one nowy materiał i przypisany do niego shader, niebędący częścią oryginalnego modułu, zwracający kolor odpowiadający pozycji na ekranie. Jego dwie instancje różnią się włączeniem i wyłączeniem kalkulacji oświetlenia, odpowiednio dla lewej i prawej wersji. 
+
+Wygenerowana scena przedstawiona została na rys. \ref{demo_materials}.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{images/demo_materials.png}
+	\caption{Zrzut ekranu przedstawiający obiekty o różnych materiałach i programach cieniujących.}
+	\label{demo_materials}
+\end{figure}

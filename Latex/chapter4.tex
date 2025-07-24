@@ -89,10 +89,9 @@ Android \cite{sdl:wiki:2024}.
 
 Przy pomocy subsystemu okien SDL jest możliwe utworzenie okna, które
 następnie można wykorzystać jako powierzchnię rysowania dla zapytań
-Direct3D. Przykładowy sposób opisany pseudokodem został przedstawiony
-poniżej:
+Direct3D. Przykładowy sposób opisany pseudokodem został przedstawiony w ramach listingu \ref{lst:sdl2init}.
 
-\begin{lstlisting}[caption={Pseudokod inicjalizacji okna SDL2 (oryginalna treść)}, label={lst:sdl2_init}]
+\begin{lstlisting}[caption={Pseudokod inicjalizacji okna SDL2 (oryginalna treść)}, label={lst:sdl2init}]
 	SDL_Init(); // Inicjalizacja biblioteki SDL
 	SDL_CreateWindow(); // Utworzenie okna
 	SDL_GetWindowWMInfo(); // Pobranie informacji o natywnym oknie
@@ -122,9 +121,9 @@ dla systemu Windows, jest najbliższym natywnemu sposobem otwarcia okna
 zdolnego do obsługi DirectX. Pozwala także na najwięcej możliwości
 związanych z bezpośrednim zarządzaniem oknem oraz zasobami specyficznymi
 dla systemu Windows. Wykorzystany sposób otwarcia okna przy pomocy WinAPI został opisany
-poniżej przy pomocy analogicznego do poprzedniego pseudokodu.
+w ramach listingu \ref{lst:winapi:init} przy pomocy analogicznego do poprzedniego pseudokodu, dzięki czemu możliwe jest łatwiejsze porównanie API.
 
-\begin{lstlisting}[caption={Pseudokod inicjalizacji okna WinAPI (oryginalna treść)}, label={lst:winapi_init}]
+\begin{lstlisting}[caption={Pseudokod inicjalizacji okna WinAPI (oryginalna treść)}, label={lst:winapi:init}]
 	RegisterClassEx(); // Zarejestrowanie klasy obiektu
 	CreateWindowEx(); // Utworzenie nowego okna
 	ShowWindow(); // Pokazanie nowego okna
@@ -143,23 +142,7 @@ poniżej przy pomocy analogicznego do poprzedniego pseudokodu.
 
 Do poprawnego działania wymagane jest także stworzenie funkcji handlera
 dla okna \emph{WndProc}, która implementuje obsługę różnego rodzaju
-sygnałów, które okno może otrzymać. Do podstawowego działania
-obejmującego obsługę zamykania okna z poziomu przycisku
-\emph{\textbf{x}} można użyć następującej funkcji:
-
-\begin{lstlisting}[caption={Pseudokod funkcji WndProc dla WinAPI (oryginalna treść)}, label={lst:winapi_wndproc}]
-	void WndProc (hwnd, message, wParam, lParam) {
-		if (message == WM_DESTROY) {
-			// Wysłanie zapytania o zamknięcie okna
-			// oraz zwolnienie jego zasobów		
-			PostQuitMessage();	
-		}
-		else {
-			// Domyślna funkcja obsługi okna
-			DefWindowProc (hwnd, message, wParam, lParam);
-		}
-	}
-\end{lstlisting}
+sygnałów, które okno może otrzymać. 
 
 Ze względu na jej użyteczność, stabilność oraz najlepsze wsparcie dla
 DirectX w dalszej części projektu do obsługi okna użyte zostanie WinAPI. Rozważana była natomiast jeszcze jedna opcja opisana poniżej.
@@ -189,7 +172,7 @@ implementacji bardziej złożonych funkcjonalności. Jako podstawę do testów w
 wyświetlający trójkąt równoboczny na ekranie. Każdy wierzchołek figury
 zostaje pokolorowany innym kolorem, a wyświetlana jest ona na niebieskim
 tle. Porównanie zostało wykonane na tle wydajności, skomplikowania
-wymaganego kodu oraz potencjalnych możliwości rozwoju.
+wymaganego kodu oraz potencjalnych możliwości rozwoju. Do lepszego przedstawienia podstawy wyborów pokazane zostały listingi, pokazujące w uproszczonej formie złożoność pracy z opisywanymi API.
 
 \subsection{Direct3D 9}
 
@@ -203,13 +186,10 @@ graficznym konsoli Xbox 360 \cite{ms:xbox360bp:2024}. Preferowanym językiem obs
 implementowany był program testowy. Program testowy został rozbity na 2 części -- inicjalizację wykonywaną
 raz oraz rysowanie wywoływane co klatkę obrazu. Taka organizacja pozwala
 na lepsze rozdzielenie poszczególnych fragmentów oraz uniknięcie
-problemów związanych z wyciekami pamięci. Poniżej przedstawione zostały
-opisane pseudokodem fragmenty kodu, potrzebnego do implementacji
-programu testowego.
+problemów związanych z wyciekami pamięci. W ramach listingów \ref{lst:d3d9:init} oraz \ref{lst:d3d9:render} przedstawione zostały opisane pseudokodem fragmenty, potrzebne do implementacji programu testowego.
 % Usunięto \end{quote}
 
-\subsubsection{Inicjalizacja}
-\begin{lstlisting}[caption={Pseudokod inicjalizacji Direct3D 9 (oryginalna treść)}, label={lst:d3d9_init}]
+\begin{lstlisting}[caption={Pseudokod inicjalizacji Direct3D 9 (oryginalna treść)}, label={lst:d3d9:init}]
 	void init() {
 		// Własna funkcja tworząca okno przy pomocy WinAPI
 		CreateWindow();
@@ -226,8 +206,7 @@ programu testowego.
 	}
 \end{lstlisting}
 
-\subsubsection{Rysowanie}
-\begin{lstlisting}[caption={Pseudokod rysowania Direct3D 9 (oryginalna treść)}, label={lst:d3d9_render}]
+\begin{lstlisting}[caption={Pseudokod rysowania Direct3D 9 (oryginalna treść)}, label={lst:d3d9:render}]
 	void render() {
 		dev->Clear(); // Czyszczenie bufora ekranu
 		dev->BeginScene(); // Rozpoczęcie rysowania sceny
@@ -266,12 +245,11 @@ akcelerowanych sprzętowo. Wydana została jedynie wersja pierwsza z planowaną 
 wycofana na rzecz Microsoft XNA i nigdy nie została upubliczniona. Ze
 względu na to MDX posiada obsługę jedynie dla DirectX w wersji 9 oraz
 architektury x86, bez wsparcia dla x64. Przykładowy pseudokod przedstawiający implementację testowej aplikacji
-został przedstawiony poniżej:
+został przedstawiony w ramach listingów \ref{lst:manageddx:init} i \ref{lst:manageddx:drawing}.
 % Usunięto \end{quote}
 
-\subsubsection{Inicjalizacja}
 % Zmieniono styl na csharpstyle, zachowując oryginalną treść
-\begin{lstlisting}
+\begin{lstlisting}[caption={Funkcja inicjalizacji przy pomocy Managed DirectX}, label={lst:manageddx:init}]
 	
 	void init() {
 		CreateWindow();
@@ -287,9 +265,8 @@ został przedstawiony poniżej:
 	
 \end{lstlisting}
 
-\subsubsection{Rysowanie}
 % Zmieniono styl na csharpstyle, zachowując oryginalną treść
-\begin{lstlisting}
+\begin{lstlisting}[caption={Funkcja rysowania przy pomocy Managed DirectX}, label={lst:manageddx:drawing}]
 	
 	void render() {
 		// Czyszczenie ekranu
@@ -328,11 +305,9 @@ programowalny pipeline graficzny z obsługą teselacji i compute shaders,
 czy bardziej zaawansowany model shader'ów w wydaniu Shader Model 5.0. Niestety odbywa się to kosztem złożoności obsługi nowego API, między
 innymi poprzez ręczne zarządzenie niektórymi elementami rysowania,
 takimi jak Swapchain czy Assembler Input Layout. Tak jak w poprzednim przypadku, uproszczony pseudokod podzielony został
-na 2 główne funkcje -- inicjalizacja i rysowanie. Wykorzystany został
-tryb rysowania Immediate do uproszczenia przykładu.
+na 2 główne funkcje - inicjalizacja i rysowanie, które zostały przedstawione w ramach listingów \ref{lst:d3d11:init} oraz \ref{lst:d3d11:render}. Dla uproszczenia przykładu wykorzystany został tryb rysowania Immediate.
 
-\subsubsection{Inicjalizacja}
-\begin{lstlisting}[caption={Pseudokod inicjalizacji Direct3D 11 (oryginalna treść)}, label={lst:d3d11_init}]
+\begin{lstlisting}[caption={Pseudokod inicjalizacji Direct3D 11 (oryginalna treść)}, label={lst:d3d11:init}]
 	
 	void init() {
 		CreateWindow();
@@ -366,8 +341,7 @@ tryb rysowania Immediate do uproszczenia przykładu.
 	
 \end{lstlisting}
 
-\subsubsection{Rysowanie}
-\begin{lstlisting}[caption={Pseudokod rysowania Direct3D 11 (oryginalna treść)}, label={lst:d3d11_render}]
+\begin{lstlisting}[caption={Pseudokod rysowania Direct3D 11 (oryginalna treść)}, label={lst:d3d11:render}]
 	
 	void render() {
 		// Wyczyszczenie bufora rysowania
@@ -406,99 +380,7 @@ programisty został położony na zarządzenie pamięcią, w tym zarządzanie
 używanymi zasobami i zwalnianie ich w odpowiednim czasie. Zwalnia to
 sterownik z konieczności pełnienia tej roli, co przekłada się na
 wyraźnie zwiększoną wydajność, ale może prowadzić do wycieków pamięci i
-bardziej złożonej architektury programu. Jak w poprzednich tak i w tym przypadku przykładowa aplikacja została
-podzielona na inicjalizację oraz rysowanie, opisane pseudokodem poniżej.
-
-\subsubsection{Inicjalizacja}
-\begin{lstlisting}[caption={Pseudokod inicjalizacji Direct3D 12 (oryginalna treść)}, label={lst:d3d12_init}]
-	
-	void init() {
-		CreateWindow();
-		
-		// Stworzenie "fabryki" obiektów DXGI
-		factory = CreateDXGIFactory();
-		
-		// Stworzenie uchwytu do wirtualnego urządzenia
-		dev = D3D12CreateDevice();
-		
-		// Stworzenie kolejki komend. Przy jej pomocy wysyłane będą polecenia do GPU.
-		queue = dev- $>$CreateCommandQueue();
-		swapchain = factory->CreateSwapChainForHwnd();
-		
-		// Utworzenie sterty deskryptora. Będzie ona zawierać wejściowe
-		descHeap = dev->CreateDescriptorHeap();
-		
-		// Tworzymy odpowiednią ilość widoków RTV. Każdy z osobna
-		// dla każdej klatki obrazu "w locie"
-		for(int i = 0; i < FrameCount; i++) {
-			rtv{[}i{]} = dev->CreateRenderTargetView();
-		}
-		
-		// Utworzenie alokatora dla listy komend
-		allocator = dev->CreateCommandAllocator();
-	
-		// Utworzenie sygnatury root'a. 
-		// Będzie zawierać opis formatu danych wejściowych
-		rootSignature = dev->CreateRootSignature();
-		
-		// Utworzenie i kompilacja shader'ów
-		vShader = CreateVertexShader();
-		pShader = CreatePixelShader();
-		
-		// Utworzenie stanu "linii produkcyjnej" rysowania grafiki
-		pipeline = dev->CreateGraphicsPipelineState();
-		
-		// Utworzenie listy komend wywoływanej na kolejce komend
-		cList = dev->CreateCommandList();
-		
-		// Utworzenie zasobów bufora wierzchołków oraz uzupełnienie go
-		vBuffer = dev->CreateCommitedResource();	
-		memcpy(vBuffer);
-		
-		// Utworzenie "płotka", będącego strukturą synchronizacji między GPU, a CPU
-		syncFence = dev->CreateFence();
-	}
-	
-\end{lstlisting}
-
-\subsubsection{Rysowanie}
-\begin{lstlisting}[caption={Pseudokod rysowania Direct3D 12 (oryginalna treść)}, label={lst:d3d12_render}]
-	
-	void render() {
-		// Uzupełnienie listy komend
-		allocator->Reset(); // Resetowanie alokatora oraz listy komend
-		cList->Reset(); // Resetowanie listy komend
-		
-		// Ustawienie bazowej sygnatury opisującej format danych wejściowych	
-		cList->SetRootSignature(rootSignature);
-		
-		// Stworzenie bariery, która jest elementem synchronizacji 
-		// i zmienia stan obiektu powierzchni rysowania na RENDER_TARGET
-		cList->ResourceBarrier(RESOURCE_STATE, RENDER_TARGET);
-		
-		// Wyczyszczenie powierzchni rysowania
-		cList->ClearRenderTargetView();
-		
-		// Polecenie rysowania
-		cList->DrawInstanced();
-		
-		// Ponowna bariera przywracająca stan powierzchni rysowania
-		cList->ResourceBarrier(RENDER_TARGET, RESOURCE_STATE);
-		
-		// Wysłanie listy komend i wyświetlenie klatki obrazu
-		queue->ExecuteCommandLists(cList);
-		swapchain->Present();
-		
-		// Synchronizacja poprzez oczekiwanie na ukończenie pracy GPU.
-		// Jest to wersja uproszczona. 
-		// Poprawnym jest utworzenie kilku klatek "w locie"
-		// i oczekiwanie na nie w odpowiedniej kolejności, a nie tylko na poprzednią
-		newValue = queue->Signal(syncFence);
-		
-		WaitForSingleObject(syncFenceEvent);
-	}
-	
-\end{lstlisting}
+bardziej złożonej architektury programu. Nawet bardzo uproszczony pseudokod przykładu jest złożony, przez co ten fragment został pominięty dla poprawy czytelności.
 
 API Direct3D 12 jest biblioteką bardziej zaawansowaną niż jest to
 wymagane dla tego projektu, szczególnie uwzględniając prowadzenie go w
@@ -520,32 +402,7 @@ czcionek (stb\_truetype), czy wykrywania wycieków pamięci
 łatwym użyciem i brakiem kosztów licencyjnych. Stb\_image pozwala na proste wczytywanie i dekodowanie wielu popularnych
 formatów obrazów, między innymi JPG, PNG, TGA, czy BMP \cite{github:stb:2024}. Jego
 działanie nie jest uzależnione od żadnego API graficznego czy biblioteki
-UI, co pozwala na uniwersalne użycie do własnego modułu. Poniżej przedstawiony został przykład użycia biblioteki stb\_image do
-wczytania pliku cat.png w formacie ARGB.
-
-\begin{lstlisting}[caption={Przykład użycia stb\_image (oryginalna treść)}, label={lst:stb_image}]
-	
-	#include <stb_image.h>
-	
-	int main() {
-		int imgWidth;
-		int imgHeight;
-		int imgChannels;
-		
-		// Wczytanie pliku z użyciem funkcji stbi_load()
-		unsigned char *imgData = stbi_load(
-				"cat.png", 
-				&imgWidth, 
-				&imgHeight, 
-				&imgChannels, 
-				4
-		);
-		
-		processImage(imgData); // Użycie wczytanego obrazu
-		free(imgData); // Zwolnienie pamięci
-	}
-	
-\end{lstlisting}
+UI, co pozwala na uniwersalne użycie do własnego modułu. 
 
 \subsection{DirectXTK}
 
@@ -564,32 +421,7 @@ przy pomocy API Windows Imaging Component, w skrócie \emph{WIC}. Obsługuje zde
 DDS, którego obsługi brakuje w przypadku stb\_image. Wczytanie tekstury przy pomocy DirectXTK opisane jest przy okazji bardzo
 dobrej dokumentacji projektu \cite{github:directxtk:sprites:2024}.
 
-\begin{lstlisting}[caption={Przykład użycia DirectXTK WICTextureLoader (oryginalna treść)}, label={lst:directxtk_wic}]
-
-	#include <WICTextureLoader.h>
-	
-	// Utworzenie nowego zasobu
-	ComPtr<ID3D11Resource> resource;
-	
-	const wchar_t* path = L"cat.png";
-	
-	int main() {
-		// Wczytanie przy pomocy funkcji z DirectXTK
-		CreateWICTextureFromFile(
-				device, 
-				path, 
-				resource.GetAddressOf(),
-				m_texture.ReleaseAndGetAddressOf()
-		);
-		
-		// Konwersja typu na typ tekstury Direct3D
-		ComPtr<ID3D11Texture2D> cat;
-		DX::ThrowIfFailed(resource.As(&cat));
-	}
-	
-\end{lstlisting}
-
-Ze względu na świetną integrację z systemem DirectX jako bibliotekę
+Ze względu na bardzo dobrą integrację z systemem DirectX jako bibliotekę
 obsługi tekstur w projekcie wybrany został DirectXTK.
 
 \section{Wczytywanie modeli 3D}
@@ -603,21 +435,7 @@ formatach takich jak FBX, CMO, DAE, OBJ, czy glTF.
 Wspomniana już przy okazji wczytywania tekstur biblioteka pomocnicza
 DirectX Tool Kit zawiera także komponent odpowiedzialny za wczytywanie
 modeli. Jego użycie jest proste i intuicyjne, do tego dobrze pasowałoby
-do użycia razem z elementem tekstur. Przykład użycia przedstawiony
-został poniżej.
-
-\begin{lstlisting}[caption={Przykład użycia DirectXTK Model (oryginalna treść)}, label={lst:directxtk_model}]
-	
-	// Utworzenie "fabryki" efektów, wymaganej do użycia funkcji
-	m_fxFactory = std::make_unique<EffectFactory>(device);
-	
-	// Wczytanie modelu przy użyciu funkcji CreateFromCMO
-	auto teapot = Model::CreateFromCMO(device, L"teapot.cmo", *m_fxFactory);
-	
-	// Funkcja pomocnicza rysowania
-	teapot->Draw(...);
-	
-\end{lstlisting}
+do użycia razem z elementem tekstur.
 
 Użycie DirectXTK posiada jednak znaczącą wadę, a jest nią ograniczenie
 do formatów CMO oraz SDKMESH \cite{github:directxtk:model:2024}. Brak wsparcia dla popularnych
@@ -629,47 +447,8 @@ W pełnej nazwie \emph{Open Asset Import Library}, jest otwarto źródłową
 biblioteką z funkcjonalnością wczytywania modeli z ponad 40 różnych
 formatów plików 3D \cite{github:assimp:2024}. Wśród narzędzi znajdują się także funkcje
 postprocessing'u modeli, takie jak wyliczanie wartości normalnych,
-triangulacji, czy optymalizacji wierzchołków.
-
-Użycie assimp jest bardziej złożone od DirectXTK, ale nadal dobrze
-opisane w licznych poradnikach oraz dokumentacji. Poniżej przedstawiony
-został uproszczony przykład wczytania przykładowego pliku teapot.fbx,
-który został sporządzony na podstawie pełnego dema dostępnego w
-dokumentacji projektu Assimp \cite{github:assimp:dx11sample:2024}.
-
-\begin{lstlisting}[caption={Przykład użycia Assimp (oryginalna treść)}, label={lst:assimp_load}]
-
-	void load() {
-		Assimp::Importer importer;
-		const aiScene* pScene = importer.ReadFile("teapot.fbx", ...);
-		processNode(pScene->mRootNode, pScene);
-	}
-	
-	void processNode(aiNode* node, const aiScene* scene) {
-		// Wczytanie modeli node'a z tablicy
-		// Dla uproszczenia pominięto pętle po mesh'ach
-		processMeshes(scene->mMeshes);
-		
-		// Rekursywne wczytanie gałęzi
-		for(uint i = 0; i < node->mNumChildren; i++) {
-			processNode(node->mChildren{[}i{]}, scene);		
-		}
-	}
-	
-	void processMesh(aiMesh* mesh, const aiScene* scene) {		
-		// Dla uproszczenia wczytywanie zostało przedstawione
-		// przy pomocy pseudofunkcji loadFrom o definicji
-		// loadFrom(data, n);
-		
-		vertices = loadFrom(mesh->mVertices, mesh->mNumVertices);
-		UVs = loadFrom(mesh->textcoord, mesh->mNumVertices);
-		faces = loadFrom(mesh->mFaces, mesh->mNumFaces);
-		
-		indices = loadFrom(mesh->mIndices, mesh->mNumFaces * face.mNumIndices);
-		materials = scene->mMaterials{[}mesh->mMaterialIndex{]};
-	}
-	
-\end{lstlisting}
+triangulacji, czy optymalizacji wierzchołków. Użycie assimp jest bardziej złożone od DirectXTK, ale nadal dobrze
+opisane w licznych poradnikach oraz dokumentacji.
 
 Ze względu na wsparcie większej ilości formatów oraz wyraźnie lepszą
 dokumentację jak i wsparcie społeczności, do projektu użyta zostanie

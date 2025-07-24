@@ -2,8 +2,53 @@
 #include <URM/Engine/ModelObject.h>
 #include <URM/Engine/MeshObject.h>
 
+struct ScreenPositionMaterial : public URM::Core::Material {
+	static std::shared_ptr<URM::Core::PixelShader> screenPositionPixelShader;
+	struct Data {
+		Vector2 screenSize = { 1.0f, 1.0f };
+		int calculateLighting = 1;
+		int dummy;
+	};
+
+protected:
+	Data mData;
+	bool mCalculateLighting = true;
+
+	std::shared_ptr<URM::Core::PixelShader> GetShader(URM::Core::D3DCore& core) override
+	{
+		if (screenPositionPixelShader == nullptr) {
+			screenPositionPixelShader = std::shared_ptr<URM::Core::PixelShader>(new URM::Core::PixelShader(core, L"ScreenPositionPixelShader.cso"));
+		}
+		return screenPositionPixelShader;
+	}
+
+	void UploadData(URM::Core::D3DCore& core, bool useAlbedoTexture) override {
+		auto size = core.GetWindow().GetSize();
+		mData.screenSize = { static_cast<float>(size.width), static_cast<float>(size.height) };
+		mData.calculateLighting = mCalculateLighting ? 1 : 0;
+		this->mConstantBuffer.UpdateWithData(core, &mData);
+	}
+
+public:
+	ScreenPositionMaterial(URM::Core::D3DCore& core, bool calculateLighting = true) : Material(URM::Core::D3DConstantBuffer::Create<ScreenPositionMaterial::Data>(core, URM::Core::PIXEL)) {
+		this->mCalculateLighting = calculateLighting;
+	}
+};
+
+std::shared_ptr<URM::Core::PixelShader> ScreenPositionMaterial::screenPositionPixelShader = nullptr;
+
 void MaterialTest::OnInit(URM::Engine::Engine& engine) {
 	auto root = engine.GetScene().GetRoot().lock();
+
+	auto screenPositionShaderMaterial = std::shared_ptr<ScreenPositionMaterial>(new ScreenPositionMaterial(engine.GetCore(), false));
+	auto screenPositionShaderMaterialLight = std::shared_ptr<ScreenPositionMaterial>(new ScreenPositionMaterial(engine.GetCore(), true));
+	auto cube = root->AddChild(new URM::Engine::ModelObject("cube.glb", screenPositionShaderMaterial));
+	cube->GetTransform().SetLocalScale({ 2.0f, 10.0f, 1.0f });
+	cube->GetTransform().SetLocalPosition({ -20.0f, 0.0f, -0.0f });
+
+	auto cubeLight = root->AddChild(new URM::Engine::ModelObject("cube.glb", screenPositionShaderMaterialLight));
+	cubeLight->GetTransform().SetLocalScale({ 2.0f, 10.0f, 1.0f });
+	cubeLight->GetTransform().SetLocalPosition({ 20.0f, 0.0f, -0.0f });
 
 	const int SPHERE_COUNT = 10;
 	const float SPHERE_SEPARATION = 2.5f;

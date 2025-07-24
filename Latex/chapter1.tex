@@ -46,7 +46,7 @@ Rysowanie zaawansowanych scen 3D z uwzględnieniem nowoczesnych efektów graficz
 	
 	Aby zapobiec wadom opisanej wyżej metody, zaczęto wprowadzać do użytku nową metodę rysowania zwaną „Deferred shading''.
 	
-	Zamiast wyliczania oświetlenia i cieniowania w pierwszym przejściu rysowania, początkowo generowany jest tzw. G-Buffer, zawierający wytworzone bufory z różnymi informacjami o scenie. Najczęściej spotykanymi buforami są bufory koloru (albedo), głębi (odległości od kamery) oraz wartości normalnych (wektor skierowany „w górę'' od powierzchni). Często pojawiają się także parametry powierzchni, takie jak stopień odbijania światła, chropowatość, czy metaliczność. G-Buffer jest następnie łączony do wynikowego obrazu, który wyświetlany jest użytkownikowi.
+	Zamiast wyliczania oświetlenia i cieniowania w pierwszym przejściu rysowania, początkowo generowany jest tzw. G-Buffer, pokazany na rys. \ref{intro-deferred-shading}, zawierający wytworzone bufory z różnymi informacjami o scenie. Najczęściej spotykanymi buforami są bufory koloru (albedo), głębi (odległości od kamery) oraz wartości normalnych (wektor skierowany „w górę'' od powierzchni). Często pojawiają się także parametry powierzchni, takie jak stopień odbijania światła, chropowatość, czy metaliczność. G-Buffer jest następnie łączony do wynikowego obrazu, który wyświetlany jest użytkownikowi.
 	
 	Taki sposób rysowania unika wielokrotnego wyliczania oświetlenia dla pixeli, ale posiada swoje wady w postaci zwiększonego narzutu pamięci, złożonego rysowania obiektów przezroczystych, braku możliwości użycia MSAA, czy pogorszonej wydajności na urządzeniach mobilnych ze względu na architekturę wbudowanych w nie układów graficznych. Dokładniej problemem jest niska przepustowość pamięci, która staje się wąskim gardłem przy tak dużej ilości buforów, z których komponowany jest finałowy obraz.
 	
@@ -54,11 +54,12 @@ Rysowanie zaawansowanych scen 3D z uwzględnieniem nowoczesnych efektów graficz
 		\centering
 		\includegraphics[width=4.85833in,height=1.21782in]{images/1_g_buffer.png}
 		\caption{G-Buffer przedstawiający bufory koloru, głębi oraz wartości normalnych. \cite{tutsplus-deferred-2024}}
+		\label{intro-deferred-shading}
 	\end{figure}
 	
 	\item \textbf{Clustered shading}
 
-	Znany także jako Forward+ lub Tiled Forward Rendering. Jest to nowa technika rysowania łącząca zalety Forward z optymalizacją pozwalającą na obsługę znacznie większej ilości świateł. Wykorzystuje do tego celu zależność, według której światła znajdujące się daleko od obiektów nie dostarczają wystarczającej ilości energii - a co za tym idzie światła -- aby poświęcać moc obliczeniową na ich wyliczanie. Pole widzenia dzielone jest na trójwymiarową siatkę klastrów o ustalonym rozmiarze. Następnie przechodząc w pętli po wszystkich światłach w scenie, określa które z nich mają wpływ na dany klaster, dodając je do listy świateł dla pola. Końcowym etapem jest rysowanie bardzo zbliżone do tradycyjnego Forward Rendering, lecz zamiast określania oświetlenia na podstawie wszystkich świateł w scenie określane jest ono jedynie na podstawie listy punktów światła, które mają wpływ na testowany punkt. \cite{aortiz:clustered:2024}
+	Znany także jako Forward+ lub Tiled Forward Rendering. Jest to nowa technika rysowania łącząca zalety Forward z optymalizacją pozwalającą na obsługę znacznie większej ilości świateł. Wykorzystuje do tego celu zależność, według której światła znajdujące się daleko od obiektów nie dostarczają wystarczającej ilości energii - a co za tym idzie światła -- aby poświęcać moc obliczeniową na ich wyliczanie. Pole widzenia dzielone jest na trójwymiarową siatkę klastrów o ustalonym rozmiarze. Następnie przechodząc w pętli po wszystkich światłach w scenie, określa które z nich mają wpływ na dany klaster, dodając je do listy świateł dla pola. Końcowym etapem jest rysowanie bardzo zbliżone do tradycyjnego Forward Rendering, lecz zamiast określania oświetlenia na podstawie wszystkich świateł w scenie określane jest ono jedynie na podstawie listy punktów światła, które mają wpływ na testowany punkt \cite{aortiz:clustered:2024}. Wizualizacja metody znajduje się na rys. \ref{intro-clustered-rendering}.
 
 	Zaletą tej metody jest znaczne zmniejszenie ilości odczytów i zapisów do pamięci względem Deferred Shading z jednoczesnym zwiększeniem możliwości renderowania oświetlenia w porównaniu do klasycznego Forward Rendering. Nie rozwiązuje ona jednak problemu overdrawing'u, jedynie nieco go maskując. Do wydajnej pracy zalecana jest także obsługa Compute Shaders do wyliczania pokrycia klastrów przez oświetlenie, co wyklucza szybkie działanie na starszych platformach.
 
@@ -66,6 +67,7 @@ Rysowanie zaawansowanych scen 3D z uwzględnieniem nowoczesnych efektów graficz
 		\centering
 		\includegraphics[width=4.94167in,height=3.67203in]{images/2_clustered_field.png}
 		\caption{Podział pola widzenia na klastry. \cite{cnblogs:clustered:2024}}
+		\label{intro-clustered-rendering}
 	\end{figure}
 
 	\item \textbf{Path Tracing}
@@ -86,39 +88,47 @@ W celu realistycznego oddania świata rzeczywistego konieczne jest jak najdokła
 
 	Najprostszy i najszybszy sposób cieniowania powierzchni. Oświetlenie wyliczane jest dla każdego wielokąta modelu, a następnie nakładane jako kolor danego poligonu.
 	
-	Wymaga bardzo małego nakładu obliczeniowego. Efekt jest wyraźnie nierealistyczny, sprawiając wrażenie ostrych krawędzi. Mimo to bardzo dobrze oddaje on zależności między wielokątami, co jest przydatne na przykład w programach do modelowania grafiki 3D.
+	Wymaga bardzo małego nakładu obliczeniowego. Efekt jest wyraźnie nierealistyczny, sprawiając wrażenie ostrych krawędzi, co widoczne jest na rys. \ref{intro-flat-shading}. Mimo to bardzo dobrze oddaje on zależności między wielokątami, co jest przydatne na przykład w programach do modelowania grafiki 3D.
 
 	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=3.90833in,height=2.34916in]{images/3_flat_shading_torus.png}
 		\caption{Model torus'a narysowany przy pomocy cieniowania płaskiego.}
+		\label{intro-flat-shading}
 	\end{figure}
 
 	\item \textbf{Cieniowanie Gouraud}
 	
-	Nazwana po autorze - Henri Gouraud -- technika cieniowania, w której natężenie światła wyliczane jest dla każdego wierzchołka, a następnie interpolowane dla fragmentów między tymi wierzchołkami. Charakteryzuje się niskim narzutem obliczeniowym i akceptowalnymi rezultatami. W przypadku modeli o niskiej rozdzielczości powoduje jednak powstawanie artefaktów, ze względu na kalkulacje oświetlenia jedynie dla wielokątów, których w takim przypadku jest niewiele.
+	Nazwana po autorze - Henri Gouraud -- technika cieniowania, w której natężenie światła wyliczane jest dla każdego wierzchołka, a następnie interpolowane dla fragmentów między tymi wierzchołkami. Charakteryzuje się niskim narzutem obliczeniowym i akceptowalnymi rezultatami. W przypadku modeli o niskiej rozdzielczości powoduje jednak powstawanie artefaktów, ze względu na kalkulacje oświetlenia jedynie dla wielokątów, których w takim przypadku jest niewiele, co widoczne jest na przykładowym obrazie widocznym na rys. \ref{intro-gouraud-shading}.
 
 	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=4.08511in,height=2.475in]{images/4_gouraud_shading_torus.png}
 		\caption{Model torus'a wygenerowany z użyciem cieniowania Gouraud i modelem światła Phong. \cite{wiki:gouraud:2024}}
+		\label{intro-gouraud-shading}
 	\end{figure}
 	
 	\item \textbf{Cieniowanie Phong}
 
-	Model utworzony przez Bui Thong Phong na uniwersytecie Utah w 1973r. Poprawia niedokładność modelu Gouraud wykonując kalkulacje oświetlenia dla każdego fragmentu, a nie tylko wierzchołków. Efektem jest dobrze wyglądający model cieniowania z umiarkowanym kosztem obliczeniowym.
+	Model utworzony przez Bui Thong Phong na uniwersytecie Utah w 1973r. Poprawia niedokładność modelu Gouraud wykonując kalkulacje oświetlenia dla każdego fragmentu, a nie tylko wierzchołków. Efektem jest dobrze wyglądający model cieniowania pokazany na rys. \ref{intro-phong-shading}, z umiarkowanym kosztem obliczeniowym.
 	
-	Odbicia światła w tym modelu obliczane są na podstawie trzech parametrów -- kolor otoczenia (ang. ambient), kolor rozproszony (ang. diffuse) używając modelu Lambertowskiego oraz tzw. specular reflection, obejmujący najjaśniejsze punkty odbite blisko lustrzanie.
+	Odbicia światła w tym modelu obliczane są na podstawie trzech parametrów widocznych na rys. \ref{intro-phong-components} - kolor otoczenia (ang. ambient), kolor rozproszony (ang. diffuse) używając modelu Lambertowskiego oraz tzw. specular reflection, obejmujący najjaśniejsze punkty odbite blisko lustrzanie.
 
 	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=3.45833in,height=2.08328in]{images/5_phong_shading_torus.png}
 		\caption{Model torus'a wygenerowany z użyciem modelu cieniowania Phong.}
+		\label{intro-phong-shading}
 	\end{figure}
+	
+	\vfill
+	\clearpage
+	
 	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=6.25833in,height=1.74167in]{images/6_phong_shading_components.png}
 		\caption{Komponenty składowe modelu Phong. \cite{wiki:phong:2024}}
+		\label{intro-phong-components}
 	\end{figure}
 	
 	\item \textbf{Model Blinn-Phong}
@@ -129,17 +139,20 @@ W celu realistycznego oddania świata rzeczywistego konieczne jest jak najdokła
 
 	Model Blinn-Phong jest używany do obliczania odbić światła w starszych wersjach OpenGL i Direct3D używających \emph{Fixed Function Pipeline}.
 	
+	Różnice w obrazie wynikowym dla obu podejść można zobaczyć na rys. \ref{intro-phong-vs-blinn-phong}.
+	
 	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=5.58056in,height=2.09271in]{images/7_phong_vs_blinn_phong.png}
 		\caption{Porównanie modelu Phong oraz Blinn-Phong dla bardzo chropowatej powierzchni i dużego kąta padania światła. \cite{learnopengl:advlighting:2024}}
+		\label{intro-phong-vs-blinn-phong}
 	\end{figure}
 	
 	\item \textbf{Physically Based Rendering}
 	
 	W skrócie \textbf{PBR}. Jest to grupa technik modelujących kalkulacje świetlne na podstawie prawdziwych zjawisk fizycznych. Ich niewątpliwą zaletą jest możliwość modelowania materiałów przy pomocy fizycznych właściwości obiektów bez uciekania się do sztuczek i aproksymacji.
 	
-	Systemy PBR najczęściej opierają się na modelu mikropowierzchni. Model taki aproksymuje zachowanie światła na mikroskopijnych nierównościach powierzchni obiektów. W przypadku równych materiałów światło będzie odbijało się w sposób bliski lustrzanemu, a chropowate powierzchnie będą je rozpraszać. \cite{learnopengl:pbr:2024} Jest to zachowanie zbliżone do parametru chropowatości w opisanych wcześniej modelach.
+	Systemy PBR najczęściej opierają się na modelu mikropowierzchni. Model taki aproksymuje zachowanie światła na mikroskopijnych nierównościach powierzchni obiektów. W przypadku równych materiałów światło będzie odbijało się w sposób bliski lustrzanemu, a chropowate powierzchnie będą je rozpraszać \cite{learnopengl:pbr:2024}, co widoczne jest na załączonym rys. \ref{intro-PBR}. Jest to zachowanie zbliżone do parametru chropowatości w opisanych wcześniej modelach.
 
 	Drugim ważnym elementem systemu spełniającego założenie bazującego na rzeczywistości jest zasada zachowania energii. Ilość światła odbitego (a dokładniej jego energii) nie może przekraczać ilości włożonej energii. \cite{learnopengl:pbr:2024}
 
@@ -149,6 +162,7 @@ W celu realistycznego oddania świata rzeczywistego konieczne jest jak najdokła
 		\centering
 		\includegraphics[width=5.425in,height=3.2752in]{images/8_pbr_surfaces.png}
 		\caption{Powierzchnie cegły, plastiku, trawy, złota oraz zardzewiałego metalu wymodelowane przy pomocy PBR. \cite{learnopengl:pbr:2024}}
+		\label{intro-PBR}
 	\end{figure}
 \end{itemize}
 
@@ -163,12 +177,13 @@ Silniki renderujące oparte o klasyczne metody rysowania zmuszone są aproksymow
 	
 	\item \textbf{MSAA}
 	
-	Najpopularniejszą metodą antialiasing jest \emph{\textbf{MSAA}} (ang. Multi-Sampling Anti Aliasing), czyli wielokrotne próbkowanie. Jest to metoda akcelerowana sprzętowo przez współczesne karty graficzne, która jak nazwa wskazuje polega na wielokrotnym próbkowaniu z przesunięciem każdego pixela obrazu, a następnie wyciągania średniej jako ostatecznego koloru danego punktu. Technika ta wykazuje się dobrą jakością, ale jest względnie kosztowna obliczeniowo i nie jest możliwa w przypadku używania Deferred Shading.
+	Najpopularniejszą metodą antialiasing jest \emph{\textbf{MSAA}} (ang. Multi-Sampling Anti Aliasing), czyli wielokrotne próbkowanie, której mechanizm działania został przedstawiony na rys. \ref{intro-msaa}. Jest to metoda akcelerowana sprzętowo przez współczesne karty graficzne, która jak nazwa wskazuje polega na wielokrotnym próbkowaniu z przesunięciem każdego pixela obrazu, a następnie wyciągania średniej jako ostatecznego koloru danego punktu. Technika ta wykazuje się dobrą jakością, ale jest względnie kosztowna obliczeniowo i nie jest możliwa w przypadku używania Deferred Shading.
 	
 	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=3.4483in,height=3.5in]{images/9_MSAA_grid.png}
 		\caption{Siatka reprezentująca działanie MSAA. Na niebiesko zaznaczone są punkty próbkowania, a czerwonymi liniami pokazane są krawędzie rysowanego obiektu. \cite{learnopengl:antialiasing:2024}}
+		\label{intro-msaa}
 	\end{figure}
 
 	\item \textbf{TAA}
@@ -185,13 +200,17 @@ Silniki renderujące oparte o klasyczne metody rysowania zmuszone są aproksymow
 
 	\item \textbf{Mapowanie sześcianów}
 
-	Z angielskiego \emph{\textbf{Cube mapping}} jest techniką mapowania środowiskowego wykorzystującą do tego celu teksturę, zawierającą widok przestrzenny w 6 kierunkach. Tekstura taka może być przygotowana z góry, z uwzględnieniem statycznych obiektów lub generowana w czasie rzeczywistym poprzez rysowanie geometrii z odpowiednich perspektyw. Tak przygotowany obraz nakładany jest następnie na rysowane obiekty w formie odbicia, co daje złudzenie realistycznego zjawiska.
+	Z angielskiego \emph{\textbf{Cube mapping}} jest techniką mapowania środowiskowego wykorzystującą do tego celu teksturę, zawierającą widok przestrzenny w 6 kierunkach, której przykładem jest rys. \ref{intro-cubemap}. Tekstura taka może być przygotowana z góry, z uwzględnieniem statycznych obiektów lub generowana w czasie rzeczywistym poprzez rysowanie geometrii z odpowiednich perspektyw. Tak przygotowany obraz nakładany jest następnie na rysowane obiekty w formie odbicia, co daje złudzenie realistycznego zjawiska.
 	Taka metoda posiada jednak wiele wad. Generowanie sześciu obrazów co każdą klatkę prezentacji generuje bardzo wysokie koszty obliczeniowe. Można je zminimalizować zmniejszając jakość generowanego obrazu lub przeliczając jedynie kilka ścian na klatkę, ale zmniejsza to w efekcie jakość finalnego renderu. Przygotowane wcześniej cubemap'y omijają problemy z wydajnością, ale są z założenia statyczne, więc nie reprezentują zmian w otoczeniu. Dodatkowym ograniczeniem tej metody jest ograniczona dokładność odbić ze względu na różnice w generowanych mapach dla obiektów w różnych miejscach w przestrzeni. Sposobem obejścia tego problemu jest generowanie osobnych map dla różnych pomieszczeń bądź obiektów, ale wiąże się to z oczywistym narzutem obliczeniowym.
+	
+	\vfill
+	\clearpage
 	
 	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=5.14673in,height=3.85833in]{images/10_cubemap_environment.png}
 		\caption{Przykład cubemap'y przedstawiającej tło środowiskowe.}
+		\label{intro-cubemap}
 	\end{figure}
 
 	\item \textbf{Odbicia w przestrzeni ekranu}
@@ -201,21 +220,31 @@ Silniki renderujące oparte o klasyczne metody rysowania zmuszone są aproksymow
 	Implementacja polega na wykonaniu pojedynczego śledzenia promienia w przestrzeni ekranu. Przyjmuje ona jako wejście bufory z teksturami kolorów, głębi oraz mapy odbijalności materiałów. Dla każdego fragmentu wykonuje pojedyncze śledzenie promienia na podstawie mapy głębi. Jeśli promień trafi na obiekt widoczny na ekranie, wykonywane jest jego odbicie, które następnie samplując po kolei z mapy głębi jest śledzone aż do trafienia obiektu. Jeśli tak się stanie, kolor trafionego materiału zostaje dodany jako odbicie do wyznaczanego koloru fragmentu. W przeciwnym wypadku za kolor odbity uznaje się światło nieba.
 	Dużą zaletą tej techniki jest bardzo wysoka jakość odbić porównywalna do Ray-Tracing'u, szczególnie na płaskich powierzchniach pod dużym kątem, takich jak płaskie podłogi, czy powierzchnia wody. Z wad wymienić należy spory nakład obliczeniowy, a także artefakty, które powstają jeśli odbity promień trafi na obiekt nieznajdujący się w narysowanym obrazie.
 
+	Przykład działania techniki został pokazany w ramach rys. \ref{intro-ssr}.
+
+	\vfill
+	\clearpage
+
 	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=5.06667in,height=3.2316in]{images/11_screen_space_reflections.png}
 		\caption{Przykład działania Screen Space Reflections w porównaniu z brakiem tego efektu. \cite{flaxengine:ssr:2024}}
+		\label{intro-ssr}
 	\end{figure}
 
 	\item \textbf{Ray Tracing}
 
-	Najbardziej kosztowna wydajnościowo z opisywanych technik, ale dająca także najlepsze rezultaty. Opisana we wcześniejszym punkcie o Path Tracing'u metoda pozwala niskim kosztem dodatkowym uzyskać realistyczne odbicia bez ograniczeń \emph{SSR}. Podczas śledzenia promieni zliczany jest kumulowany kolor, co pozwala na uzyskanie odbić wielokrotnych, a także na rysowanie w odbiciach obiektów, które nie znajdują się na ekranie.
+	Najbardziej kosztowna wydajnościowo z opisywanych technik, ale dająca także najlepsze rezultaty, możliwe do zobaczenia na rys. \ref{intro-rt}. Opisana we wcześniejszym punkcie o Path Tracing'u metoda pozwala niskim kosztem dodatkowym uzyskać realistyczne odbicia bez ograniczeń \emph{SSR}. Podczas śledzenia promieni zliczany jest kumulowany kolor, co pozwala na uzyskanie odbić wielokrotnych, a także na rysowanie w odbiciach obiektów, które nie znajdują się na ekranie.
 
 	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=5.82534in,height=2.32148in]{images/12_ssr_vs_rt.png}
 		\caption{Porównanie Screen Space Reflections z odbiciami uzyskanymi techniką śledzenia promieni. \cite{niktek:reflections:2024}}
+		\label{intro-rt}
 	\end{figure}
+	
+	\vfill
+	\clearpage
 	
 	\item \textbf{Ambient Occlusion}
 	
@@ -281,50 +310,65 @@ Ze względu na duże zapotrzebowanie na rynku na różnego rodzaju programy do w
 
 	Wspiera między innymi kalkulacje cieni metodami klasycznymi oraz przy pomocy Ray Tracing'u, oświetlenie wolumetryczne, oświetlenie globalne przy pomocy RT, a także efekty Post Process w postaci głębi ostrości, rozmycia w ruchu, czy Tonemapping'u z HDR do SDR.
 
+	Przykład obiektu narysowanego przy pomocy EEVEE został pokazany na rys. \ref{intro-eevee}.
+
 	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=5.41667in,height=3.03651in]{images/14_eevee.png}
 		\caption{Obraz wygenerowany przy pomocy silnika EEVEE w programie Blender 4.2.1.}
+		\label{intro-eevee}
 	\end{figure}
 
 	\item \textbf{Blender Cycles}
 
-	Bardziej zaawansowany od EEVEE moduł stworzony z myślą o generowaniu fotorealistycznych renderów złożonej grafiki trójwymiarowej. Opiera swoje działanie na Path Tracing'u z wykorzystaniem akceleracji sprzętowej technologiami NVIDIA CUDA, NVIDIA OptiX, AMD HIP (RT), czy Intel oneAPI. Ze względu na charakterystykę algorytmu Path Tracing'u renderowanie z użyciem tego silnika wymaga bardzo dużej mocy obliczeniowej. W przeciwnym wypadku konieczne jest zmniejszenie ilości próbek dla każdego pixela, co powoduje ziarnistość obrazu wynikowego. Pomóc może dostępny w module system odszumiania obrazu.
+	Bardziej zaawansowany od EEVEE moduł stworzony z myślą o generowaniu fotorealistycznych renderów złożonej grafiki trójwymiarowej. Opiera swoje działanie na Path Tracing'u z wykorzystaniem akceleracji sprzętowej technologiami NVIDIA CUDA, NVIDIA OptiX, AMD HIP (RT), czy Intel oneAPI. Ze względu na charakterystykę algorytmu Path Tracing'u renderowanie z użyciem tego silnika wymaga bardzo dużej mocy obliczeniowej. W przeciwnym wypadku konieczne jest zmniejszenie ilości próbek dla każdego pixela, co powoduje ziarnistość obrazu wynikowego, widocznego na rys. \ref{intro-cycles-low}. Pomóc może dostępny w module system odszumiania obrazu.
+
+	\vfill
+	\clearpage
 
 	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=5.81975in,height=2.875in]{images/15_cycles_low_samples.png}
 		\caption{Obraz wygenerowany przez Cycles z niską ilością próbek, a przez to widocznym zaszumieniem.}
+		\label{intro-cycles-low}
 	\end{figure}
 
-	Dzięki zastosowaniu metody śledzenia promieni do generowania obrazu, Cycles jest zdolny do generowania grafiki o bardzo wysokiej jakości i złożoności. Moduł ten poza funkcjami przejętymi od EEVEE posiada między innymi także pełną obsługę rozszerzonego standardu PBR, refrakcji i odbić światła, miękkich cieni, rozszerzonego globalnego oświetlenia w oparciu o system RT, przezroczystości, czy efektów wolumetrycznych także opartych o śledzenie promieni.
+	Dzięki zastosowaniu metody śledzenia promieni do generowania obrazu, Cycles jest zdolny do generowania grafiki o bardzo wysokiej jakości i złożoności. Moduł ten poza funkcjami przejętymi od EEVEE posiada między innymi także pełną obsługę rozszerzonego standardu PBR, refrakcji i odbić światła, miękkich cieni, rozszerzonego globalnego oświetlenia w oparciu o system RT, przezroczystości, czy efektów wolumetrycznych także opartych o śledzenie promieni. Poprawnie wyrenderowany przy pomocy Cycles obraz został pokazany na rys. \ref{intro-cycles-high}.
 
 	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=5.81974in,height=2.875in]{images/16_high_samples.png}
 		\caption{Obraz wygenerowany przez Cycles w programie Blender 4.2.1.}
+		\label{intro-cycles-high}
 	\end{figure}
+
+	\vfill
+	\clearpage
 
 	\item \textbf{Unreal Engine}
 	
-	Silnik renderujący zastosowany w Unreal Engine jest jednym z najlepszych jakościowo dostępnych na rynku. Pozwala on na generowanie bliskich fotorealizmowi grafik w czasie rzeczywistym do zastosowania w grach. Oparty na systemie Deferred Shading posiada wiele zaawansowanych technik optymalizujących rysowanie obrazu. Najbardziej znanymi z nich są Lumen oraz Nanite. Pierwszy jest częściowo akcelerowanym sprzętowo algorytmem oświetlenia globalnego, pozwalającego na uzyskanie bardzo dobrych jak na standardy czasu rzeczywistego efektów względnie niskim kosztem obliczeniowym. Nanite natomiast zastępuje system Level of Detail, generując w czasie rzeczywistym fragmenty modeli o odpowiedniej jakości. Pozwala to na uzyskanie bardzo wysokiej szczegółowości modeli bez utraty wydajności związanej z systemem LOD. Oprócz opisanych technologii specyficznych, Unreal Engine obsługuje także między innymi akcelerowany sprzętowo Ray Tracing do obsługi odbić, cieni oraz Lumen, pełną obsługę PBR, czy subsurface scattering. Dzięki zastosowaniu RHI (Render Hardware Interface) czyli interfejsu abstrakcji, UE5 pozwala na skorzystanie z DirectX 11 oraz 12, OpenGL, jak i Vulkan do akceleracji graficznej. Nie wszystkie funkcjonalności są jednak dostępne w starszych API.
+	Silnik renderujący zastosowany w Unreal Engine jest jednym z najlepszych jakościowo dostępnych na rynku. Pozwala on na generowanie bliskich fotorealizmowi grafik w czasie rzeczywistym do zastosowania w grach. Oparty na systemie Deferred Shading posiada wiele zaawansowanych technik optymalizujących rysowanie obrazu. Najbardziej znanymi z nich są Lumen oraz Nanite. Pierwszy jest częściowo akcelerowanym sprzętowo algorytmem oświetlenia globalnego, pozwalającego na uzyskanie bardzo dobrych jak na standardy czasu rzeczywistego efektów względnie niskim kosztem obliczeniowym. Nanite natomiast zastępuje system Level of Detail, generując w czasie rzeczywistym fragmenty modeli o odpowiedniej jakości. Pozwala to na uzyskanie bardzo wysokiej szczegółowości modeli bez utraty wydajności związanej z systemem LOD. Oprócz opisanych technologii specyficznych, Unreal Engine obsługuje także między innymi akcelerowany sprzętowo Ray Tracing do obsługi odbić, cieni oraz Lumen, pełną obsługę PBR, czy subsurface scattering. Dzięki zastosowaniu RHI (Render Hardware Interface) czyli interfejsu abstrakcji, UE5 pozwala na skorzystanie z DirectX 11 oraz 12, OpenGL, jak i Vulkan do akceleracji graficznej. Nie wszystkie funkcjonalności są jednak dostępne w starszych API. 
+	
+	Przykład obrazu wygenerowanego przy pomocy Unreal Engine można zobaczyć na rys. \ref{intro-unreal-engine}.
 
 	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=5.21482in,height=2.93333in]{images/17_Unreal_engine_5_2.jpg}
 		\caption{Klatka obrazu wygenerowana przez Unreal Engine 5.2.}
+		\label{intro-unreal-engine}
 	\end{figure}
 
 	\item \textbf{Godot}
 
-	W przeciwieństwie do większości popularnych silników graficznych, Godot nie korzysta z rysowania typu Deferred. Zamiast tego wykorzystywana jest technika Clustered Forward Rendering. \cite{godot:rendererdesign:2024} Technika ta została zastosowana ze względu na platformy docelowe opisywanego silnika, którymi są głównie mniej wydajne urządzenia mobilne, jak i uruchamianie aplikacji w przeglądarce przy użyciu WebGL.
+	W przeciwieństwie do większości popularnych silników graficznych, Godot nie korzysta z rysowania typu Deferred. Zamiast tego wykorzystywana jest technika Clustered Forward Rendering \cite{godot:rendererdesign:2024}. Technika ta została zastosowana ze względu na platformy docelowe opisywanego silnika, którymi są głównie mniej wydajne urządzenia mobilne, jak i uruchamianie aplikacji w przeglądarce przy użyciu WebGL.
 	Architektura modułu także jest nieco odmienna od pozostałych. Jest on odrębnym podsystemem komunikującym się z głównym silnikiem jedynie poprzez pojedyncze gniazdo komunikacji. Przyjmuje jako argumenty parametry konfiguracyjne i strukturę opisującą scenę wraz z unikatowymi ID obiektów. Taka konstrukcja zmniejsza co prawda kontrolę programistów nad procesem rysowania, ale znacznie ułatwia rozwijanie kodu odpowiedzialnego za rysowanie. Ułatwia to także wsparcie dla różnych API graficznych.
 
-	Silnik renderujący Godot posiada obsługę większości współczesnych efektów graficznych, takich jak Ambient Occlusion, Subsurface Scattering, Screen Space Reflections, czy efekty Post Process typu głębi ostrości, bądź rozmycia w ruchu. Moduł posiada także obsługę materiałów opartych o PBR. Nie celuje on jednak w wysoki fotorealizm, a bardziej w przystępną wydajność na słabszych urządzeniach.
+	Silnik renderujący Godot posiada obsługę większości współczesnych efektów graficznych, takich jak Ambient Occlusion, Subsurface Scattering, Screen Space Reflections, czy efekty Post Process typu głębi ostrości, bądź rozmycia w ruchu. Moduł posiada także obsługę materiałów opartych o PBR. Nie celuje on jednak w wysoki fotorealizm, a bardziej w przystępną wydajność na słabszych urządzeniach. Przykładowym renderem za pomocą silnika Godot jest rys. \ref{intro-godot}.
 
 	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=4.90152in,height=2.92893in]{images/18_Godot_3_example.jpg}
 		\caption{Klatka obrazu wygenerowana przez silnik Godot 3. \cite{godot:rendererdesign:2024}}
+		\label{intro-godot}
 	\end{figure}
 \end{itemize}

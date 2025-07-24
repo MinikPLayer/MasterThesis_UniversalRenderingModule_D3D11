@@ -35,11 +35,7 @@ programistom kosztem złożoności obsługi.
 
 \section{Shader'y w Direct3D} % Zmieniono z enumerate
 
-Direct3D 9.0 dodał wsparcie dla HLSL (ang. \emph{\textbf{High Level
-		Shader Language}}), stworzonego przez Microsoft języka programowania
-shader'ów, pozwalającego na pełną kontrolę nad prawie każdym etapem
-ścieżki rysowania grafiki z wykorzystaniem tego API. Składnia HLSL jest
-zbliżona do stworzonego przez NVIDIA języka Cg.
+Direct3D 9.0 dodał wsparcie dla HLSL (ang. \emph{\textbf{High Level Shader Language}}), stworzonego przez Microsoft języka programowania shader'ów, pozwalającego na pełną kontrolę nad prawie każdym etapem ścieżki rysowania grafiki z wykorzystaniem tego API. Składnia HLSL jest zbliżona do stworzonego przez NVIDIA języka Cg.
 
 % Zmieniono itemize + quote na subsection dla lepszej struktury
 \subsection{Vertex Shader}
@@ -71,6 +67,8 @@ koloru pixela po rasteryzacji. Uwzględnia wartości przekazane z
 poprzednich etapów, wyliczanie oświetlenia, cieniowania, nakładania
 tekstur, przezroczystości i innych efektów związanych bezpośrednio z
 kolorem powierzchni.
+
+Na rys. \ref{fig:shader_pipeline} przedstawiony został pipeline graficzny, korzystający z opisanych shader'ów.
 
 % Obraz wycentrowany wraz z podpisem
 \begin{figure}[htbp] % Można dostosować specyfikatory położenia [htbp]

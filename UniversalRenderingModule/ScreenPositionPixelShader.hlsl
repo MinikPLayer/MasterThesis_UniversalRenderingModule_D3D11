@@ -21,7 +21,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     {
         for (int i = 0; i < lightData.activeLightsCount; i++)
         {
-            lightColor += CalculateLighting(input, lightData.lights[i], 32);
+            lightColor += CalculateLighting(input, lightData.lights[i], 4);
         }
     }
     else
