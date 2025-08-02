@@ -32,6 +32,140 @@ class Module:
         self.direction = direction
         self.custom_uml_processor = custom_uml_processor
 
+def unpack_sharp_brackets(line: str, prefix: str, replace_with_suffix: str = "") -> str:
+    index = line.find(prefix + "<")
+    while index != -1:
+        start_index = index + len(prefix) + 1  # +1 for '<'
+        stack_size = 1
+        for i in range(start_index, len(line)):
+            if line[i] == '<':
+                stack_size += 1
+            elif line[i] == '>':
+                stack_size -= 1
+
+            if stack_size == 0:
+                end_index = i + 1
+                break
+        else:
+            print(f"Error: Unmatched '<' in line: {line}")
+            return line  # Return the original line if no match is found
+        
+        contents = line[start_index:end_index - 1].strip()
+        line = line[:index] + contents + replace_with_suffix + line[end_index:]
+        index = line.find(prefix + "<", index + len(contents) + len(replace_with_suffix))
+
+    return line
+
+def find_next_sharp_bracket(line: str, start_index: int) -> int:
+    stack_size = 0
+    if start_index < len(line) and line[start_index] != '<':
+        stack_size = 1
+    for i in range(start_index, len(line)):
+        if line[i] == '<':
+            stack_size += 1
+        elif line[i] == '>':
+            stack_size -= 1
+
+        if stack_size == 0:
+            return i
+
+    return -1  # No matching '>' found
+
+def vector_to_array(line: str) -> str:
+    index = line.find("vector<")
+    while index != -1:
+        end_index = find_next_sharp_bracket(line, index + 6)  # Find the matching '>'
+        if end_index == -1:
+            print(f"Error: Unmatched '>' in vector parameter: {line[index:]}")
+            break
+
+        content = line[index + 7:end_index].strip()  # Extract the content inside vector<>
+        line = line[:index] + content + "[]" + line[end_index + 1:]  # Append the rest of the string after '>'
+
+        index = line.find("vector<", end_index + 1)
+
+    return line 
+
+def split_params(line: str) -> list[str]:
+    params = [""]
+    sharp_bracket_stack = 0
+    for l in line:
+        if l == '<':
+            sharp_bracket_stack += 1
+        elif l == '>':
+            sharp_bracket_stack -= 1
+        
+        if l == ',' and sharp_bracket_stack == 0:
+            params.append("")
+        else:
+            params[-1] += l
+
+    return [param.strip() for param in params if param.strip()]
+
+def shorten_params(line: str) -> str:
+    start_index = line.find("(")
+    end_index = line.find(")", start_index)
+    if start_index == -1 or end_index == -1:
+        return line
+    
+    params = split_params(line[start_index + 1:end_index].strip())
+    shortened_params = []
+    for param in params:
+        param = param.strip()
+        if param == "":
+            continue
+
+        shortened_param = param.split()[-1]  # Take the last part of the parameter (type)
+        shortened_params.append(shortened_param)
+
+    shortened_params_str = ", ".join(shortened_params)
+    return line[:start_index + 1] + shortened_params_str + line[end_index:]
+
+def shorten_line_parameters(line: str) -> str:
+    # Stage 1 - unpack sharp brackets
+    line = unpack_sharp_brackets(line, "shared_ptr", "*")
+    line = unpack_sharp_brackets(line, "unique_ptr", "*")
+    line = unpack_sharp_brackets(line, "weak_ptr", "*")
+    line = unpack_sharp_brackets(line, "ComPtr", "*")
+    line = unpack_sharp_brackets(line, "optional", "?")
+    line = unpack_sharp_brackets(line, "vector", "[]")
+
+    line = line.replace("const ", "").replace("constexpr ", "").replace("*&", "*").replace("URM::", "").replace("Core::D3DCore", "D3DCore")
+
+    return line
+
+def texture_uml_processor(lines_list: list[str]) -> list[str]:
+    processed_line = []
+    found_create_from_file = False
+    found_create_from_memory = False
+    for line in lines_list:
+        if "+{static} CreateFromFile(D3DCore& core, string& path, string& type, D3DTexture2DCreationParams& params) : D3DTexture2D" in line:
+            line = "+CreateFromFile(core, path, type, params) : D3DTexture2D\n"
+            found_create_from_file = True
+
+        if "+{static} CreateFromMemory(D3DCore& core, string& type, Size2i size, Texel2D* pixelData, D3DTexture2DCreationParams& params) : D3DTexture2D" in line:
+            line = "+CreateFromMemory(core, type, size, pixelData, params) : D3DTexture2D\n"
+            found_create_from_memory = True
+
+        processed_line.append(line)
+
+    if not found_create_from_memory:
+        raise ValueError("CreateFromMemory method not found in the Texture UML lines. Please check the input files for changes.")
+    
+    if not found_create_from_file:
+        raise ValueError("CreateFromFile method not found in the Texture UML lines. Please check the input files for changes.")
+    
+    return processed_line
+
+def core_uml_processor(lines_list: list[str]) -> list[str]:
+    processed_lines = []
+    for line in lines_list:
+        line = line.replace("-WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) : LRESULT", "-WndProc(...) : LRESULT") \
+                .replace("-WndProdDispatcher(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) : LRESULT", "-WndProdDispatcher(...) : LRESULT")
+        processed_lines.append(line)
+
+    return processed_lines
+
 def scene_objects_uml_processor(lines_list: list[str]) -> list[str]:
     # Custom processing for SceneObjects module
     processed_lines = []
@@ -53,14 +187,22 @@ def scene_objects_model_uml_processor(lines_list: list[str]) -> list[str]:
     lines_list = scene_objects_uml_processor(lines_list)
     found_mesh_constructor = False
     found_model_constructor = False
+    found_deduce_material = False
     for (i, line) in enumerate(lines_list):
-        if line.strip() == "+MeshObject(const std::shared_ptr<Core::Mesh<Core::ModelLoaderVertexType>>& mesh, const std::shared_ptr<Core::VertexShader>& vertexShader, const std::shared_ptr<Core::D3DInputLayout<Core::ModelLoaderVertexType>>& inputLayout, const std::shared_ptr<URM::Core::Material> material)":
-            lines_list[i] = "+MeshObject(mesh, vertexShader, inputLayout, material)\n"
+        if line.strip() == "+MeshObject(Core::Mesh<Core::ModelLoaderVertexType>* mesh, Core::VertexShader* vertexShader, Core::D3DInputLayout<Core::ModelLoaderVertexType>* inputLayout, Core::Material* material)":
+            lines_list[i] = shorten_line_parameters(line)
             found_mesh_constructor = True
 
-        if line.strip() == "+ModelObject(const std::string& path, const std::shared_ptr<Core::Material>& material, const std::shared_ptr<Core::VertexShader>& vertexShader, const std::shared_ptr<Core::ModelLoaderLayout>& layout)":
-            lines_list[i] = "+ModelObject(path, material, vertexShader, layout)\n"
+        if line.strip() == "+ModelObject(string& path, Core::Material* material, Core::VertexShader* vertexShader, Core::ModelLoaderLayout* layout)":
+            lines_list[i] = shorten_line_parameters(line)
             found_model_constructor = True
+
+        if "-TryDeduceMaterial(D3DCore& core, Core::MaterialProperty[] properties) : Core::Material*" in line:
+            lines_list[i] = shorten_line_parameters(line)
+            found_deduce_material = True
+
+    if not found_deduce_material:
+        raise ValueError("TryDeduceMaterial method not found in the UML lines. Please check the input files for changes.")
 
     if not found_mesh_constructor:
         raise ValueError("MeshObject constructor not found in the UML lines. Please check the input files for changes.")
@@ -75,6 +217,8 @@ def utils_uml_processor(lines_list: list[str]) -> list[str]:
     processed_lines = []
     in_non_copyable = False
     for line in lines_list:
+        line = line.replace("<long long , ratio<1 , 1000000000>>", "").replace("<long long, ratio<1, 1000000000>>", "")
+
         if "class NonCopyable {" in line:
             in_non_copyable = True
         elif in_non_copyable and line.strip() == "}":
@@ -100,16 +244,35 @@ def d3dutils2_uml_processor(lines_list: list[str]) -> list[str]:
 def buffers_uml_processor(lines_list: list[str]) -> list[str]:
     # Custom processing for Buffers module
     processed_lines = []
-    for line in lines_list:
-        line = line.replace("const ", "").replace("std::", "").replace("D3DCore& ", "")
-        # if "(" in line and ")" in line:
-        #     parameters = line.split("(")[1].split(")")[0].strip().split(",")
-        #     line = line.replace(",", ", ")
-        #     for p in parameters:
-        #         p_stages = p.split(" ")
-        #         line = line.replace(p, p_stages[-1])
 
+    is_in_id3dbuffer = False
+    for line in lines_list:
+        line = shorten_params(line)
+
+        if "abstract class ID3DBuffer {" in line:
+            is_in_id3dbuffer = True
+            processed_lines.append(line)
+            processed_lines.append("\t\t...\n")  # Add a separator line
+            processed_lines.append("}")
+        elif is_in_id3dbuffer and line.strip() == "}":
+            is_in_id3dbuffer = False
+        elif not is_in_id3dbuffer:
+            processed_lines.append(line)
+
+    return processed_lines
+
+def constant_buffers_uml_processor(lines_list: list[str]) -> list[str]:
+    # Custom processing for ConstantBuffers module
+    processed_lines = []
+    found_constructor = False
+    for line in lines_list:
+        if "+PixelLight(Vector3 position, Color color, float ambient, float diffuse, float specular, float attenuationExponent, float pbrIntensity)" in line:
+            line = "+PixelLight(position, color, [params])\n"
+            found_constructor = True
         processed_lines.append(line)
+
+    if not found_constructor:
+        raise ValueError("PixelLight constructor not found in the UML lines. Please check the input files for changes.")
 
     return processed_lines
 
@@ -129,15 +292,28 @@ def engine_uml_processor(lines_list: list[str]) -> list[str]:
 
     return processed_lines
 
+def modelloader_uml_processor(lines_list: list[str]) -> list[str]:
+    # Custom processing for ModelLoader module
+    processed_lines = []
+    for line in lines_list:
+        if "+{static} LoadFromFile(" in line:
+            line = shorten_params(line)
+
+        processed_lines.append(line)
+
+    return processed_lines
+
 ENABLE_PLANTUML_IMAGE_GENERATOR = True
 REMOVE_OLD_FILES = True
 MODULES = [
-    Module("Core", Direction.LEFT_TO_RIGHT, ["Core/D3DCore.h", "Core/Window.h"]),
-    Module("D3DUtils", Direction.LEFT_TO_RIGHT, ["Core/D3DViewport.h", "Core/D3DRasterizerState.h", "Core/D3DBlendState.h", "Core/D3DDepthStencilState.h"], custom_uml_processor=d3dutils2_uml_processor),
-    Module("Buffer", Direction.LEFT_TO_RIGHT, ["Core/ID3DBuffer.h", "Core/D3DConstantBuffer.h", "Core/D3DIndexBuffer.h", "Core/D3DVertexBuffer.h"], custom_uml_processor=buffers_uml_processor),
+    Module("Core", Direction.LEFT_TO_RIGHT, ["Core/D3DCore.h", "Core/Window.h"], custom_uml_processor=core_uml_processor),
+    Module("D3DUtils_1", Direction.LEFT_TO_RIGHT, ["Core/D3DViewport.h", "Core/D3DRasterizerState.h"], custom_uml_processor=d3dutils2_uml_processor),
+    Module("D3DUtils_2", Direction.LEFT_TO_RIGHT, ["Core/D3DBlendState.h", "Core/D3DDepthStencilState.h"], custom_uml_processor=d3dutils2_uml_processor),
+    Module("Buffer", Direction.LEFT_TO_RIGHT, ["Core/ID3DBuffer.h"]),
+    Module("Buffers", Direction.LEFT_TO_RIGHT, ["Core/ID3DBuffer.h", "Core/D3DConstantBuffer.h", "Core/D3DIndexBuffer.h", "Core/D3DVertexBuffer.h"], custom_uml_processor=buffers_uml_processor),
     Module("Mesh", Direction.TOP_TO_BOTTOM, ["Core/IMesh.h", "Core/Mesh.h", "Core/MaterialProperty.h"]),
-    Module("ModelLoader", Direction.LEFT_TO_RIGHT, ["Core/ModelLoader.h"]),
-    Module("Texture", Direction.LEFT_TO_RIGHT, ["Core/D3DTexture2D.h", "Core/D3DSampler.h"]),
+    Module("ModelLoader", Direction.LEFT_TO_RIGHT, ["Core/ModelLoader.h"], custom_uml_processor=modelloader_uml_processor),
+    Module("Texture", Direction.LEFT_TO_RIGHT, ["Core/D3DTexture2D.h", "Core/D3DSampler.h"], custom_uml_processor=texture_uml_processor),
     Module("Shader", Direction.LEFT_TO_RIGHT, ["Core/ShaderPipeline.h", "Core/D3DInputLayout.h"]),
     Module("Materials", Direction.TOP_TO_BOTTOM, ["Core/Material.h", "Core/StandardMaterials.h"]),
     Module("VertexTypes", Direction.LEFT_TO_RIGHT, ["Core/StandardVertexTypes.h"]),
@@ -145,12 +321,12 @@ MODULES = [
     Module("Logging", Direction.LEFT_TO_RIGHT, ["Core/Log.h"]),
     Module("Stopwatch", Direction.LEFT_TO_RIGHT, ["Core/Stopwatch.h"]),
     Module("Engine", Direction.TOP_TO_BOTTOM, ["Engine/Engine.h", "Engine/Timer.h"], custom_uml_processor=engine_uml_processor),
-    Module("ConstantBuffers", Direction.LEFT_TO_RIGHT, ["Engine/ConstantBufferTypes.h"]),
+    Module("ConstantBuffers", Direction.LEFT_TO_RIGHT, ["Engine/ConstantBufferTypes.h"], custom_uml_processor=constant_buffers_uml_processor),
     Module("Scene", Direction.LEFT_TO_RIGHT, ["Engine/Scene.h"]),
     Module("SceneObject", Direction.LEFT_TO_RIGHT, ["Engine/SceneObject.h", "Engine/Transform.h"]),
-    Module("sceneobjects_model", Direction.LEFT_TO_RIGHT, ["Engine/SceneObject.h", "Engine/MeshObject.h", "Engine/ModelObject.h"], custom_uml_processor=scene_objects_model_uml_processor),
+    Module("sceneobjects_model", Direction.TOP_TO_BOTTOM, ["Engine/SceneObject.h", "Engine/MeshObject.h", "Engine/ModelObject.h"], custom_uml_processor=scene_objects_model_uml_processor),
     Module("sceneobjects_light", Direction.LEFT_TO_RIGHT, ["Engine/SceneObject.h", "Engine/LightObject.h"], custom_uml_processor=scene_objects_uml_processor),
-    Module("sceneobjects_camera", Direction.LEFT_TO_RIGHT, ["Engine/SceneObject.h", "Engine/CameraObject.h", "Engine/FlyCameraObject.h"], custom_uml_processor=scene_objects_uml_processor),
+    Module("sceneobjects_camera", Direction.TOP_TO_BOTTOM, ["Engine/SceneObject.h", "Engine/CameraObject.h", "Engine/FlyCameraObject.h"], custom_uml_processor=scene_objects_uml_processor),
     Module("Assets", Direction.LEFT_TO_RIGHT, ["Engine/AssetManager.h"]),
     Module("Tests", Direction.TOP_TO_BOTTOM, ["../../URMBenchmarks/ITest.h", "../../URMBenchmarks/AverageAccumulator.h"])
 ]
@@ -176,7 +352,11 @@ def rewrutePumlFile(module: Module, uml_file: str, output_file: str):
         if "--" in line:
             splitted = line.strip().split(" ")
             if len(splitted) >= 3 and splitted[0] == splitted[-1]:
-                content[i] = ''
+                line = ""
+
+        line = line.replace("std::chrono::", "").replace("std::", "")
+        line = shorten_line_parameters(line)
+        content[i] = line
 
 
     # Skip @startuml
