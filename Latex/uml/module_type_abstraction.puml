@@ -1,0 +1,32 @@
+@startuml ModuleTypesAbstraction
+
+group Initialization
+    ClientApp -> AbstractionModule : Initialize()
+    AbstractionModule -> Direct3D : CreateDevice()
+    AbstractionModule -> Direct3D : CreateContext()
+    AbstractionModule -> Direct3D : CreateStaticResources()
+end
+
+group Per frame update
+    ClientApp -> AbstractionModule : ClearScreen()
+    AbstractionModule -> Direct3D : SwitchToFramebuffer()
+    AbstractionModule -> Direct3D : ClearBuffer()
+
+    ClientApp -> AbstractionModule : SetCameraPosition(position: Vector3)
+    AbstractionModule -> Direct3D : GenerateViewMatrix()
+    AbstractionModule -> Direct3D : BindCameraBuffer()
+    AbstractionModule -> Direct3D : SetCameraData()
+
+    ClientApp -> AbstractionModule : DrawModel(path: string)
+    AbstractionModule -> AbstractionModule : LoadModelToCache()
+    AbstractionModule -> Direct3D : CreateOrReuseGPUResources()
+    AbstractionModule -> Direct3D : BindModelResources()
+    AbstractionModule -> Direct3D : UploadDataToGPU()
+    AbstractionModule -> Direct3D : DrawModel()
+
+    ClientApp -> AbstractionModule : PresentFrame()
+    AbstractionModule -> Direct3D : Present()
+    AbstractionModule -> Direct3D : WaitForSync() 
+end
+
+@enduml

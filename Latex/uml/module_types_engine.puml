@@ -1,0 +1,48 @@
+@startuml ModuleTypesEngine
+
+group Initialization
+    ClientApp -> EngineModule : Run()
+    EngineModule -> Direct3D : CreateDevice()
+    EngineModule -> Direct3D : CreateContext()
+    EngineModule -> Direct3D : CreateStaticResources()
+end
+
+group Per frame update
+    group Clear Screen
+        EngineModule -> Direct3D : SwitchToFramebuffer()
+        EngineModule -> Direct3D : ClearBuffer()
+    end
+
+    group OnUpdate
+        EngineModule --> ClientApp : OnUpdate()
+        ClientApp -> EngineModule : SetCameraPosition(position: Vector3)
+        EngineModule -> EngineModule : UpdateCameraObject()
+
+        ClientApp -> EngineModule : AddModel(path: string)
+        EngineModule -> EngineModule : AddModelToScene(path: string)
+        EngineModule -> Direct3D : LoadModel()
+        EngineModule -> Direct3D : CreateGPUModelResources()
+
+        ClientApp -> EngineModule : GetModel(path: string)
+        EngineModule --> ClientApp : model: Model
+        ClientApp -> EngineModule : ChangeModelData(model, newData)
+        EngineModule -> EngineModule : UpdateModelData(model, newData)
+    end
+
+    group Render
+        EngineModule -> Direct3D : GenerateViewMatrix()
+        EngineModule -> Direct3D : BindCameraBuffer()
+        EngineModule -> Direct3D : SetCameraData()
+
+        group Per model draw
+            EngineModule -> Direct3D : BindModelResources()
+            EngineModule -> Direct3D : UploadDataToGPU()
+            EngineModule -> Direct3D : DrawModel()
+        end
+
+        EngineModule -> Direct3D : Present()
+        EngineModule -> Direct3D : WaitForSync()
+    end
+end
+
+@enduml

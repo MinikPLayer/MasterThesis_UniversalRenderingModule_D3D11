@@ -7,18 +7,13 @@ Daje to możliwość zrewidowania architektury zanim poświęci się dużą ilo�
 Założeniem projektu jest stworzenie uniwersalnego, modularnego systemu rysującego.
 Systemy tego typu przyjmują najczęściej formę punktu między dwoma ekstremami. 
 
-Po jednej stronie spektrum znajduje się system prawie całkowicie niezależny. 
-System taki zbliżony jest swoim działaniem do aplikacji wyświetlającej trójwymiarowy model w przestrzeni.
-Moduł jest w takim przypadku odpowiedzialny za większość operacji związanych z rysowaniem, 
-    w tym za inicjalizację okna, ruch kamery w odpowiedzi na interakcje z użytkownikiem,
-    generowanie modelu 3D na podstawie pliku wejściowego, czy obliczanie zaawansowanych efektów świetlnych.
-Aplikacja klienta w takim przypadku przekazuje jedynie ścieżkę do modelu oraz ogólne parametry sceny, takie jak pozycja oraz kierunek światła.
+\subsection{Moduł niezależny}
+Po jednej stronie spektrum znajduje się system prawie całkowicie niezależny. System taki zbliżony jest swoim działaniem do framework'ów graficznych zaimplementowanych w ramach silników do gier, gdzie skrypt klienta odpowiada jedynie za zmianę parametrów wyświetlanego świata. 
+Moduł jest w takim przypadku odpowiedzialny za większość operacji związanych z rysowaniem, w tym za inicjalizację okna, ruch kamery w odpowiedzi na interakcje z użytkownikiem, generowanie modelu 3D na podstawie pliku wejściowego, czy obliczanie zaawansowanych efektów świetlnych.
 
-Przeciwieństwem jest moduł będący niewiele więcej niż abstrakcją nad niskopoziomowymi API graficznymi.
-Udostępnia on uniwersalne API niezależne od systemu operacyjnego oraz końcowego API graficznego,
-    nie zabierając przy tym kontroli nad procesem renderowania.
-Wadą takiego rozwiązania jest zwiększony nakład pracy dla programisty aplikacji klienta,
-    a także wynikające z abstrakcji ograniczenia funkcji końcowych API graficznych, które mogłyby być zaimplementowane w systemie pierwszego typu.
+\subsection{Abstrakcja nad API}
+Przeciwieństwem jest moduł będący abstrakcją nad niskopoziomowymi API graficznymi. Udostępnia on uniwersalne API niezależne od systemu operacyjnego oraz końcowego API graficznego, nie zabierając przy tym kontroli nad procesem renderowania.
+Wadą takiego rozwiązania jest zwiększony nakład pracy dla programisty aplikacji klienta, a także wynikające z abstrakcji ograniczenia funkcji końcowych API graficznych, które mogłyby być zaimplementowane w systemie pierwszego typu.
 
 \section{Założenia projektowe - struktura warstwowa}
 Projektowany system przyjmuje formę hybrydową.
