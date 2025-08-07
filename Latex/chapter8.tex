@@ -1,60 +1,72 @@
-\chapter{Platforma testowa i konfiguracja}
-
-Przed przystąpieniem do finalnych testów określić należy najpierw
-platformę testową. Dzięki takiemu podejściu możliwe jest lepsze określenie zakresu
-badań oraz łatwiejsze monitorowanie zmian w wydajności.
-
-Wybraną podstawową platformą deweloperską jest laptop \textbf{Lenovo Legion Slim 5-14}, składający się z następujących komponentów:
-
-\begin{center}
-	\begin{tabular}{ |l r| }
-		\hline
-		\textbf{Kategoria} & \textbf{Komponent} \\
-		\hline
-		CPU & \textbf{AMD Ryzen 7 7840HS} \\
-		GPU1 & \textbf{NVIDIA RTX 4060 8GB} \\
-		GPU2 & \textbf{AMD Radeon 780M (zintegrowana)} \\
-		RAM & \textbf{32GB LPDDR5x 6400 MT/s} \\
-		SSD & \textbf{Samsung 980 Pro 2TB} \\
-		Sterownik graficzny NVIDIA & \textbf{577.0} \\
-		Sterownik graficzny AMD & \textbf{Adrenaline 24.10.34.01} \\
-		System operacyjny & \textbf{Windows 11 Pro x64, wersja 24H2} \\
-		\hline
-	\end{tabular}
-\end{center}
-
-Testy na dwóch różnych układach graficznych o wyraźnie odbiegających od siebie osiągach pozwoliły na określenie gdzie leży ograniczenie danego testu - po stronie procesora, czy GPU.
-
-Do wyeliminowania zmiennych termicznych testy przeprowadzone zostały ze zbalansowanym trybem energetycznym, ale z manualnie ustawioną prędkością wentylatorów na maksymalne obroty. W tym samym celu ustawione ręcznie zostały limity APU (połączonych CPU i GPU2) oraz GPU1 i prezentują się następująco:
-
-\begin{center}
-	\begin{tabular}{ |l r| }
-		\hline
-		\textbf{Parametr} & \textbf{Wartość} \\
-		\hline
-		APU - Peak & \textbf{55W} \\
-		APU - Short term & \textbf{55W} \\
-		APU - Long Term & \textbf{55W} \\
-		APU - Cross load & \textbf{55W} \\
-		APU - Temperature limit & \textbf{100°C} \\
-		GPU1 - TDP & \textbf{90W} \\
-		GPU1 - Dynamic Boost & \textbf{0W} \\
-		GPU1 - Temperature limit & \textbf{87°C} \\
-		\hline
-	\end{tabular}
-\end{center}
-
-Do kompilacji programu użyty został system budowy MSBuild w wersji 17.14.8.25101 wraz z kompilatorem \textit{cl} o numerze edycji 19.44.35207.1. Do jego konfiguracji użyte zostały następujące parametry:
-
-\begin{center}
-	\begin{tabular}{ |l r| }
-		\hline
-		\textbf{Parametr} & \textbf{Wartość} \\
-		\hline
-		Optimization & \textbf{Maximum (O2)} \\
-		Enable Intrinsic Functions & \textbf{Yes (/Oi)} \\
-		Favor Size Or Speed & \textbf{Favor fast code (/Ot))} \\
-		Whole Program Optimization & \textbf{Yes (/GL)} \\
-		\hline
-	\end{tabular}
-\end{center}
+\chapter{Testy modułu}
+	
+	\iffalse
+		Testy:
+			- Porównanie dla trybu "Natywnego", "URM::Core", "URM::Engine".
+			- Porównanie złożoności kodu.
+			1) Wydajność przetwarzania wierzchołków.
+				* Testy wyświetlania obiektów o bardzo złożonej topologii.
+				- Oszacowanie maksymalnej ilości wierzchołków.
+				- Sprawdzenie narzutu na CPU i GPU.
+				+ Optymalizacje vertex shader'a.
+				
+			2) Wydajność generowania oświetlenia
+				* Sprawdzenie narzutu wydajności wielu źródeł światła.
+				- Oszacowanie maksymalnego limitu ilości świateł w scenie.
+				+ Dodanie bardziej zaawansowanego silnika obliczania efektów oświetlenia.
+				
+			3) Testy wydajności pixel shader'a.
+				- Sprawdzenia skalowania wydajności zależnie od rozdzielczości.
+				- Sprawdzenie bottleneck'u (CPU / GPU).
+				
+			4) Instance rendering.
+				- Sprawdzenie jak moduł radzi sobie z rysowaniem wielu instancji tego samego lub różnych obiektów.
+				- Porównanie wydajności z różnymi shader'ami i tym samym shader'em.
+				
+			5) Wydajność wczytywania modeli i tekstur z pliku.
+				- Porównanie różnych formatów.
+				- Porównanie różnych opcji preprocessingu.
+				- Porównanie pierwszego i kolejnych wczytań modelu (AssetManager).
+				
+			6) Testy wydajności macierzy transformacji w Transform.
+				- Określenie złożoności obliczeniowej poszczególnych funkcji.
+				- Oszacowanie maksymalnej głębokości oraz szerokości drzewa obiektów.
+				- Sprawdzenie narzutu wielokrotnego ustalania pozycji.
+				+ Cache'ing.
+				
+	\fi
+	
+	Do lepszego zrozumienia oraz wykorzystania nowo powstałej biblioteki warto znać jej lepsze oraz słabsze strony, a także teoretyczne i praktyczne ograniczenia. W związku z tym przeprowadzone zostały testy różnych aspektów omawianego projektu, aby ustalić limity ilościowe i wydajnościowe, a także ich przyczyny w celu opracowania możliwości ich poprawy.
+	
+	\section{Framework testowy}
+	Do łatwiejszego tworzenia testów utworzona została abstrakcyjna klasa interfejs - \textbf{ITest}, która ujednolica API testów do późniejszego wykorzystania. Obiekty dziedziczące implementują metody \textit{OnInit()} do inicjalizacji oraz \textit{OnUpdate()} do aktualizacji co klatkę obrazu.
+	
+	Podzbiorem testów są także pomiary wydajności i/lub limitu ilości testowanego parametru. Do obsługi tego zbioru oddana została druga klasa - \textbf{AutoTest}. Dziedziczy ona z \textit{ITest}, ale zastępuje \textit{Init()} i \textit{Update()}, pozostawiając opisane już metody abstrakcyjne do implementacji przez klasy dziedziczące. Różnicą względem rodzica jest próba automatycznego dopasowania złożoności testu do założonego poziomu wydajności. 
+	
+	\subsection{Metoda określania wydajności przez AutoTest}
+	Każdy oparty o \textit{AutoTest} skrypt musi posiadać wartość mierzalną, nazwaną w uproszczeniu ilością (\textit{count}). Zwiększenie tej wartości powinno z założenia liniowo zmniejszać wydajność renderowania, a co za tym idzie zwiększać czas generowania klatki obrazu. Informacja o długości rysowania jest następnie agregowana przez 100 wpisów przy pomocy obiektu klasy \textbf{AverageAccumulator} do wartości średniej, która zostaje przyrównana z czasem oczekiwanym, definiowanym przez test za pomocą metody \textit{GetTargetFPS()}. Na podstawie wzajemnej proporcji tych wartości obliczana jest teoretyczna ilość potrzebnych do dodania elementów, aby osiągnąć zamierzony cel. Przed aplikacją za pomocą funkcji \textit{IncreaseCount()}, ilość zostaje pomniejszona przez pomnożenie o wartość z wirtualnej metody \textit{GetTargetCurveMultiplier()}, aby zmniejszyć prawdopodobieństwo przeszacowania celu. Cykl ten powtarzany jest aż do zejścia czasu rysowania klatki poniżej progu. Następnym krokiem jest stopniowa reprodukcja operacji, ale zmniejszając ilość o 1 za pomocą \textit{DecreaseCount()}, aż do ponownego przekroczenia docelowej długości renderowania w 3 bezpośrednio następujących po sobie pomiarach. Taka forma pomiaru pozwala na powtarzalne określenie maksymalnej ilości elementów spełniających założony cel wydajnościowy. Wykres czasu klatki z przykładowego testu oświetlenia został przedstawiony w całości na rys. \ref{Test_LightsTest_FullFrameTime} oraz ograniczony do partii autoregulacji na rys. \ref{Test_LightsTest_AutoFrameTime}.
+	
+	\begin{figure}[h!]
+		\begin{subfigure}{.5\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{images/LightsTestResult_full.png}
+			\caption{Pełny wykres czasu generowania klatki.}
+			\label{Test_LightsTest_FullFrameTime}
+		\end{subfigure}
+		\begin{subfigure}{.5\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{images/LightsTestResult_auto.png}
+			\caption{Czas rysowania obrazu ograniczony do fragmentu autoregulacji.}
+			\label{Test_LightsTest_AutoFrameTime}
+		\end{subfigure}
+		\caption{Wykres pokazujący działanie mechanizmu \textit{AutoTest} podczas testu oświetlenia.}
+	\end{figure}
+	
+	\subsection{Eliminacja błędów}
+	Aby test był wiarygodny należy zabezpieczyć go na wypadek wystąpienia różnego rodzaju błędów. Poniżej przedstawiona została lista potencjalnych problemów oraz podjęte działania w celu ich eliminacji.
+	\begin{itemize}
+		\item \textbf{Anomalie pomiaru} - generowanie klatek obrazu nie zawsze odbywa się całkowicie stabilnie. Skokowe obciążenie systemu procesem w tle, nieprzewidziane zwalnianie zasobów przez system operacyjny, a nawet błędy sprzętowe mogą powodować skok czasu generowania pojedynczych klatek obrazu. Takie pomiary eliminowane są przy pomocy algorytmu IQR, służącego do wykrywania anomalii, w tym przypadku przyjmujących formę czasu wyraźnie odbiegającego od pozostałych pomiarów. Taki sposób filtracji jest możliwy ze względu na obraną metodę, która powinna generować niezmienną wartość pomiarów między zmianami ilości.
+		\item \textbf{Wpływ dodawania elementów na czas generowania klatki} - alokacja i inicjalizacja dużej ilości obiektów może generować wyraźne spadki wydajności w ramach pojedynczej klatki. Zostały zaimplementowane dwa mechanizmy mające na celu obronę przed taką sytuacją. Pierwszym jest opisany już IQR, który powinien eliminować wyraźne anomalie. Drugi to zatrzymanie czasomierza w \textit{AverageAccumulator} na czas przetwarzania wyników pomiarów (w tym ewentualne zwiększenie bądź zmniejszenie ilości elementów), a następne wznowienie już po wykonaniu opisanych czynności. 
+		\item \textbf{Przeszacowanie zwiększenia ilości elementów} - mechanizm odpowiedzialny za ograniczenie takiej sytuacji został już opisany i jest nim podejście, w którym najpierw szacunkowo zostaje określona ilość powodująca spadek wydajności poniżej progu, aby potem bardzo powolną redukcją nastąpiło określenie wartości docelowej. Dodatkowym sposobem jest nadpisywalna metoda \textit{GetTargetCurveMultiplier()}, dzięki której bardziej złożone testy mogą zmniejszyć prawdopodobieństwo przeszacowania, kosztem zwiększonego czasu trwania testu.
+		\item \textbf{Niedokładność czasu pomiaru} - użycie klasy \textit{high\_resolution\_clock} ze standardowej biblioteki C++ umożliwia dokonywanie pomiaru czasu z bardzo wysoką precyzją liczoną w nanosekundach.
+	\end{itemize}

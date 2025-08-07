@@ -113,7 +113,7 @@ W celu realistycznego oddania świata rzeczywistego konieczne jest jak najdokła
 	Model utworzony przez Bui Thong Phong na uniwersytecie Utah w 1973r. Poprawia niedokładność modelu Gouraud wykonując kalkulacje oświetlenia dla każdego fragmentu, a nie tylko wierzchołków. Efektem jest dobrze wyglądający model cieniowania pokazany na rys. \ref{intro-phong-shading}, z umiarkowanym kosztem obliczeniowym.
 	
 	Odbicia światła w tym modelu obliczane są na podstawie trzech parametrów widocznych na rys. \ref{intro-phong-components} - kolor otoczenia (ang. ambient), kolor rozproszony (ang. diffuse) używając modelu Lambertowskiego oraz tzw. specular reflection, obejmujący najjaśniejsze punkty odbite blisko lustrzanie.
-
+Text File.txt
 	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=3.45833in,height=2.08328in]{images/5_phong_shading_torus.png}
@@ -152,7 +152,7 @@ W celu realistycznego oddania świata rzeczywistego konieczne jest jak najdokła
 	
 	W skrócie \textbf{PBR}. Jest to grupa technik modelujących kalkulacje świetlne na podstawie prawdziwych zjawisk fizycznych. Ich niewątpliwą zaletą jest możliwość modelowania materiałów przy pomocy fizycznych właściwości obiektów bez uciekania się do sztuczek i aproksymacji.
 	
-	Systemy PBR najczęściej opierają się na modelu mikropowierzchni. Model taki aproksymuje zachowanie światła na mikroskopijnych nierównościach powierzchni obiektów. W przypadku równych materiałów światło będzie odbijało się w sposób bliski lustrzanemu, a chropowate powierzchnie będą je rozpraszać \cite{learnopengl:pbr:2024}, co widoczne jest na załączonym rys. \ref{intro-PBR}. Jest to zachowanie zbliżone do parametru chropowatości w opisanych wcześniej modelach.
+	Systemy PBR najczęściej opierają się na modelu mikro powierzchni. Model taki aproksymuje zachowanie światła na mikroskopijnych nierównościach powierzchni obiektów. W przypadku równych materiałów światło będzie odbijało się w sposób bliski lustrzanemu, a chropowate powierzchnie będą je rozpraszać \cite{learnopengl:pbr:2024}, co widoczne jest na załączonym rys. \ref{intro-PBR}. Jest to zachowanie zbliżone do parametru chropowatości w opisanych wcześniej modelach.
 
 	Drugim ważnym elementem systemu spełniającego założenie bazującego na rzeczywistości jest zasada zachowania energii. Ilość światła odbitego (a dokładniej jego energii) nie może przekraczać ilości włożonej energii. \cite{learnopengl:pbr:2024}
 
@@ -177,7 +177,7 @@ Silniki renderujące oparte o klasyczne metody rysowania zmuszone są aproksymow
 	
 	\item \textbf{MSAA}
 	
-	Najpopularniejszą metodą antialiasing jest \emph{\textbf{MSAA}} (ang. Multi-Sampling Anti Aliasing), czyli wielokrotne próbkowanie, której mechanizm działania został przedstawiony na rys. \ref{intro-msaa}. Jest to metoda akcelerowana sprzętowo przez współczesne karty graficzne, która jak nazwa wskazuje polega na wielokrotnym próbkowaniu z przesunięciem każdego pixela obrazu, a następnie wyciągania średniej jako ostatecznego koloru danego punktu. Technika ta wykazuje się dobrą jakością, ale jest względnie kosztowna obliczeniowo i nie jest możliwa w przypadku używania Deferred Shading.
+	Najpopularniejszą metodą antyaliasingu jest \emph{\textbf{MSAA}} (ang. Multi-Sampling Anti Aliasing), czyli wielokrotne próbkowanie, której mechanizm działania został przedstawiony na rys. \ref{intro-msaa}. Jest to metoda akcelerowana sprzętowo przez współczesne karty graficzne, która jak nazwa wskazuje polega na wielokrotnym próbkowaniu z przesunięciem każdego pixela obrazu, a następnie wyciągania średniej jako ostatecznego koloru danego punktu. Technika ta wykazuje się dobrą jakością, ale jest względnie kosztowna obliczeniowo i nie jest możliwa w przypadku używania Deferred Shading.
 	
 	\begin{figure}[htbp]
 		\centering
@@ -192,7 +192,7 @@ Silniki renderujące oparte o klasyczne metody rysowania zmuszone są aproksymow
 	
 	\item \textbf{FXAA}
 	
-	\emph{\textbf{FXAA}} (ang. Fast Aproximate Anti-Aliasing) operuje jako efekt post-procesowy w ścieżce generowania obrazu. Opracowany przez NVIDIA algorytm przetwarza obraz przez filtr górnoprzepustowy, wykrywając w ten sposób fragmenty obrazu o wysokim kontraście. Następnie metodami heurystycznymi znajduje w tych fragmentach krawędzie, które rozmywa przy pomocy kernel'a 3x3. Zaletą tej metody jest bardzo wysoka wydajność i brak narzutów pamięciowych. Jest to niestety też metoda dająca najsłabsze metody z wymienionych, powodując bardzo wyraźne rozmycie obrazu.
+	\emph{\textbf{FXAA}} (ang. Fast Approximate Anti-Aliasing) operuje jako efekt post-procesowy w ścieżce generowania obrazu. Opracowany przez NVIDIA algorytm przetwarza obraz przez filtr górnoprzepustowy, wykrywając w ten sposób fragmenty obrazu o wysokim kontraście. Następnie metodami heurystycznymi znajduje w tych fragmentach krawędzie, które rozmywa przy pomocy kernel'a 3x3. Zaletą tej metody jest bardzo wysoka wydajność i brak narzutów pamięciowych. Jest to niestety też metoda dająca najsłabsze metody z wymienionych, powodując bardzo wyraźne rozmycie obrazu.
 	
 	\item \textbf{Odbicia środowiska}
 	
@@ -265,7 +265,7 @@ Poza dobrą jakością, bardzo istotnym elementem dobrego silnika renderującego
 
 	\item \textbf{Frustum culling}
 
-	Nie wszystkie obiekty sceny są widoczne w renderowanym jej fragmencie. Część znajduje się poza obszarem kamery, część jest zasłonięta przez wzgórza czy inne obiekty. W takim przypadku zbędną jest próba rysowania takich powierzchni, marnująć jedynie moc obliczeniową. Na pomoc wychodzi technika zwana \emph{\textbf{Frustum culling}}, pomijająca rysowanie niewidocznych obiektów na podstawie systemu wykrywania kontaktu ze stożkiem pola widzenia.
+	Nie wszystkie obiekty sceny są widoczne w renderowanym jej fragmencie. Część znajduje się poza obszarem kamery, część jest zasłonięta przez wzgórza czy inne obiekty. W takim przypadku zbędną jest próba rysowania takich powierzchni, marnując jedynie moc obliczeniową. Na pomoc wychodzi technika zwana \emph{\textbf{Frustum culling}}, pomijająca rysowanie niewidocznych obiektów na podstawie systemu wykrywania kontaktu ze stożkiem pola widzenia.
 	Technika ta dzieli się na dwa zasadnicze podtypy. Pierwszym z nich, wykorzystywany klasycznie w silnikach idTech oraz Valve Source jest typ statyczny. W trakcie kompilacji mapy wyliczane są punkty widoczności na całej mapie, tak aby można było określić jakie fragmenty mogą być widoczne, a jakich nie trzeba rysować. Zaletą takiego rozwiązania jest bardzo wysoka wydajność, ale ograniczona jest ona do korytarzowej struktury pomieszczeń, gdyż na otwartych przestrzeniach ciężko mieć pewność co do widoczności w statycznej kalkulacji.
 	Drugim sposobem jest typ dynamiczny. Przed rysowaniem klatki obrazu kalkulowane jest pokrywanie się obiektów sceny z fragmentem widocznym przez kamerę. Ze względu na wysoki koszt porównywania pełnych obiektów wykorzystuje się tzw. \emph{\textbf{Bounding Volumes}}, czyli figury geometryczne aproksymujące przestrzeń zajmowaną przez obiekt. Do najczęściej używanych należą sfery, prostopadłościany wyrównane do osi (AABB), czy prostopadłościany z rotacjami (OBB).
 	W przypadku bardzo dużej ilości obiektów koszt obliczania elementów do narysowania wciąż może być zbyt duży. W tym celu wdrożyć można strukturę drzewową zwaną \emph{\textbf{Space partitioning}}, która dzieli rekursywnie przestrzeń na podfigury z informacją o ilości zawartych w nich obiektów. Następnie sprawdzając kolizje struktura taka umożliwia przejście „w dół'' drzewa, wykonując mniejszą ilość kalkulacji intersekcji. Najczęściej używa się drzewa z czterema podelementami dla gier 2D, ośmioma dla gier 3D, lub struktury \emph{\textbf{BSP}} (Binary Space Partitioning) jako optymalizacji dla większej ilości obiektów. System BSP używany jest we wspomnianych silnikach idTech oraz Valve Source.

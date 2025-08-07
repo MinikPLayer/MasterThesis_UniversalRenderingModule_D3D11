@@ -1,72 +1,35 @@
-\chapter{Testy modułu}
+\chapter{Przyjęta metoda rysowania sceny}
+\label{ChapterSceneDrawingMethod}
+	Ze względu na założenie uniwersalności - w tym pod względem platformy docelowej - jako podstawa i punkt wyjścia przyjęty został sposób rysowania \textit{Forward Rendering}, ze względu na lepszą skalowalność między systemami o różnej mocy obliczeniowej oraz możliwość użycia większości efektów graficznych. W związku z tym wyborem koszt obliczeniowy oraz pamięciowy rysowania sceny jest bazowo niski, lecz dodanie dużej ilości źródeł światła wiąże się ze zwiększonym narzutem obliczeniowym.
 	
-	\iffalse
-		Testy:
-			- Porównanie dla trybu "Natywnego", "URM::Core", "URM::Engine".
-			- Porównanie złożoności kodu.
-			1) Wydajność przetwarzania wierzchołków.
-				* Testy wyświetlania obiektów o bardzo złożonej topologii.
-				- Oszacowanie maksymalnej ilości wierzchołków.
-				- Sprawdzenie narzutu na CPU i GPU.
-				+ Optymalizacje vertex shader'a.
-				
-			2) Wydajność generowania oświetlenia
-				* Sprawdzenie narzutu wydajności wielu źródeł światła.
-				- Oszacowanie maksymalnego limitu ilości świateł w scenie.
-				+ Dodanie bardziej zaawansowanego silnika obliczania efektów oświetlenia.
-				
-			3) Testy wydajności pixel shader'a.
-				- Sprawdzenia skalowania wydajności zależnie od rozdzielczości.
-				- Sprawdzenie bottleneck'u (CPU / GPU).
-				
-			4) Instance rendering.
-				- Sprawdzenie jak moduł radzi sobie z rysowaniem wielu instancji tego samego lub różnych obiektów.
-				- Porównanie wydajności z różnymi shader'ami i tym samym shader'em.
-				
-			5) Wydajność wczytywania modeli i tekstur z pliku.
-				- Porównanie różnych formatów.
-				- Porównanie różnych opcji preprocessingu.
-				- Porównanie pierwszego i kolejnych wczytań modelu (AssetManager).
-				
-			6) Testy wydajności macierzy transformacji w Transform.
-				- Określenie złożoności obliczeniowej poszczególnych funkcji.
-				- Oszacowanie maksymalnej głębokości oraz szerokości drzewa obiektów.
-				- Sprawdzenie narzutu wielokrotnego ustalania pozycji.
-				+ Cache'ing.
-				
-	\fi
+\section{Modyfikacja sposobu obliczania oświetlenia}
+	Wyraźnym odejściem względem klasycznego \textit{Forward Rendering} jest sposób obliczania oświetlenia. Podstawową metodę można przedstawić w uproszczonej formie przy pomocy pseudokodu w ramach listingu \ref{lst:shaderForwardLightCalculations}.
 	
-	Do lepszego zrozumienia oraz wykorzystania nowo powstałej biblioteki warto znać jej lepsze oraz słabsze strony, a także teoretyczne i praktyczne ograniczenia. W związku z tym przeprowadzone zostały testy różnych aspektów omawianego projektu, aby ustalić limity ilościowe i wydajnościowe, a także ich przyczyny w celu opracowania możliwości ich poprawy.
+	\begin{lstlisting}[caption={Pseudokod programu cieniującego obliczającego oświetlenie metodą Forward Rendering}, label={lst:shaderForwardLightCalculations}]
+UNIFORM Light[] lights; // Przekazane do shader'a dane o źródłach światła,
+UNIFORM int numLights;  // oraz o ilości aktywnych źródeł w tablicy.
+		
+Color resultColor = BLACK;
+// Pętla sumująca obliczone wartości oświetlenia
+for (i = 0; i < numLights; i += 1) {
+    resultColor += CalculateLight(lights[i]);
+}
+
+return resultColor; 
+	\end{lstlisting}
 	
-	\section{Framework testowy}
-	Do łatwiejszego tworzenia testów utworzona została abstrakcyjna klasa interfejs - \textbf{ITest}, która ujednolica API testów do późniejszego wykorzystania. Obiekty dziedziczące implementują metody \textit{OnInit()} do inicjalizacji oraz \textit{OnUpdate()} do aktualizacji co klatkę obrazu.
+	Takie podejście ma jednak dwa ograniczenia - wydajność oraz ograniczenie maksymalnej ilości źródeł światła w scenie.	Pierwsze wynika ze sposobu działania współczesnych układów graficznych oraz kompilatorów. Dokładniej ograniczenie wydajności wynika z tzw. \textit{Register spilling}, czyli sytuacji w której na układzie graficznym brakuje rejestrów do pełnego pokrycia zmiennych, przez co koniecznym jest korzystanie z powolnej pamięci globalnej \cite{amd:gpuopen:RegisterSpilling}. Możliwym jest też spadek wydajności przez zmniejszenie skuteczności mechanizmu \textit{rozwijania pętli} kompilatora, przez znaczne zwiększenie maksymalnej jej długości. Drugie ograniczenie spowodowane jest limitem ilości elementów bufora stałych w API Direct3D - 4096 \cite{microsoft:Direct3D11:ResourceLimits}, co ogranicza ilość źródeł światła do około 1400. 
 	
-	Podzbiorem testów są także pomiary wydajności i/lub limitu ilości testowanego parametru. Do obsługi tego zbioru oddana została druga klasa - \textbf{AutoTest}. Dziedziczy ona z \textit{ITest}, ale zastępuje \textit{Init()} i \textit{Update()}, pozostawiając opisane już metody abstrakcyjne do implementacji przez klasy dziedziczące. Różnicą względem rodzica jest próba automatycznego dopasowania złożoności testu do założonego poziomu wydajności. 
+	Oba problemy zostały rozwiązane dzieląc pełną listę świateł na fragmenty o stałej wielkości (na przykład 64). Następnie zamiast wywoływać proces renderowania dla wszystkich źródeł, uruchamiany jest po kolei dla kolejnych segmentów, a wynik dodawany jest do bufora kolorów przy pomocy mechanizmu \textit{Blending}, opartego o klasę z segmentu \textit{D3DBlendState}. Aby takie podejście działało poprawnie pierwsze wywołanie procesu rysującego odbywa się przy wyłączonym blendingu.
 	
-	\subsection{Metoda określania wydajności przez AutoTest}
-	Każdy oparty o \textit{AutoTest} skrypt musi posiadać wartość mierzalną, nazwaną w uproszczeniu ilością (\textit{count}). Zwiększenie tej wartości powinno z założenia liniowo zmniejszać wydajność renderowania, a co za tym idzie zwiększać czas generowania klatki obrazu. Informacja o długości rysowania jest następnie agregowana przez 100 wpisów przy pomocy obiektu klasy \textbf{AverageAccumulator} do wartości średniej, która zostaje przyrównana z czasem oczekiwanym, definiowanym przez test za pomocą metody \textit{GetTargetFPS()}. Na podstawie wzajemnej proporcji tych wartości obliczana jest teoretyczna ilość potrzebnych do dodania elementów, aby osiągnąć zamierzony cel. Przed aplikacją za pomocą funkcji \textit{IncreaseCount()}, ilość zostaje pomniejszona przez pomnożenie o wartość z wirtualnej metody \textit{GetTargetCurveMultiplier()}, aby zmniejszyć prawdopodobieństwo przeszacowania celu. Cykl ten powtarzany jest aż do zejścia czasu rysowania klatki poniżej progu. Następnym krokiem jest stopniowa reprodukcja operacji, ale zmniejszając ilość o 1 za pomocą \textit{DecreaseCount()}, aż do ponownego przekroczenia docelowej długości renderowania w 3 bezpośrednio następujących po sobie pomiarach. Taka forma pomiaru pozwala na powtarzalne określenie maksymalnej ilości elementów spełniających założony cel wydajnościowy. Wykres czasu klatki z przykładowego testu oświetlenia został przedstawiony w całości na rys. \ref{Test_LightsTest_FullFrameTime} oraz ograniczony do partii autoregulacji na rys. \ref{Test_LightsTest_AutoFrameTime}.
+	Nowe podejście także może zmniejszać wydajność przy zbyt małej ilości źródeł światła na wywołanie procesu ze względu na konieczność każdorazowego rysowania geometrii i zmiany kontekstów. W związku z tym przeprowadzone zostały testy, z których została określona optymalna wartość świateł na pass - \textbf{64}.
 	
+	Wizualizacja procesu została pokazana na rys. \ref{Rendering_MultiPassLighting}.
+	
+		
 	\begin{figure}[h!]
-		\begin{subfigure}{.5\textwidth}
-			\centering
-			\includegraphics[width=\textwidth]{images/LightsTestResult_full.png}
-			\caption{Pełny wykres czasu generowania klatki.}
-			\label{Test_LightsTest_FullFrameTime}
-		\end{subfigure}
-		\begin{subfigure}{.5\textwidth}
-			\centering
-			\includegraphics[width=\textwidth]{images/LightsTestResult_auto.png}
-			\caption{Czas rysowania obrazu ograniczony do fragmentu autoregulacji.}
-			\label{Test_LightsTest_AutoFrameTime}
-		\end{subfigure}
-		\caption{Wykres pokazujący działanie mechanizmu \textit{AutoTest} podczas testu oświetlenia.}
+		\centering
+		\includegraphics[width=\textwidth]{images/lightsTest_combined.png}
+		\caption{Wizualizacja procesu wieloetapowego obliczania oświetlenia.}
+		\label{Rendering_MultiPassLighting}
 	\end{figure}
-	
-	\subsection{Eliminacja błędów}
-	Aby test był wiarygodny należy zabezpieczyć go na wypadek wystąpienia różnego rodzaju błędów. Poniżej przedstawiona została lista potencjalnych problemów oraz podjęte działania w celu ich eliminacji.
-	\begin{itemize}
-		\item \textbf{Anomalie pomiaru} - generowanie klatek obrazu nie zawsze odbywa się całkowicie stabilnie. Skokowe obciążenie systemu procesem w tle, nieprzewidziane zwalnianie zasobów przez system operacyjny, a nawet błędy sprzętowe mogą powodować skok czasu generowania pojedynczych klatek obrazu. Takie pomiary eliminowane są przy pomocy algorytmu IQR, służącego do wykrywania anomalii, w tym przypadku przyjmujących formę czasu wyraźnie odbiegającego od pozostałych pomiarów. Taki sposób filtracji jest możliwy ze względu na obraną metodę, która powinna generować niezmienną wartość pomiarów między zmianami ilości.
-		\item \textbf{Wpływ dodawania elementów na czas generowania klatki} - alokacja i inicjalizacja dużej ilości obiektów może generować wyraźne spadki wydajności w ramach pojedynczej klatki. Zostały zaimplementowane dwa mechanizmy mające na celu obronę przed taką sytuacją. Pierwszym jest opisany już IQR, który powinien eliminować wyraźne anomalie. Drugi to zatrzymanie czasomierza w \textit{AverageAccumulator} na czas przetwarzania wyników pomiarów (w tym ewentualne zwiększenie bądź zmniejszenie ilości elementów), a następne wznowienie już po wykonaniu opisanych czynności. 
-		\item \textbf{Przeszacowanie zwiększenia ilości elementów} - mechanizm odpowiedzialny za ograniczenie takiej sytuacji został już opisany i jest nim podejście, w którym najpierw szacunkowo zostaje określona ilość powodująca spadek wydajności poniżej progu, aby potem bardzo powolną redukcją nastąpiło określenie wartości docelowej. Dodatkowym sposobem jest nadpisywalna metoda \textit{GetTargetCurveMultiplier()}, dzięki której bardziej złożone testy mogą zmniejszyć prawdopodobieństwo przeszacowania, kosztem zwiększonego czasu trwania testu.
-		\item \textbf{Niedokładność czasu pomiaru} - użycie klasy \textit{high\_resolution\_clock} ze standardowej biblioteki C++ umożliwia dokonywanie pomiaru czasu z bardzo wysoką precyzją liczoną w nanosekundach.
-	\end{itemize}

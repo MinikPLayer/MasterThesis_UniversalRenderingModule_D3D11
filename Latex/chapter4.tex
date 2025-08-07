@@ -43,7 +43,7 @@ Analogiczna do rys. \ref{UML_Sequence_Module_Engine} wizualizacja dla wersji abs
 \section{Przyjęte założenia projektowe}
 Projektowany system przyjmuje formę hybrydową, korzystającą z zalet wszystkich przedstawionych podejść do projektowania tego typu systemu. 
 
-Głównym założeniem i podstawą implementacji zostanie utworzenie systemu warstwowego, pozwalającego na koszytanie z modułu jako abstrakcji nad API Direct3D 11 w warstwach niższych, a także na pracę w trybie niezależnym przy wyższych poziomach abstrakcji, które same będą korzystać z niższych elementów do swojego działania. Każdy z etapów umożliwiać będzie także dostęp do podległych mu komponentów. Dzięki temu możliwym będzie mieszanie ze sobą różnych paradygmów nie ograniczając ani potencjalnej funkcjonalności, ani przystępności dla nowych projektów i programistów.
+Głównym założeniem i podstawą implementacji zostanie utworzenie systemu warstwowego, pozwalającego na korzystanie z modułu jako abstrakcji nad API Direct3D 11 w warstwach niższych, a także na pracę w trybie niezależnym przy wyższych poziomach abstrakcji, które same będą korzystać z niższych elementów do swojego działania. Każdy z etapów umożliwiać będzie także dostęp do podległych mu komponentów. Dzięki temu możliwym będzie mieszanie ze sobą różnych paradygmatów nie ograniczając ani potencjalnej funkcjonalności, ani przystępności dla nowych projektów i programistów.
 
 Logistycznie projekt został podzielony na następujące warstwy:
 
@@ -68,5 +68,3 @@ Interakcja między aplikacją klienta, a modułem została przedstawiona na rys.
 	\caption{Diagram przedstawiający sposób działania modułu abstrakcji.}
 	\label{UML_Sequence_Module_Final}
 \end{figure}
-
-\section{Zakres funkcjonalności modułu}
