@@ -189,12 +189,14 @@ def scene_objects_model_uml_processor(lines_list: list[str]) -> list[str]:
     found_model_constructor = False
     found_deduce_material = False
     for (i, line) in enumerate(lines_list):
-        if line.strip() == "+MeshObject(Core::Mesh<Core::ModelLoaderVertexType>* mesh, Core::VertexShader* vertexShader, Core::D3DInputLayout<Core::ModelLoaderVertexType>* inputLayout, Core::Material* material)":
+        if line.strip().startswith("+MeshObject("):
             lines_list[i] = shorten_line_parameters(line)
+            lines_list[i] = shorten_params(lines_list[i])
             found_mesh_constructor = True
 
-        if line.strip() == "+ModelObject(string& path, Core::Material* material, Core::VertexShader* vertexShader, Core::ModelLoaderLayout* layout)":
+        if line.strip().startswith("+ModelObject("):
             lines_list[i] = shorten_line_parameters(line)
+            lines_list[i] = shorten_params(lines_list[i])
             found_model_constructor = True
 
         if "-TryDeduceMaterial(D3DCore& core, Core::MaterialProperty[] properties) : Core::Material*" in line:
