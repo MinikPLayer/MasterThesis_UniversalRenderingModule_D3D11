@@ -58,10 +58,10 @@ WVPMatrix CreateTransformationMatrix(
 	auto vecCameraPosition = DirectX::XMLoadFloat3(&cameraPosition);
 	auto vecCameraTarget = DirectX::XMLoadFloat3(&cameraTarget);
 	auto vecCameraUp = DirectX::XMLoadFloat3(&cameraUpDirection);
-	auto matView = DirectX::XMMatrixLookAtRH(vecCameraPosition, vecCameraTarget, vecCameraUp);
+	auto matView = DirectX::XMMatrixLookAtLH(vecCameraPosition, vecCameraTarget, vecCameraUp);
 
 	// 3. Projection Matrix (Orthographic)
-	Matrix matProjection = XMMatrixPerspectiveFovRH(
+	Matrix matProjection = XMMatrixPerspectiveFovLH(
 		XMConvertToRadians(fov),
 		static_cast<float>(windowSize.width) / static_cast<float>(windowSize.height),
 		nearPlane,
@@ -127,10 +127,10 @@ int WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) {
 
 	core.SetPrimitiveTopology(URM::Core::PrimitiveTopologies::TRIANGLE_LIST);
 
-	auto vertexShader = URM::Core::VertexShader(core, L"SimpleVertexShader.cso");
+	auto vertexShader = URM::Core::VertexShader(core, L"VerySimpleVertexShader.cso");
 	vertexShader.Bind(core);
 
-	auto pixelShader = URM::Core::PixelShader(core, L"SimplePixelShader.cso");
+	auto pixelShader = URM::Core::PixelShader(core, L"VerySimplePixelShader.cso");
 	pixelShader.Bind(core);
 
     auto inputLayout = URM::Core::ModelLoaderLayout(core, vertexShader);

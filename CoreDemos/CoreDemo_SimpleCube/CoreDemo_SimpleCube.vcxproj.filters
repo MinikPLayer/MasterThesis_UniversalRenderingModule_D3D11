@@ -23,8 +23,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="SimpleVertexShader.hlsl" />
-    <FxCompile Include="SimplePixelShader.hlsl" />
+    <FxCompile Include="VerySimpleVertexShader.hlsl" />
+    <FxCompile Include="VerySimplePixelShader.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="cube.glb">

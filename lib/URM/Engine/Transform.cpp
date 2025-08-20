@@ -159,6 +159,7 @@ namespace URM::Engine {
 
 		UpdateMatrix();
 	}
+
 	void Transform::SetRotation(Vector3 eulerAngles) {
 		this->SetRotation(EulerToQuatAngles(eulerAngles));
 	}
