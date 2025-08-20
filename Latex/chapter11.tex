@@ -55,7 +55,60 @@ W poniższej sekcji przedstawione zostały dema wykorzystujące API warstwy siln
 \subsection{Wczytanie i wyświetlenie prostego modelu - c.d.}
 Mimo względnie niskiej objętości kodu potrzebnego do utworzenia przykładowych aplikacji przy pomocy modułu rdzeniowego, jest on już na tym etapie wyraźnie złożony. Do działania wymagane jest kontrolowanie stanu modułu rdzeniowego, stanu rasteryzera, viewport'u, shader'ów, InputLayout, buforów stałych i zmiennych, a także wczytanych modeli. Moduł silnika przejmuje na siebie obowiązki związane z zarządzaniem tymi zasobami, udostępniając przy tym przejrzyste API, bez ograniczania możliwości hybrydowego użycia z niższymi warstwami. 
 
-Rekreacja 
+Rekreacja wcześniej opisanego dema przy pomocy nowego API silnika było wyjątkowo proste i zmniejszyło objętość aplikacji klienta do około 30 linijek kodu. Kod opisywanego dema, będący jednocześnie przykładem użycia interfejsu modułu silnika został przedstawiony na listingu \ref{lst:demo:engine:cube}. Poza wyraźnym uproszczeniem pracy z takim systemem, konwersja na API silnika umożliwia też łatwe rozszerzenie funkcjonalności o dodatkowe modele, różne materiały i shader'y, czy oświetlenie. Pokazane to zostało na rys. \ref{demo_engine_cube}, gdzie do widocznej już wcześniej kolorowej kostki dodane zostały dwa bliźniacze do niej sześciany, wykorzystujące zupełnie inne materiały i programy cieniujące.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{images/demo_engine_cube.png}
+	\caption{Rozszerzone demo sześcianu utworzone przy pomocy interfejsu modułu silnika.}
+	\label{demo_engine_cube}
+\end{figure}
+
+\vfill
+
+\begin{lstlisting}[caption={Pełny kod programu wykorzystującego API silnika do wyświetlenia trzech sześcianów o różnych materiałach.}, label={lst:demo:engine:cube}]
+#include <URM/Engine/Engine.h>
+#include <URM/Engine/CameraObject.h>
+#include <URM/Engine/ModelObject.h>
+#include <URM/Core/StandardMaterials.h>
+
+using namespace URM::Core;
+using namespace URM::Engine;
+
+// Definicja nowego typu materiału o niestandardowym progarmie cieniującym
+struct NormalColorMaterial : public Material {
+	const wchar_t* GetShaderFilePath() const override { 
+		return L"NormalColorPixelShader.cso";
+	}
+};
+	
+int WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) {
+	// Utworzenie instancji silnika z parametrami okna
+	Engine engine(WindowCreationParams(800, 600, "Engine Demo - Cube", hInstance));
+	// Ustawienie koloru tła
+	engine.renderParameters.clearColor = Color(0.3f, 0.5f, 1.0f);
+	
+	// Utworzenie głównej kamery wraz z pozycją i kierunkiem
+	auto camera = std::make_shared<CameraObject>(45.0f);
+	camera->GetTransform().SetPosition({ 4.0f, 4.0f, 4.0f });
+	camera->GetTransform().LookAt({ 0.0f, 0.0f, 0.0f });
+	// Ustawienie kamery jako głównej kamery w scenie
+	engine.GetScene().SetMainCamera(camera);
+	engine.GetScene().GetRoot().lock()->AddChild(camera);
+	
+	// Dodanie punktu światła do sceny
+	engine.GetScene().GetRoot().lock()->AddChild(new LightObject());
+	
+	// Utworzenie obiektu z niestandardowym materiałem / shader'em
+	auto material = std::shared_ptr<NormalColorMaterial>(new NormalColorMaterial());
+	auto cube = engine.GetScene().GetRoot().lock()->AddChild(
+		new ModelObject("cube.glb", material)
+	);
+	
+	// Uruchomienie pętli silnika
+	engine.RunLoop();
+}
+\end{lstlisting}
 
 \subsection{Sponza}
 Stworzona pierwotnie przez Marko Dabrovic'a, następnie ulepszona przez niemiecką firmę Crytek \cite{github:Khronos:Sponza}, a w 2022 roku ponownie usprawniona przez amerykańskiego giganta Intel \cite{Intel:GPUResearch:Sponza} reprezentacja rzeczywistego atrium pałacu Sponza, znajdującego się w Chorwackiej miejscowości Dubrovnik stała się jednym z najpopularniejszych modeli służących do testowania i porównywania programów grafiki 3D, a w szczególności modułów odpowiedzialnych za oświetlenie globalne. W ramach tej sekcji przedstawiona została najprostsza wersja od firmy Intel w dwóch wersjach - uproszczonej oraz PBR. W obu manualnie dobrane zostało oświetlenie oraz kolor nieba celem utworzenia kompozycji reprezentującej zbliżone do realnego zastosowanie modułu. W poniższej tabeli przedstawiona została także zmierzona wydajność renderowania, a wygenerowane zrzuty ekranu na rys. \ref{test_sponza_1}, \ref{test_sponza_2} i \ref{test_sponza_3}.

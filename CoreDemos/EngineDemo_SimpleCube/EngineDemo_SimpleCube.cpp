@@ -33,19 +33,27 @@ int WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) {
 	newLight->GetTransform().SetPosition({ -4.0f, 1.2f, 0.0f });
 
 	// Utworzenie obiektu z niestandardowym materiałem / shader'em
-	auto normalColorMaterial = std::shared_ptr<NormalColorMaterial>(new NormalColorMaterial());
-    auto cube = engine.GetScene().GetRoot().lock()->AddChild(new ModelObject("cube.glb", normalColorMaterial));
+	auto normalColorMaterial = std::shared_ptr<NormalColorMaterial>(
+		new NormalColorMaterial()
+	);
+    auto cube = engine.GetScene().GetRoot().lock()->AddChild(
+		new ModelObject("cube.glb", normalColorMaterial)
+	);
 	cube->GetTransform().SetLocalPosition({ 0.0f, 0.0f, 0.0f });
 
 	// Utworzenie obiektu z materiałem prostym o czerwonym kolorze
 	auto standardMaterial = std::shared_ptr<MaterialSimple>(
 		new MaterialSimple(engine.GetCore(), MaterialSimpleData(128, Color(1, 0, 0, 1)))
 	);
-    auto cube2 = engine.GetScene().GetRoot().lock()->AddChild(new ModelObject("cube.glb", standardMaterial));
+    auto cube2 = engine.GetScene().GetRoot().lock()->AddChild(
+		new ModelObject("cube.glb", standardMaterial)
+	);
 	cube2->GetTransform().SetLocalPosition({ -4.0f, 0.0f, 0.0f });
 
 	// Utworzenie obiektu z domyślnym materiałem
-    auto cube3 = engine.GetScene().GetRoot().lock()->AddChild(new ModelObject("cube.glb"));
+    auto cube3 = engine.GetScene().GetRoot().lock()->AddChild(
+		new ModelObject("cube.glb")
+	);
     cube3->GetTransform().SetLocalPosition({ 0.0f, 0.0f, -4.0f });
 
 	// Uruchomienie pętli silnika
