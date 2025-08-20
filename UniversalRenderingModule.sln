@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36221.1 d17.14
+VisualStudioVersion = 17.14.36221.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UniversalRenderingModule", "UniversalRenderingModule\UniversalRenderingModule.vcxproj", "{54E38630-8760-4A4A-A46E-1E1A1E3FFEA2}"
 EndProject
@@ -12,6 +12,14 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Engine", "lib\URM\Engine\Engine.vcxproj", "{EEED4AA7-8065-48B4-996D-3BED45EF230E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "URMBenchmarks", "URMBenchmarks\URMBenchmarks.vcxproj", "{8CB94443-6DCD-4C90-91BE-88A09ED95A2A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RawDemos", "RawDemos", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RawD3D11_Empty", "RawD3D11_Cube\RawD3D11_Cube.vcxproj", "{793F437C-DC47-48C7-ABC1-731609AC42CC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CoreDemos", "CoreDemos", "{305CB45C-6A69-4453-80FF-C8AA8327A71D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CoreDemo_Empty", "CoreDemo_Empty\CoreDemo_Empty.vcxproj", "{8BC91848-A1F4-4B4F-AB5B-AA6484487A5B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,6 +61,22 @@ Global
 		{8CB94443-6DCD-4C90-91BE-88A09ED95A2A}.Release|Win32.Build.0 = Release|Win32
 		{8CB94443-6DCD-4C90-91BE-88A09ED95A2A}.Release|x64.ActiveCfg = Release|x64
 		{8CB94443-6DCD-4C90-91BE-88A09ED95A2A}.Release|x64.Build.0 = Release|x64
+		{793F437C-DC47-48C7-ABC1-731609AC42CC}.Debug|Win32.ActiveCfg = Debug|Win32
+		{793F437C-DC47-48C7-ABC1-731609AC42CC}.Debug|Win32.Build.0 = Debug|Win32
+		{793F437C-DC47-48C7-ABC1-731609AC42CC}.Debug|x64.ActiveCfg = Debug|x64
+		{793F437C-DC47-48C7-ABC1-731609AC42CC}.Debug|x64.Build.0 = Debug|x64
+		{793F437C-DC47-48C7-ABC1-731609AC42CC}.Release|Win32.ActiveCfg = Release|Win32
+		{793F437C-DC47-48C7-ABC1-731609AC42CC}.Release|Win32.Build.0 = Release|Win32
+		{793F437C-DC47-48C7-ABC1-731609AC42CC}.Release|x64.ActiveCfg = Release|x64
+		{793F437C-DC47-48C7-ABC1-731609AC42CC}.Release|x64.Build.0 = Release|x64
+		{8BC91848-A1F4-4B4F-AB5B-AA6484487A5B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8BC91848-A1F4-4B4F-AB5B-AA6484487A5B}.Debug|Win32.Build.0 = Debug|Win32
+		{8BC91848-A1F4-4B4F-AB5B-AA6484487A5B}.Debug|x64.ActiveCfg = Debug|x64
+		{8BC91848-A1F4-4B4F-AB5B-AA6484487A5B}.Debug|x64.Build.0 = Debug|x64
+		{8BC91848-A1F4-4B4F-AB5B-AA6484487A5B}.Release|Win32.ActiveCfg = Release|Win32
+		{8BC91848-A1F4-4B4F-AB5B-AA6484487A5B}.Release|Win32.Build.0 = Release|Win32
+		{8BC91848-A1F4-4B4F-AB5B-AA6484487A5B}.Release|x64.ActiveCfg = Release|x64
+		{8BC91848-A1F4-4B4F-AB5B-AA6484487A5B}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -60,5 +84,10 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{A2FA76BF-01AB-4485-8CF1-B4B6639B0C21} = {75146812-3F6E-4B34-9146-66A7B94B471D}
 		{EEED4AA7-8065-48B4-996D-3BED45EF230E} = {75146812-3F6E-4B34-9146-66A7B94B471D}
+		{793F437C-DC47-48C7-ABC1-731609AC42CC} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{8BC91848-A1F4-4B4F-AB5B-AA6484487A5B} = {305CB45C-6A69-4453-80FF-C8AA8327A71D}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {30B56F05-918E-4616-8032-04DA8517F9FE}
 	EndGlobalSection
 EndGlobal

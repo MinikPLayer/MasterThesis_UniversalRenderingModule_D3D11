@@ -22,6 +22,8 @@ Tak przygotowany projekt umożliwiał względnie proste utworzenie aplikacji ren
 \subsection{Wiele okien - wiele problemów}
 W tym momencie zapadła decyzja, według której powinna być możliwość niezależnego działania wielu instancji modułu jednocześnie, co pozwoliłoby na utworzenie aplikacji klienta z funkcjonalnością otwierania wielu okien w ramach jednej aplikacji. Z takim podejściem wiąże się natomiast problem - WinAPI posiada możliwość zdefiniowania funkcji odpowiadającej na event zdarzeń okna \textit{(WndProc)}, ale bez bezpośredniej możliwości powiązania uchwytu okna do własnej struktury go reprezentującej. Po wielu testach różnych rozwiązań ostatecznie problem został rozwiązany pewnym obejściem. Przy tworzeniu okna wskaźnik na strukturę \textit{Window} zostaje przekazany jako ostatni argument funkcji CreateWindowEx - \textit{(lpParam)}. Następnie między WinAPI, a faktycznym eventem WndProc dodany zostaje pośrednik - WndProcDispatcher. Nasłuchuje on konkretnych typów zdarzeń i jeśli otrzyma event typu \textit{WM\_NCCREATE}, oznaczający utworzenie nowego okna, pobiera wskaźnik do struktury \textit{Window} przekazany jako pole struktury \textit{LPCREATESTRUCT} w argumencie lParam. Następnie wykonuje powiązanie z uchwytem do okna przy pomocy mechanizmu \textit{SetWindowLongPtr()}. Dzięki takiemu podejściu w kolejnych wywołaniach \textit{WndProcDispatcher} możliwe jest pobranie wskaźnika do powiązanej z uchwytem struktury przy pomocy funkcji \textit{GetWindowLongPtr()}, a w związku z tym wywołanie metody \textit{WndProc} na odpowiednim oknie. Pseudokod realizujący opisany mechanizm został przedstawiony na listingu \ref{lst:module:WndProcDispatcher}.
 
+\vfill
+
 \begin{lstlisting}[caption={Pseudokod integracji wskaźnika okna z uchwytem HWND}, label={lst:module:WndProcDispatcher}]
 void Window::Create() {
  ...
@@ -44,9 +46,7 @@ LRESULT WndProcDispatcher(HWND hwnd, UINT message, (...), LPARAM lParam) {
 Kolejnym napotkanym problemem okazał się być temat typu wierzchołków w ramach modeli i mesh'y. Do poprawnego działania Direct3D wymaga określenia struktury danych wejściowych w ramach mechanizmu InputLayout, która zmienia się w zależności od użytej struktury opisującej typ wierzchołków. Oczywistym rozwiązaniem byłoby użycie mechanizmu szablonowania z języka C++, ale wymagałoby to ręcznego i zewnętrznego definiowania implementacji metody zwracającej D3DInputLayout dla każdego typu wierzchołka z osobna, co jest bardzo podatnym na błędy i nieprzejrzystym rozwiązaniem. Tutaj także udało się znaleźć lepsze rozwiązanie, którym okazał się być wprowadzony w ramach C++20 mechanizm \textit{concepts} \cite{cpp20:concepts:2025}. W ramach tego mechanizmu możliwe jest zdefiniowanie \textit{konceptu}, czyli ograniczeń dla typów szablonowych narzucających im konieczność zawarcia określonej metody. Dzięki temu utworzony został koncept \textit{VertexTypeConcept}, który wymaga utworzenia metody \textit{GetInputLayout()}, zwracającej D3DInputLayout przystosowany do pracy z danym typem.
 
 \subsection{Lewoskrętny układ współrzędnych}
-Przewijającym się przez cały proces developmentu - a w tym momencie po raz pierwszy - problemem był także przyjęty jako zalecany w ramach Direct3D lewoskrętny układ współrzędnych, w którym oś +Z rośne wraz z głębokością "w ekranie". Jest to przeciwieństwo układu prawoskrętnego z odwróconą osią Z, wykorzystywanego przez większość konkurencyjnych API, takich jak OpenGL i Vulkan. Duża część otwarto-źródłowych bibliotek oraz dostępnej dokumentacji opiera się na drugiej opcji, co skutkowało okazjonalnymi problemami z mieszaniem skrętności układów współrzędnych. Assimp posiada flagę postprocessingu, mającą na celu zmianę układu na lewoskrętny - \textit{aiProcess\_ConvertToLeftHanded} - która wydawała się pomóc na tym etapie, ale ostatecznie nie naprawiła problemu całkowicie, przez co będzie on wracać.
-
-\vfill
+Przewijającym się przez cały proces developmentu - a w tym momencie po raz pierwszy - problemem był także przyjęty jako zalecany w ramach Direct3D lewoskrętny układ współrzędnych, w którym oś +Z rośne wraz z głębokością "w ekranie". Jest to przeciwieństwo układu prawoskrętnego z odwróconą osią Z, wykorzystywanego przez większość konkurencyjnych API, takich jak OpenGL i Vulkan. Duża część otwarto-źródłowych bibliotek oraz dostępnej dokumentacji opiera się na drugiej opcji, co skutkowało okazjonalnymi problemami z mieszaniem skrętności układów współrzędnych. Assimp posiada flagę postprocessingu, mającą na celu zmianę układu na lewoskrętny - \textit{aiProcess\_ConvertToLeftHanded} - która wydawała się pomóc na tym etapie, ale ostatecznie nie naprawiła problemu całkowicie, przez co będzie on wracać i zostanie ostatecznie naprawiony dopiero pod koniec pracy nad modułem.
 
 \begin{figure}[h!]
 	\centering
@@ -94,8 +94,6 @@ Rekreacja napisana przy pomocy nowego API nie straciła na wydajności względem
 	\label{Impl_RotatingTriangle}
 \end{figure}
 
-\vfill
-
 \section{Warstwa sceny}
 Po ukończeniu warstwy rdzeniowej przyszła kolej na część sceny. Implementacja jej funkcjonalności rozpoczęła się od utworzenia bazowego obiektu sceny oraz struktury nimi zarządzającej - \textbf{Scene}. Następnie zaimplementowane zostały metody tworzenia, usuwania oraz przypisywania do hierarchii obiektów - odpowiednio \textit{Instantiate()}, \textit{Destroy()} i \textit{SetParent()}. Wzajemna hierarchia obiektów musiała zostać podparta strukturą zarządzającą ich wzajemnymi relacjami oraz transformacjami przestrzennymi, w związku z czym powstała odpowiedzialna za to klasa \textbf{Transform}, wykorzystująca macierze transformacji do odwzorowania wzajemnych relacji między obiektami.
 
@@ -124,30 +122,27 @@ W trakcie tworzenia modułu okazjonalnie sprawdzana była jego wydajność, któ
 W okolicach tego punktu zauważony został jednak nagły spadek do poziomu około 2.000 FPS, mimo użycia sceny identycznej do pierwotnej - obracającego się trójkąta. Po analizie problemem okazało się przekazywanie wielu struktur, takich jak lista wierzchołków, w formie kopiującej zamiast referencji. Zmiana problematycznych wystąpień naprawiła problem, ale nie gwarantowała, że nie wróci on w przyszłości. Standard C++ od wersji 11 zawiera słowo kluczowe \textbf{auto}, które automatycznie określa typ zmiennej na podstawie przypisanej do niej wartości. Mechanizm ten nie obejmuje detekcji referencji i wskaźników, co spada na ręce programistów, nie pokazując przy tym żadnego błędu ani ostrzeżenia w przypadku użycia konstruktora kopiującego zamiast referencyjnego, a czego przykład został pokazany na listingu \ref{lst:module:cppcopyingref}. W związku z tym aby zapobiec przypadkowemu użyciu spowalniającej działanie programu metody kopiującej wprowadzona została pomocnicza klasa \textbf{NonCopyable}, która wyłącza konstruktory kopiujące w każdej klasie z niej dziedziczącej, pozostawiając przy tym dostępny mechanizm przenoszenia przy pomocy \textit{std::move}. W ten sposób oznaczone zostały najważniejsze klasy, takie jak \textit{D3DCore}, \textit{Window}, \textit{Scene}, a później także \textit{Engine}. 
 
 \begin{lstlisting}[caption={Przykład sytuacji, w której łatwym jest użycie formy kopiującej zamiast referencji, co skutkuje dużym kosztem wydajnościowym.}, label={lst:module:cppcopyingref}]
+	class Data {
+		int field = 5;
+	};
 	
-class Data {
-    int field = 5;
-};
+	class DataHolder {
+		Data data;	
+	public:
+		Data& GetData() {
+			return data;
+		}
+	};
 
-class DataHolder {
-    Data data;
-	
-public:
-    Data& GetData() {
-        return data;
-    }
-};
+	int main() {
+		DataHolder holder;
 
-int main() {
-    DataHolder holder;
-	
-    // Wywołanie konstruktora kopiującego
-    auto data = holder.GetData();
-	
-    // Poprawna forma referencyjna
-    auto& dataRef = holder.GetData();
-}
-	
+		// Wywołanie konstruktora kopiującego
+		auto data = holder.GetData();
+
+		// Poprawna forma referencyjna
+		auto& dataRef = holder.GetData();
+	}	
 \end{lstlisting}
 
 \subsection{Podsumowanie modułu sceny}

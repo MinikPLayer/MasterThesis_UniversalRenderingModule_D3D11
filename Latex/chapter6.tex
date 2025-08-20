@@ -12,20 +12,22 @@
 	Inicjalizacja obu elementów odbywa się przez przekazanie w konstruktorze obiektu \textbf{WindowCreationParams}, zawierającego podstawowe informacje o tworzonym oknie.
 	Diagram UML przedstawiony został na rys. \ref{UML_D3DCore}.
 	
+	\vfill
+	\clearpage
 	
-	\begin{figure}[ht!]
+	\begin{figure}[h!]
 		\centering
 		\includegraphics[width=\textwidth]{images/UML/core.png}
 		\caption{Diagram UML przedstawiający kompozycję modułów D3DCore oraz Window wraz z zależnościami.}
 		\label{UML_D3DCore}
 	\end{figure}
 	
-	\vfill
-	\clearpage
-	
 \subsection{Dziennik (Log)}
 	Do prowadzenia dziennika \textit{(logu)} aktywności wykorzystana została otwarto-źródłowa biblioteka \textbf{spdlog} na otwartej licencji MIT \cite{github:spdlog:spdlog}. Dodatkowo do modułu dołączona została statyczna klasa Logger opisana na rys. \ref{UML_Logger}. Udostępnia ona funkcje konfigurujące spdlog pod potrzeby projektu oraz metodę zwracającą referencję do dziennika zdarzeń krytycznych.
 	
+
+	\vfill
+	\clearpage
 
 	\begin{figure}[h!]
 		\centering
@@ -33,9 +35,7 @@
 		\caption{Schemat pomocniczej klasa statycznej dziennika.}
 		\label{UML_Logger}
 	\end{figure}
-	
-	\vfill
-	\clearpage
+
 	
 \subsection{Metody pomocnicze}
 	Sekcja zawierająca klasy i struktury pomocnicze wykorzystywane w ramach modułów projektu, przedstawione na rys. \ref{UML_Utils}.
@@ -48,19 +48,22 @@
 		\item \textbf{FloatUtils}: Funkcjonalność ułatwiająca pracę z liczbami zmiennoprzecinkowymi. Dzięki metodom zawartym w tej klasie możliwe jest zbliżone porównywanie dwóch liczb typu float oraz określanie znaku tego typu liczb.
 		\item \textbf{TimeUtils}: Wykorzystywana do testowania wydajności kodu. Pozwala na wywołanie dowolnej funkcji mierząc przy tym jej czas wykonania.
 	\end{itemize}
+
+	Do testów wydajności w trakcie oraz po zakończeniu prac nad modułem utworzona została także klasa \textbf{Stopwatch}, udostępniająca zaawansowaną funkcjonalność mierzenia czasu, a jej schemat został przedstawiony na rys. \ref{UML_Stopwatch}.
+	
+	\vfill
+	\clearpage
 	
 	\begin{figure}[h!]
 		\centering
-		\includegraphics[width=\textwidth]{images/UML/utils.png}
+		\includegraphics[width=350px]{images/UML/utils.png}
 		\caption{Schemat klas pomocniczych.}
 		\label{UML_Utils}
 	\end{figure}
 	
-	Do testów wydajności w trakcie oraz po zakończeniu prac nad modułem utworzona została także klasa \textbf{Stopwatch}, udostępniająca zaawansowaną funkcjonalność mierzenia czasu, a jej schemat został przedstawiony na rys. \ref{UML_Stopwatch}.
-	
 	\begin{figure}[h!]
 		\centering
-		\includegraphics[width=300px]{images/UML/stopwatch.png}
+		\includegraphics[width=250px]{images/UML/stopwatch.png}
 		\caption{Schemat klasy czasomierza.}
 		\label{UML_Stopwatch}
 	\end{figure}
@@ -73,14 +76,14 @@
 	
 	\begin{figure}[h!]
 		\centering
-		\includegraphics[width=460px]{images/UML/d3dutils_1.png}
+		\includegraphics[width=400px]{images/UML/d3dutils_1.png}
 		\caption{Kompozycja wrapperów modułów bazowych D3D - D3DViewport oraz D3DRasterizerState.}
 		\label{UML_D3DUtils_1}
 	\end{figure}
 	
 	\begin{figure}[h!]
 		\centering
-		\includegraphics[width=350px]{images/UML/d3dutils_2.png}
+		\includegraphics[width=300px]{images/UML/d3dutils_2.png}
 		\caption{Diagram modułów bazowych D3D - D3DDepthStencilState i D3DBlendState.}
 		\label{UML_D3DUtils_2}
 	\end{figure}
@@ -179,6 +182,9 @@
 	W ramach segmentu uwzględniony został także \textbf{D3DInputLayout}, służący jako warstwa abstrakcji nad układem danych wejściowych do shader'ów. Wykorzystuje on opisany w rozdziale \ref{SSMeshVertexTypeConcept} koncept \textit{VertexTypeConcept} do automatycznego dostosowania się do danych, a jego standardowa wersja wykorzystująca typ \textit{VertexPositionNormalTexture} oznaczona została jako \textbf{ModelLoaderLayout}.
 	
 	Diagram UML segmentu został przedstawiony na rys. \ref{UML_ShaderPipeline}.
+
+	\vfill
+	\clearpage
 	
 	\begin{figure}[h!]
 		\centering
@@ -187,13 +193,13 @@
 		\label{UML_ShaderPipeline}
 	\end{figure}
 	
-	\vfill
-	\clearpage
-	
 \subsection{Materiały}
 	Programy cieniujące poza odniesieniem do używanego kodu w ramach klasy \textit{Shader} potrzebują także informacji o parametrach wyświetlanego obiektu, takich jak jego kolor, użyta tekstura i inne właściwości powierzchni.	Do przechowywania tych informacji utworzona została abstrakcyjna klasa \textbf{Material}, a także jej 2 standardowe implementacje - \textbf{MaterialSimple} oraz \textbf{MaterialPBR}, opisujące odpowiednio uproszczony model oświetlenia z danymi powierzchni w strukturze \textbf{MaterialSimpleData} i bardziej złożony mechanizm oparty o PBR, gdzie dane materiału znajdują się w \textbf{MaterialPBRData}.
 	
 	Każda implementacja klasy \textit{Material} musi zdefiniować metodę \textit{GetShader()}, która zwraca referencję do obiektu programu cieniującego. Dzięki temu każdy materiał może posiadać odrębny, różniący się od innych shader i w ten sposób rozszerzać działanie modułu poprzez utworzenie zewnętrznych implementacji. Możliwe jest także mieszanie różnych typów materiałów (a tym samym shader'ów), gdyż jest on przypisany do mesh'y, a nie globalnie.
+
+	\vfill
+	\clearpage
 		
 	\begin{figure}[h!]
 		\centering
@@ -201,9 +207,7 @@
 		\caption{Schemat kompozycji abstrakcyjnej klasy Material oraz jej standardowych implementacji.}
 		\label{UML_Material}
 	\end{figure}
-	
-	\vfill
-	\clearpage
+
 	
 \section{Engine}
 	Podczas implementacji z przyczyn logistycznych zintegrowana została warstwa sceny oraz renderująca w ramach jednego projektu. Mimo tego zachowane zostało założenie budowy modularnej oraz możliwość użycia poszczególnych elementów bez konieczności korzystania z pozostałych na tym samym lub wyższym logicznie poziomie.
@@ -225,6 +229,9 @@
 	Ważnym elementem jest skomponowany obiekt klasy \textbf{Transform}, opisujący transformację przestrzenną obiektu w scenie. Przechowuje te informacje za pomocą macierzy transformacji, a także wyliczonych na jej podstawie wektory pozycji, skali oraz rotacji w dwóch wersjach - względem rodzica oraz globalnej. Do ich zmiany oddane zostały metody \textit{GetLocal\{Position/Rotation/Scale\}} do ustalania parametrów w przestrzeni lokalnej oraz \textit{Set\{Position/Rotation\}} do odmiany globalnej. Funkcje te wykonują automatyczną rekalkulację przestrzenną obiektu oraz jego dzieci. W ten sposób możliwe jest zachowanie relacji transformacji w hierarchii sceny bez konieczności zarządzania tym procesem z perspektywy programisty.
 	
 	Kompozycja oraz relacje między opisanymi klasami zostały pokazane na rys. \ref{UML_SceneObject}.
+	
+	\vfill
+	\clearpage
 	
 	\begin{figure}[h!]
 		\centering

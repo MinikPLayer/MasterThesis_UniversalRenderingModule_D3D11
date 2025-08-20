@@ -6,16 +6,16 @@
 	Wyraźnym odejściem względem klasycznego \textit{Forward Rendering} jest sposób obliczania oświetlenia. Podstawową metodę można przedstawić w uproszczonej formie przy pomocy pseudokodu w ramach listingu \ref{lst:shaderForwardLightCalculations}.
 	
 	\begin{lstlisting}[caption={Pseudokod programu cieniującego obliczającego oświetlenie metodą Forward Rendering}, label={lst:shaderForwardLightCalculations}]
-UNIFORM Light[] lights; // Przekazane do shader'a dane o źródłach światła,
-UNIFORM int numLights;  // oraz o ilości aktywnych źródeł w tablicy.
+	UNIFORM Light[] lights; // Przekazane do shader'a dane o źródłach światła,
+	UNIFORM int numLights;  // oraz o ilości aktywnych źródeł w tablicy.
 		
-Color resultColor = BLACK;
-// Pętla sumująca obliczone wartości oświetlenia
-for (i = 0; i < numLights; i += 1) {
-    resultColor += CalculateLight(lights[i]);
-}
-
-return resultColor; 
+	Color resultColor = BLACK;
+	// Pętla sumująca obliczone wartości oświetlenia
+	for (i = 0; i < numLights; i += 1) {
+		resultColor += CalculateLight(lights[i]);
+	}
+	
+	return resultColor; 
 	\end{lstlisting}
 	
 	Takie podejście ma jednak dwa ograniczenia - wydajność oraz ograniczenie maksymalnej ilości źródeł światła w scenie.	Pierwsze wynika ze sposobu działania współczesnych układów graficznych oraz kompilatorów. Dokładniej ograniczenie wydajności wynika z tzw. \textit{Register spilling}, czyli sytuacji w której na układzie graficznym brakuje rejestrów do pełnego pokrycia zmiennych, przez co koniecznym jest korzystanie z powolnej pamięci globalnej \cite{amd:gpuopen:RegisterSpilling}. Możliwym jest też spadek wydajności przez zmniejszenie skuteczności mechanizmu \textit{rozwijania pętli} kompilatora, przez znaczne zwiększenie maksymalnej jej długości. Drugie ograniczenie spowodowane jest limitem ilości elementów bufora stałych w API Direct3D - 4096 \cite{microsoft:Direct3D11:ResourceLimits}, co ogranicza ilość źródeł światła do około 1400. 

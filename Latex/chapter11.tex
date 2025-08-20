@@ -1,7 +1,45 @@
 \chapter{Dema funkcjonalności}
 Poza samymi testami zaimplementowane zostało także kilka programów typu demo, przedstawiających poszczególne funkcjonalności modułu.
 
-\section{Sponza}
+\section{Moduł rdzeniowy}
+Ze względu na fakt, iż założenie modularności było jednym z najważniejszych aspektów projektowania projektu, testy i dema zostały podzielone na segmenty, pokazujące różne formy użycia gotowego API modułu. Początkowe testy skupią się na najważniejszym komponencie - warstwie rdzeniowej.
+
+\subsection{Minimalne okno i konfiguracja Direct3D 11}
+Pierwszym demem, podstawą prawie każdego projektu opartego o API Direct3D, a jednocześnie testem działania modułu rdzeniowego jest program, którego celem jest utworzenie minimalnej pętli Clear(), Present(), czego efektem będzie wyczyszczony stałym kolorem obraz na nowo otwartym oknie, a także obsługa interakcji użytkownika z tymże oknem.
+
+Utworzenie takiego programu jest banalnie proste przy pomocy API utworzonego modułu i z wyłączeniem komentarzy wymaga od aplikacji klienckiej jedynie 10 linijek prostego kodu, przedstawionego na listingu \ref{lst:demo:core:minimalWindow}. Jako porównania użyć można wzorcowego projektu zawartego w programie Visual Studio, który realizuje taką samą funkcję, ale wykonuje to znacznie bardziej złożonym kodem o objętości około 1000 linijek.
+
+\vfill
+
+\begin{lstlisting}[caption={Pełny kod programu wykorzystującego API modułu do utworzenia minimalnego okna.}, label={lst:demo:core:minimalWindow}]
+	#include <URM/Core/D3DCore.h>
+	
+	int WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) {
+		// Utworzenie struktury D3DCore z przekazaniem parametrów kreacji. 
+		URM::Core::D3DCore core(
+			URM::Core::WindowCreationParams(
+				800,            // Szerokość okna
+				600,            // Wysokość okna
+				"EmptyWindow",  // Tytuł okna
+				hInstance       // Uchwyt do instancji WinAPI
+			)
+		);
+	    
+		// Główna pętla programu działająca do momentu zamknięcia okna.
+		while(!core.GetWindow().IsDestroyed()) {
+			// Obsługa zdarzeń okna.
+			core.GetWindow().PollEvents();
+
+			// Czyszczenie zawartości okna zdefiniowanym kolorem.
+			core.ClearFramebuffer(DirectX::SimpleMath::Color(0.3, 0.5, 1.0));
+
+			// Prezentowanie wygenerowanej klatki obrazu na ekran.
+			core.Present(0);
+		}
+	}
+\end{lstlisting}
+
+\subsection{Sponza}
 Stworzona pierwotnie przez Marko Dabrovic'a, następnie ulepszona przez niemiecką firmę Crytek \cite{github:Khronos:Sponza}, a w 2022 roku ponownie usprawniona przez amerykańskiego giganta Intel \cite{Intel:GPUResearch:Sponza} reprezentacja rzeczywistego atrium pałacu Sponza, znajdującego się w Chorwackiej miejscowości Dubrovnik stała się jednym z najpopularniejszych modeli służących do testowania i porównywania programów grafiki 3D, a w szczególności modułów odpowiedzialnych za oświetlenie globalne. W ramach tej sekcji przedstawiona została najprostsza wersja od firmy Intel w dwóch wersjach - uproszczonej oraz PBR. W obu manualnie dobrane zostało oświetlenie oraz kolor nieba celem utworzenia kompozycji reprezentującej zbliżone do realnego zastosowanie modułu. W poniższej tabeli przedstawiona została także zmierzona wydajność renderowania, a wygenerowane zrzuty ekranu na rys. \ref{test_sponza_1}, \ref{test_sponza_2} i \ref{test_sponza_3}.
 
 \begin{center}

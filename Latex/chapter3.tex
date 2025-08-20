@@ -91,6 +91,8 @@ Przy pomocy subsystemu okien SDL jest możliwe utworzenie okna, które
 następnie można wykorzystać jako powierzchnię rysowania dla zapytań
 Direct3D. Przykładowy sposób opisany pseudokodem został przedstawiony w ramach listingu \ref{lst:sdl2init}.
 
+\vfill
+
 \begin{lstlisting}[caption={Pseudokod inicjalizacji okna SDL2 (oryginalna treść)}, label={lst:sdl2init}]
 	SDL_Init(); // Inicjalizacja biblioteki SDL
 	SDL_CreateWindow(); // Utworzenie okna
@@ -189,7 +191,7 @@ na lepsze rozdzielenie poszczególnych fragmentów oraz uniknięcie
 problemów związanych z wyciekami pamięci. W ramach listingów \ref{lst:d3d9:init} oraz \ref{lst:d3d9:render} przedstawione zostały opisane pseudokodem fragmenty, potrzebne do implementacji programu testowego.
 % Usunięto \end{quote}
 
-\begin{lstlisting}[caption={Pseudokod inicjalizacji Direct3D 9 (oryginalna treść)}, label={lst:d3d9:init}]
+\begin{lstlisting}[caption={Pseudokod inicjalizacji Direct3D 9}, label={lst:d3d9:init}]
 	void init() {
 		// Własna funkcja tworząca okno przy pomocy WinAPI
 		CreateWindow();
@@ -206,7 +208,7 @@ problemów związanych z wyciekami pamięci. W ramach listingów \ref{lst:d3d9:i
 	}
 \end{lstlisting}
 
-\begin{lstlisting}[caption={Pseudokod rysowania Direct3D 9 (oryginalna treść)}, label={lst:d3d9:render}]
+\begin{lstlisting}[caption={Pseudokod rysowania Direct3D 9}, label={lst:d3d9:render}]
 	void render() {
 		dev->Clear(); // Czyszczenie bufora ekranu
 		dev->BeginScene(); // Rozpoczęcie rysowania sceny
@@ -250,7 +252,6 @@ został przedstawiony w ramach listingów \ref{lst:manageddx:init} i \ref{lst:ma
 
 % Zmieniono styl na csharpstyle, zachowując oryginalną treść
 \begin{lstlisting}[caption={Funkcja inicjalizacji przy pomocy Managed DirectX}, label={lst:manageddx:init}]
-	
 	void init() {
 		CreateWindow();
 		
@@ -262,12 +263,10 @@ został przedstawiony w ramach listingów \ref{lst:manageddx:init} i \ref{lst:ma
 		
 		FillVertexBuffer();
 	}
-	
 \end{lstlisting}
 
 % Zmieniono styl na csharpstyle, zachowując oryginalną treść
 \begin{lstlisting}[caption={Funkcja rysowania przy pomocy Managed DirectX}, label={lst:manageddx:drawing}]
-	
 	void render() {
 		// Czyszczenie ekranu
 		dev->Clear();
@@ -287,7 +286,6 @@ został przedstawiony w ramach listingów \ref{lst:manageddx:init} i \ref{lst:ma
 		// Wyświetlenie sceny
 		dev->Present();
 	}
-	
 \end{lstlisting}
 
 \subsection{Direct3D 11}
@@ -308,38 +306,36 @@ takimi jak Swapchain czy Assembler Input Layout. Tak jak w poprzednim przypadku,
 na 2 główne funkcje - inicjalizacja i rysowanie, które zostały przedstawione w ramach listingów \ref{lst:d3d11:init} oraz \ref{lst:d3d11:render}. Dla uproszczenia przykładu wykorzystany został tryb rysowania Immediate.
 
 \begin{lstlisting}[caption={Pseudokod inicjalizacji Direct3D 11 (oryginalna treść)}, label={lst:d3d11:init}]
-	
 	void init() {
-		CreateWindow();
-		
+		CreateWindow();	
 		// Utworzenie uchwytu do wirtualnego urządzenia
-		dev = D3D11CreateDevice();
+		dev = D3D11CreateDevice();		
 		
 		// Utworzenie uchwytu do fizycznego urządzenia GPU
-		adapter = dev->GetAdapter();
+		adapter = dev->GetAdapter();	
 		
-		// Utworzenie swapchain -- obiektu odpowiedzialnego za przechowywanie}
-		// klatek wygenerowanych i w trakcie rysowania
-		swapchain = CreateSwapChainForHwnd();
+		// Utworzenie obiektu swapchain
+		swapchain = CreateSwapChainForHwnd();	
 		
 		// Utworzenie obiektu RTV (Render Target View).
-		rtv = dev->CreateRenderTargetView();
+		rtv = dev->CreateRenderTargetView();	
 		
 		// Utworzenie bufora głębi, stencil oraz widoku
-		CreateDepthStencilView();
+		CreateDepthStencilView();	
 		
 		// Utworzenie i skompilowanie shader'ów.
 		vShader = dev->CreateVertexShader();
-		pShader = dev->CreatePixelShader();
+		pShader = dev->CreatePixelShader();	
 		
 		// Utworzenie układu danych wejściowych
-		CreateInputLayout();
+		CreateInputLayout();	
 		
 		// Utworzenie buforów danych wejściowych
 		CreateInputBuffers();
-	}
-	
+	}	
 \end{lstlisting}
+
+\vfill
 
 \begin{lstlisting}[caption={Pseudokod rysowania Direct3D 11 (oryginalna treść)}, label={lst:d3d11:render}]
 	
@@ -350,8 +346,7 @@ na 2 główne funkcje - inicjalizacja i rysowanie, które zostały przedstawione
 		// Ustawienie macierzy projekcji, widoku i świata.
 		context->SetWorldViewProjectionMatrix();
 		
-		// Ustawienie oraz skonfigurowanie shaderów używanych w procesie
-		// rysowania
+		// Ustawienie oraz skonfigurowanie shaderów używanych w procesie rysowania
 		context->SetVertexShader(vShader);	
 		context->SetConstantBuffers();
 		context->SetFragmentShader(pShader);
