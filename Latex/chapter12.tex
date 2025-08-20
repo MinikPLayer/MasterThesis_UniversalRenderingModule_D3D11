@@ -1,10 +1,60 @@
 \chapter{Podsumowanie}
-Dziedzina grafiki trójwymiarowej rozwija się coraz szybciej. Wszędzie można usłyszeć o nowe technikach renderowania, układach graficznych, silnikach do gier, skrótem - kolejnej rewolucji. W tak szybko pędzącym świecie warto znać podstawy, na których wszystkie te nowinki technologiczne się opierają. Przydatnym jest też mieć taki punkt wyjścia, z którego możliwym jest rozwijanie bardziej zaawansowanych technik i projektów. Z takim właśnie założeniem powstał opisywany tu projekt. 
+Głównym problemem obecnej branży systemów grafiki trójwymiarowej jest ich wysoka złożoność lub niska elastyczność, przez co brakuje na rynku uniwersalnego rozwiązania wyższego od bezpośredniego API graficznego, ale bardziej modyfikowalnego niż pełnoprawne silniki do gier. Zmusza to twórców aplikacji wykorzystujących techniki rysowania w trzech wymiarach do tworzenia autorskich, często bardzo kosztownych rozwiązań.
 
-Stworzony przede wszystkim z myślą o byciu dobrą podstawą do dalszego rozwoju, tak aby żadna dodatkowa funkcjonalność nie blokowała w żaden sposób drogi do zewnętrznego rozszerzania, nawet jeśli dane ulepszenie nie istniało w pierwotnym założeniu. Pozwala na to budowa warstwowa, założenia modularności i brak barier w dostępie do niższych poziomów implementacji. 
+Praca opisuje rozwiązanie takiego problemu - implementacja systemu nazwanego \textbf{Universal Rendering Module (URM)}, będącego zbiorem warstwowych modułów mających na celu uzupełnienie luk w dostępnych rozwiązaniach, tak aby móc stać się docelową biblioteką niezależnie od specyficznych wymagań projektu, do którego miałaby być użyta.
 
-Nawet w przypadku braku chęci lub potrzeby większego rozwoju, zaimplementowane funkcjonalności - system materiałów, wczytywania modeli i tekstur z dysku, hierarchiczny układ sceny - są wystarczające do dużej części prostszych zastosowań. 
+Dzięki swojej modularnej architekturze i otwarto-źródłowym projekcie URM może zostać dostosowany do każdego projektu, firmy, czy stylu pracy, co czyni go naprawdę uniwersalnym.
 
-Na podstawie testów wydajność modułu jest wystarczająca do większości zadań, a ograniczenia są dobrze znane i ciężkie do osiągnięcia w realnych zastosowaniach, do których moduł został stworzony.  
+\section{Podsumowanie rozdziałów}
+W pierwszych dwóch rozdziałach opisane zostały teoretyczne podstawy renderowania grafiki 3D. Przedstawiono kluczowego zagadnienia dla idealnego systemu - modularność, wydajność, elastyczność - a także opisano najpopularniejsze techniki rysowania - Forward Rendering, Deferred Shading, Path Tracing - modele cieniowania - Phong Shading, PBR - czy efekty graficzne - Ambient Occlusion, Screen Space Reflections. Dokładnie opisana została także historia DirectX i Direct3D, ich architektura i zaawansowane funkcje. 
 
-Jeśli mimo wszystko okazałoby się to być za mało, moduł został opublikowany na otwartej licencji open source \cite{GitHub:Minik:MasterThesisUniversalRenderingModuleD3D11}, a kod napisany jest w taki sposób, aby możliwe było jego łatwe rozwijanie i poprawianie. Dzięki temu może być on podstawą lub wzorcem dla każdego, kto takiego projektu potrzebuje, a \textit{URM} ma możliwość stać się bardziej uniwersalnym niż większość innych, zamkniętych modułów i bibliotek.
+W kolejnej części przedstawione i uzasadnione zostały decyzje projektowe co do użytych technologii. Tu padła decyzja o użyciu Direct3D w wersji 11 jako API graficznego, Assimp do wczytywania trójwymiarowych modeli, czy DirectXTK do funkcji pomocniczych. 
+
+Następnie przedstawione zostały podstawowe założenia architektury systemu. Założenie metodologii warstwowej, dokładnych ram modularności oraz wstępnego projektu interfejsów poszczególnych warstw.
+
+Po tym przyszła pora na historię procesu tworzenia, od projektu zapoznawczego po implementację poszczególnych warstw. Opisane zostały tu też napotkane problemy i ich rozwiązania, których w tak dużym projekcie nigdy nie brakuje. Opisano także szczegóły decyzji o opublikowaniu kodu źródłowego modułu na platformie GitHub. 
+
+W rozdziale 7 zdradzono szczegóły przyjętej modyfikacji pierwotnego założenia o metodzie rysowania oświetlenia, co umożliwiło na wyraźne zwiększenie wydajności, zdjęcie limitów maksymalnej ilości świateł, a także potencjał do przeportowania modułu na platformy mobilne. 
+
+Końcowe trzy segmenty opisują testy wydajności poszczególnych komponentów, a także przyjętą platformę na której je przeprowadzano. Poza suchymi danymi pokazane zostały także wyróżniające moduł dema technologiczne z perspektywy interfejsu aplikacji klienckiej, jak i potencjalnego użytkownika. Wyraźnie widoczna była tu prostota użycia oraz elastyczność stworzonego systemu. 
+
+\section{Przebieg badań i kluczowe decyzje projektowe}
+Badania rozpoczęto od analizy istniejących na rynku modułów graficznych, jednak żaden z nich nie spełniał do końca definicji modularności. Kluczowe decyzje podjęte zostały jednak na podstawie praktycznych testów, gdyż dopiero dzięki wiedzy zdobytej podczas ich przeprowadzania możliwe jest określenie dokładnych wad i zalet każdego z nich, a także priorytetów na dalszą implementację.
+
+Najważniejszą decyzją był wybór API graficznego, gdyż to od tego zależeć będzie złożoność, ale też możliwości powstającego systemu. Ostatecznie wybór padł na API w wersji 11, ze względu na najlepszy stosunek złożoności do możliwości. Podobną decyzję należało także podjąć w sprawie API obsługi okien, na które wybrane zostało WinAPI, ze względu na swoją wydajność, kompatybilność, stabilność, jak i mnogość dostępnych materiałów i dokumentacji. Wykorzystanie Assimp do wczytywania modeli było oczywistością ze względu na bardzo dobrą dokumentację i mnogość wspieranych formatów, ale i tak ostateczna decyzja została podjęta dopiero po dokładnych przetestowaniu istniejących alternatyw. 
+
+\section{Przebieg implementacji i napotkane problemy}
+Najważniejszym elementem przewijającym się przez większość pracy nad systemem była kwestia kompromisu między wydajnością, a modularnością. Te dwa koncepty stoją po przeciwnych stronach i często wzajemnie się wykluczają. Ostatecznym rozwiązaniem okazał się kompromis, według którego priorytetem jest modularność, ale kosztem umiarkowanego spadku wydajności, co okazało się kluczowym założeniem zmuszającym do ostatecznego zintegrowania modułów Sceny i Silnika, a także jednym z powodów opublikowaniu projektu na licencji open-source. 
+
+Dodatkowym problematycznym aspektem związanym z wydajnością były jej problemy wynikające z przypadkowego użycia konstruktorów kopiujących, zamiast przenoszących. Problem został rozwiązany wyłączając w kluczowych miejscach mechanizm kopiowania przy pomocy klasy bazowej \textit{NonCopyable}, pozostawiając przy tym opcję przeniesienia takich obiektów.
+
+Direct3D obsługuje operacje rysowania zarówno w trybie lewoskrętnym, jak i prawoskrętnym. Nie jest jednak możliwe mieszanie tych systemów, a jest o to łatwo i często zdarzało się podczas prac nad modułem. Ostatecznie przyjęty został zgodny z używanym w branży DirectX standard lewoskrętny, co w połączeniu z odpowiednimi flagami przy wczytywaniu modeli pozwoliło na wyeliminowanie problemu. 
+
+Dzięki użyciu nowoczesnych konceptów języka C++, takich jak \textit{std::variant} czy pakiet \textit{concepts}, możliwa była minimalizacja złożoności użycia modułu z perspektywy aplikacji klienta, bez ograniczenia elastyczności całego systemu. 
+
+\section{Wynik końcowy - sukcesy i porażki}
+Głównym sukcesem było zdecydowanie osiągnięcie założonego celu projektowego - stworzenia uniwersalnego modułu, którego możliwości można użyć, rozszerzyć, a także całkowicie zastąpić. Uzupełnia to lukę w dostępnych rozwiązaniach i może stanowić podstawę do jeszcze bardziej złożonych projektów.
+
+Zdecydowanie do pozytywnego wyniku należy także zaliczyć wyraźne ograniczenie złożoności tworzenia aplikacji opartych o grafikę 3D z perspektywy programisty. Ograniczenie programu wyświetlającego model 3D do kilkudziesięciu linii kodu, bez poświęcania możliwości rozszerzenia funkcjonalności jeśli zajdzie taka potrzeba to bardzo istotny aspekt dla wielu użytkowników.
+
+Na plus należy także zaliczyć ilość zaimplementowanych funkcji, takich jak zaawansowana obsługa materiałów i powiązanych z nimi kalkulacji oświetlenia (w tym standardem PBR), obsługa większości dostępnych formatów modeli 3D, czy zaawansowany system sceny i obiektów.
+
+Jako największą porażkę trzeba przyjąć brak pełnej modularności. Koszt wydajnościowy lub jakościowy okazał się zbyt wysoki do przeskoczenia, w związku z czym koniecznym był kompromis w sposobie dystrybuowania i użycia gotowej biblioteki. Ma to jednak też swoje plusy, gdyż nawet najlepiej zaprojektowany i uniwersalny moduł zyskuje na możliwości modyfikacji jego kodu. 
+
+Pozostałe wady związane są głównie z pierwotnie przyjętymi założeniami. Oparcie architektury o API DirectX / Direct3D ogranicza moduł głównie do użycia z systemem Windows, z umiarkowanym wsparciem dla Linux oraz macOS przy pomocy DXVK. Jest to jednak kompromis wokół którego moduł był projektowany, więc nie stanowi bezpośredniej porażki. 
+
+Jako wadę przyjąć też można obsługę cieniowania jedynie w trybie Forward Rendering. Mimo że jest to jedna z najbardziej uniwersalnych technik, to nie nadaje się idealnie do wszystkich możliwych zastosowań.
+
+\section{Podsumowanie testów}
+Moduł wykazuje się wystarczającą wydajnością do większości zastosowań, a jego prosty interfejs umożliwia szybkie i proste aplikowanie go w praktycznych zastosowaniach. Przyjęta metoda rysowania świateł pozwala na osiągnięcie bardzo dobrej wydajności niezależnie od mocy obliczeniowej układu graficznego, a także na teoretyczną możliwość obsługi nieskończonej ilości świateł w scenie. 
+
+Ograniczenia wynikają głównie z przyjęcia Forward Rendering jako jedynej techniki rysowania, a także ograniczeń po stronie CPU ze względu na ograniczenie renderowania i kalkulacji transformacji obiektów do obliczeń pojedynczego rdzenia. 
+
+\section{Możliwości rozbudowy}
+Mimo dobrego stanu końcowego projektu, kilka tematów może zostać rozwinięte, co dodatkowo zwiększyłoby atrakcyjność omawianego modułu. 
+
+Przede wszystkim dodanie większej ilości dostępnych do wyboru efektów, takich jak Screen Space Reflection, Ambient Occlusion, czy obsługa Ray Tracing'u wzbogaciłaby możliwości modułu i zwiększyła jego potencjał do zastosowań w większych projektach. 
+
+Ułatwieniem byłoby też dodanie możliwości wczytywania sceny zapisanej do określonego formatu, takiego jak JSON czy XML. Umożliwiłoby to stworzenie graficznego interfejsu do projektowania światów i pracy zbliżonej do komercyjnych silników graficznych, takich jak Unity czy Unreal Engine.
+
+Dobrym kierunkiem, choć wykraczającym poza pierwotne założenia byłoby też dodanie jeszcze jednej, najniższej warstwy. Odpowiadałby za abstrakcję nad różnymi API graficznymi i pozwalała na uniwersalność względem środowiska i systemu operacyjnego. 

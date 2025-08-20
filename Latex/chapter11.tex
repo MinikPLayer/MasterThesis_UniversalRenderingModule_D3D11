@@ -55,15 +55,6 @@ Mimo względnie niskiej objętości kodu potrzebnego do utworzenia przykładowyc
 
 Rekreacja wcześniej opisanego dema przy pomocy nowego API silnika było wyjątkowo proste i zmniejszyło objętość aplikacji klienta do około 30 linijek kodu. Kod opisywanego dema, będący jednocześnie przykładem użycia interfejsu modułu silnika został przedstawiony na listingu \ref{lst:demo:engine:cube}. Poza wyraźnym uproszczeniem pracy z takim systemem, konwersja na API silnika umożliwia też łatwe rozszerzenie funkcjonalności o dodatkowe modele, różne materiały i shader'y, czy oświetlenie. Pokazane to zostało na rys. \ref{demo_engine_cube}, gdzie do widocznej już wcześniej kolorowej kostki dodane zostały dwa bliźniacze do niej sześciany, wykorzystujące zupełnie inne materiały i programy cieniujące.
 
-\begin{figure}[h!]
-	\centering
-	\includegraphics[width=\textwidth]{images/demo_engine_cube.png}
-	\caption{Rozszerzone demo sześcianu utworzone przy pomocy interfejsu modułu silnika.}
-	\label{demo_engine_cube}
-\end{figure}
-
-\vfill
-
 \begin{lstlisting}[caption={Pełny kod programu wykorzystującego API silnika do wyświetlenia trzech sześcianów o różnych materiałach.}, label={lst:demo:engine:cube}]
 #include <URM/Engine/Engine.h>
 #include <URM/Engine/CameraObject.h>
@@ -108,8 +99,20 @@ int WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) {
 }
 \end{lstlisting}
 
+\vfill
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{images/demo_engine_cube.png}
+	\caption{Rozszerzone demo sześcianu utworzone przy pomocy interfejsu modułu silnika.}
+	\label{demo_engine_cube}
+\end{figure}
+
 \subsection{Manualna kontrola procesu rysowania}
 Moduł silnika poza automatycznym systemem zarządzania przepływem działania programu, umożliwia także jego ręczną kontrolę z poziomu aplikacji klienta. Przedstawiona w tej sekcji aplikacja jest przykładem takiego podejścia. Zdarzeniem warunkowym może być dowolny sygnał, ale w przypadku dema proces rysowania odbywa się tylko jeśli użytkownik wciska przycisk "R" na klawiaturze. Kod reprezentujący sposób takiej pracy został przedstawiony na listingu \ref{lst:demo:engine:manualDrawingLoop}.
+
+\vfill
+\clearpage
 
 \begin{lstlisting}[caption={Kod przykładowego programu manualnej kontroli przepływu działania programu w module silnika.}, label={lst:demo:engine:manualDrawingLoop}]
 	// Utworzenie instancji silnika z parametrami okna
@@ -142,6 +145,9 @@ Moduł silnika poza automatycznym systemem zarządzania przepływem działania p
 
 \subsection{Zaawansowana kontrola nad procesem rysowania}
 Używając modułu Engine możliwe jest też zastosowanie bardziej złożonej kontroli nad procesem rysowania. Dotyczy to na przykład wielokrotnego wywołania funkcji rysującej dla różnych scen, czy konfiguracji kamera / modele / światła i taki mechanizm został zastosowany w tym przykładzie. Użyto tutaj 3 różnych wywołań metody \textit{engine.Draw()}. Pierwszy rysuje przygotowaną wcześniej scenę podpiętą do silnika, kolejny drugą, zupełnie niezależną scenę, a ostatni używa mesh'y z pierwszej, ale wykorzystuje przy tym inną kamerę oraz oświetlenie o innym kolorze i pozycji. Najważniejszy wycinek kodu odpowiedzialnego za rysowanie został pokazany na listingu \ref{lst:demo:engine:multipleDrawCalls}, a efekt na rys.  \ref{demo_engine_multiple_draw_calls}.
+
+\vfill
+\clearpage
 
 \begin{lstlisting}[caption={Fragmentu kodu dema, pokazujący sposób na ręczne wywoływanie procesu rysowania obiektów z różnymi parametrami.}, label={lst:demo:engine:multipleDrawCalls}]
 	Engine engine(...);
@@ -177,6 +183,7 @@ Używając modułu Engine możliwe jest też zastosowanie bardziej złożonej ko
 \end{lstlisting}
 
 \vfill
+\clearpage
 
 \begin{figure}[h!]
 	\centering
@@ -189,6 +196,7 @@ Używając modułu Engine możliwe jest też zastosowanie bardziej złożonej ko
 Moduł został zaprojektowany i napisany w taki sposób, że programista aplikacji klienckiej w żadnym momencie nie jest ograniczony do tylko jednej metody rysowania. Korzystając z silnika nadal możliwe jest manualnie wywoływanie metod z działającego pod spodem interfejsu Core, a nawet bezpośrednie wysyłanie zapytań do API Direct3D. Taka funkcjonalność została pokazana w ramach opisywanego demo. Modyfikując kod z podrozdziału \ref{subsection_demo_engine_cube} dodane zostały ręczne zapytania wykorzystujące interfejs rdzeniowy modułu, rysujące na ekranie mały trójkąt w rogu. Dla czytelności usunięty został niestandardowy shader z głównego sześcianu. Kod to realizujący pokazano w listingu \ref{lst:demo:engine:hybridDrawing}, a efekt widoczny jest na rys. \ref{demo_engine_hybrid_drawing}.
 
 \vfill
+\clearpage
 
 \begin{lstlisting}[caption={Fragmentu kodu dema, który pokazuje możliwość hybrydowego użycia interfejsów różnych warstw modułu.}, label={lst:demo:engine:hybridDrawing}]
 	// (...) - utworzenie silnika i sceny
@@ -256,13 +264,12 @@ Stworzona pierwotnie przez Marko Dabrovic'a, następnie ulepszona przez niemieck
 
 	
 \begin{figure}[h!]
-	\begin{subfigure}{.5\textwidth}
-		\centering
+	\centering
+	\begin{subfigure}{.4\textwidth}
 		\includegraphics[width=\textwidth]{images/demo_sponza_1.png}
 		\caption{Widok uproszczony.}
 	\end{subfigure}
-	\begin{subfigure}{.5\textwidth}
-		\centering
+	\begin{subfigure}{.4\textwidth}
 		\includegraphics[width=\textwidth]{images/demo_sponza_1_pbr.png}
 		\caption{Tryb PBR.}
 	\end{subfigure}
@@ -271,13 +278,12 @@ Stworzona pierwotnie przez Marko Dabrovic'a, następnie ulepszona przez niemieck
 \end{figure}
 
 \begin{figure}[h!]
-	\begin{subfigure}{.5\textwidth}
-		\centering
+	\centering
+	\begin{subfigure}{.4\textwidth}
 		\includegraphics[width=\textwidth]{images/demo_sponza_2.png}
 		\caption{Tryb klasyczny.}
 	\end{subfigure}
-	\begin{subfigure}{.5\textwidth}
-		\centering
+	\begin{subfigure}{.4\textwidth}
 		\includegraphics[width=\textwidth]{images/demo_sponza_2_pbr.png}
 		\caption{Widok PBR.}
 	\end{subfigure}
@@ -286,13 +292,12 @@ Stworzona pierwotnie przez Marko Dabrovic'a, następnie ulepszona przez niemieck
 \end{figure}
 
 \begin{figure}[h!]
-	\begin{subfigure}{.5\textwidth}
-		\centering
+	\centering
+	\begin{subfigure}{.4\textwidth}
 		\includegraphics[width=\textwidth]{images/demo_sponza_4.png}
 		\caption{Shader uproszczony.}
 	\end{subfigure}
-	\begin{subfigure}{.5\textwidth}
-		\centering
+	\begin{subfigure}{.4\textwidth}
 		\includegraphics[width=\textwidth]{images/demo_sponza_4_pbr.png}
 		\caption{Wersja oparta o Physically Based Rendering.}
 	\end{subfigure}
