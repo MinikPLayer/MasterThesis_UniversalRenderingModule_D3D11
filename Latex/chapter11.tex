@@ -1,11 +1,11 @@
 \chapter{Dema funkcjonalności}
 Poza samymi testami zaimplementowane zostało także kilka programów typu demo, przedstawiających poszczególne funkcjonalności modułu.
 
-\section{Moduł rdzeniowy}
-Ze względu na fakt, iż założenie modularności było jednym z najważniejszych aspektów projektowania projektu, testy i dema zostały podzielone na segmenty, pokazujące różne formy użycia gotowego API modułu. Początkowe testy skupią się na najważniejszym komponencie - warstwie rdzeniowej.
+\section{API dla aplikacja klienckiej}
+W pierwszej części opisane zostały szczegóły zaimplementowanych rozwiązań z perspektywy interfejsu dla aplikacji klienta. 
 
 \subsection{Minimalne okno i konfiguracja Direct3D 11}
-Pierwszym demem, podstawą prawie każdego projektu opartego o API Direct3D, a jednocześnie testem działania modułu rdzeniowego jest program, którego celem jest utworzenie minimalnej pętli Clear(), Present(), czego efektem będzie wyczyszczony stałym kolorem obraz na nowo otwartym oknie, a także obsługa interakcji użytkownika z tymże oknem.
+Podstawą prawie każdego projektu opartego o API Direct3D, a jednocześnie testem działania modułu rdzeniowego jest program, którego celem jest utworzenie minimalnej pętli Clear(), Present(), czego efektem będzie wyczyszczony stałym kolorem obraz na nowo otwartym oknie, a także obsługa interakcji użytkownika z tymże oknem.
 
 Utworzenie takiego programu jest banalnie proste przy pomocy API utworzonego modułu i z wyłączeniem komentarzy wymaga od aplikacji klienckiej jedynie 10 linijek prostego kodu, przedstawionego na listingu \ref{lst:demo:core:minimalWindow}. Jako porównania użyć można wzorcowego projektu zawartego w programie Visual Studio, który realizuje taką samą funkcję, ale wykonuje to znacznie bardziej złożonym kodem o objętości około 1000 linijek.
 
@@ -49,10 +49,8 @@ Podstawowym i najważniejszym z zadań program renderującego jest rysowanie mod
 	\label{demo_core_cube}
 \end{figure}
 
-\section{Moduł silnika}
-W poniższej sekcji przedstawione zostały dema wykorzystujące API warstwy silnika, mające na celu ukazanie możliwości oraz elastyczności opisywanego modułu.
-
-\subsection{Wczytanie i wyświetlenie prostego modelu - c.d.}
+\subsection{Wczytanie i wyświetlenie prostego modelu - moduł silnika}
+\label{subsection_demo_engine_cube}
 Mimo względnie niskiej objętości kodu potrzebnego do utworzenia przykładowych aplikacji przy pomocy modułu rdzeniowego, jest on już na tym etapie wyraźnie złożony. Do działania wymagane jest kontrolowanie stanu modułu rdzeniowego, stanu rasteryzera, viewport'u, shader'ów, InputLayout, buforów stałych i zmiennych, a także wczytanych modeli. Moduł silnika przejmuje na siebie obowiązki związane z zarządzaniem tymi zasobami, udostępniając przy tym przejrzyste API, bez ograniczania możliwości hybrydowego użycia z niższymi warstwami. 
 
 Rekreacja wcześniej opisanego dema przy pomocy nowego API silnika było wyjątkowo proste i zmniejszyło objętość aplikacji klienta do około 30 linijek kodu. Kod opisywanego dema, będący jednocześnie przykładem użycia interfejsu modułu silnika został przedstawiony na listingu \ref{lst:demo:engine:cube}. Poza wyraźnym uproszczeniem pracy z takim systemem, konwersja na API silnika umożliwia też łatwe rozszerzenie funkcjonalności o dodatkowe modele, różne materiały i shader'y, czy oświetlenie. Pokazane to zostało na rys. \ref{demo_engine_cube}, gdzie do widocznej już wcześniej kolorowej kostki dodane zostały dwa bliźniacze do niej sześciany, wykorzystujące zupełnie inne materiały i programy cieniujące.
@@ -186,6 +184,60 @@ Używając modułu Engine możliwe jest też zastosowanie bardziej złożonej ko
 	\caption{Efekt wielokrotnego wywołania metody rysującej z różnymi parametrami.}
 	\label{demo_engine_multiple_draw_calls}
 \end{figure}
+
+\subsection{Hybrydowe użycie modułu rdzeniowego i silnika}
+Moduł został zaprojektowany i napisany w taki sposób, że programista aplikacji klienckiej w żadnym momencie nie jest ograniczony do tylko jednej metody rysowania. Korzystając z silnika nadal możliwe jest manualnie wywoływanie metod z działającego pod spodem interfejsu Core, a nawet bezpośrednie wysyłanie zapytań do API Direct3D. Taka funkcjonalność została pokazana w ramach opisywanego demo. Modyfikując kod z podrozdziału \ref{subsection_demo_engine_cube} dodane zostały ręczne zapytania wykorzystujące interfejs rdzeniowy modułu, rysujące na ekranie mały trójkąt w rogu. Dla czytelności usunięty został niestandardowy shader z głównego sześcianu. Kod to realizujący pokazano w listingu \ref{lst:demo:engine:hybridDrawing}, a efekt widoczny jest na rys. \ref{demo_engine_hybrid_drawing}.
+
+\vfill
+
+\begin{lstlisting}[caption={Fragmentu kodu dema, który pokazuje możliwość hybrydowego użycia interfejsów różnych warstw modułu.}, label={lst:demo:engine:hybridDrawing}]
+	// (...) - utworzenie silnika i sceny
+	
+	// Utworzenie obiektów shader'ów
+	VertexShader* customVertexShader = ...
+	PixelShader* customPixelShader = ...
+	
+	// Utworzenie bufora wierzchołków z danymi wierzchołków
+	auto customVertexData = std::vector<URM::Core::VertexPosition>{
+		{ 0.9, -0.4, 0.0 },
+		{ 0.9, -0.9, 0.0 },
+		{ 0.4, -0.9, 0.0 },
+	};
+	
+	// Utworzenie bufora wierzchołków i układu wejściowego
+	D3DVertexBuffer customVertexBuffer = ...
+	D3DInputLayout customInputLayout = ...
+	
+	// Uruchomienie pętli silnika
+	while (!engine.ShouldClose()) {
+		// Zwykłe rysowanie sceny
+		engine.Update();
+		engine.Clear();
+		engine.Draw(engine.renderParameters, engine.GetScene());
+		
+		// Rysowanie przy pomocy elementów pakietu Core, z pominięciem silnika
+		customInputLayout.Bind(engine.GetCore());
+		customVertexBuffer.Bind(engine.GetCore(), 0);
+		customVertexShader->Bind(engine.GetCore());
+		customPixelShader->Bind(engine.GetCore());
+		engine.GetCore().GetContext()->Draw(customVertexData.size(), 0);
+		
+		engine.Present(engine.vSyncInterval);
+	}
+\end{lstlisting}
+
+\vfill
+\clearpage
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{images/demo_engine_hybrid_drawing.png}
+	\caption{Efekt rysowania z wykorzystaniem trybu silnika i rdzeniowego.}
+	\label{demo_engine_hybrid_drawing}
+\end{figure}
+
+\section{Możliwości graficzne}
+Druga część rozdziału opisuje przykłady praktycznych zastosowań oraz graficznych możliwości zaimplementowanego modułu. Wszystkie opisane w tym segmencie dema opierają się o interfejs modułu silnikowego.
 
 \subsection{Sponza}
 Stworzona pierwotnie przez Marko Dabrovic'a, następnie ulepszona przez niemiecką firmę Crytek \cite{github:Khronos:Sponza}, a w 2022 roku ponownie usprawniona przez amerykańskiego giganta Intel \cite{Intel:GPUResearch:Sponza} reprezentacja rzeczywistego atrium pałacu Sponza, znajdującego się w Chorwackiej miejscowości Dubrovnik stała się jednym z najpopularniejszych modeli służących do testowania i porównywania programów grafiki 3D, a w szczególności modułów odpowiedzialnych za oświetlenie globalne. W ramach tej sekcji przedstawiona została najprostsza wersja od firmy Intel w dwóch wersjach - uproszczonej oraz PBR. W obu manualnie dobrane zostało oświetlenie oraz kolor nieba celem utworzenia kompozycji reprezentującej zbliżone do realnego zastosowanie modułu. W poniższej tabeli przedstawiona została także zmierzona wydajność renderowania, a wygenerowane zrzuty ekranu na rys. \ref{test_sponza_1}, \ref{test_sponza_2} i \ref{test_sponza_3}.
