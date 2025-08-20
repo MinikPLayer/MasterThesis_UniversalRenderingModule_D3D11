@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="EngineDemo_ManualDrawingLoop.cpp">
+    <ClCompile Include="EngineDemo_MultipleDrawCalls.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

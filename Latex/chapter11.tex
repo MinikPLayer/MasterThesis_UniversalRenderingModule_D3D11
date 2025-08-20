@@ -142,6 +142,51 @@ Moduł silnika poza automatycznym systemem zarządzania przepływem działania p
 	}
 \end{lstlisting}
 
+\subsection{Zaawansowana kontrola nad procesem rysowania}
+Używając modułu Engine możliwe jest też zastosowanie bardziej złożonej kontroli nad procesem rysowania. Dotyczy to na przykład wielokrotnego wywołania funkcji rysującej dla różnych scen, czy konfiguracji kamera / modele / światła i taki mechanizm został zastosowany w tym przykładzie. Użyto tutaj 3 różnych wywołań metody \textit{engine.Draw()}. Pierwszy rysuje przygotowaną wcześniej scenę podpiętą do silnika, kolejny drugą, zupełnie niezależną scenę, a ostatni używa mesh'y z pierwszej, ale wykorzystuje przy tym inną kamerę oraz oświetlenie o innym kolorze i pozycji. Najważniejszy wycinek kodu odpowiedzialnego za rysowanie został pokazany na listingu \ref{lst:demo:engine:multipleDrawCalls}, a efekt na rys.  \ref{demo_engine_multiple_draw_calls}.
+
+\begin{lstlisting}[caption={Fragmentu kodu dema, pokazujący sposób na ręczne wywoływanie procesu rysowania obiektów z różnymi parametrami.}, label={lst:demo:engine:multipleDrawCalls}]
+	Engine engine(...);
+	
+	// Utworzenie drugiej, niezależnej sceny.
+	Scene secondScene(...);
+	secondScene.GetRoot().lock()->AddChild(...);
+	
+	// Utworzenie trzeciej kamery oraz listy świateł.
+	// (uproszczenie dla czytelności - w rzeczywistości std::shared_ptr)
+	CameraObject* thirdCamera = (...);
+	LightObject* thirdLight = (...);
+	std::vector<LightObject*> thirdDrawLights = { thirdLight };
+	
+	while (!engine.ShouldClose()) {
+		engine.Update();
+		engine.Clear(Color(0.3f, 0.5f, 1.0f));
+		
+		// Normalne rysowanie sceny przypisanej do silnika
+		engine.Draw(engine.renderParameters); 
+		// Rysowanie drugiej sceny
+		engine.Draw(engine.renderParameters, *secondScene); 
+		// Rysowanie modeli z pierwszej sceny, ale z użyciem innej kamery i światła
+		engine.Draw(
+			engine.renderParameters, 
+			thirdCamera, 
+			engine.GetScene().GetMeshes(), 
+			thirdDrawLights
+		);
+		
+		engine.Present(0);
+	}
+\end{lstlisting}
+
+\vfill
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{images/demo_engine_multiple_draw_calls.png}
+	\caption{Efekt wielokrotnego wywołania metody rysującej z różnymi parametrami.}
+	\label{demo_engine_multiple_draw_calls}
+\end{figure}
+
 \subsection{Sponza}
 Stworzona pierwotnie przez Marko Dabrovic'a, następnie ulepszona przez niemiecką firmę Crytek \cite{github:Khronos:Sponza}, a w 2022 roku ponownie usprawniona przez amerykańskiego giganta Intel \cite{Intel:GPUResearch:Sponza} reprezentacja rzeczywistego atrium pałacu Sponza, znajdującego się w Chorwackiej miejscowości Dubrovnik stała się jednym z najpopularniejszych modeli służących do testowania i porównywania programów grafiki 3D, a w szczególności modułów odpowiedzialnych za oświetlenie globalne. W ramach tej sekcji przedstawiona została najprostsza wersja od firmy Intel w dwóch wersjach - uproszczonej oraz PBR. W obu manualnie dobrane zostało oświetlenie oraz kolor nieba celem utworzenia kompozycji reprezentującej zbliżone do realnego zastosowanie modułu. W poniższej tabeli przedstawiona została także zmierzona wydajność renderowania, a wygenerowane zrzuty ekranu na rys. \ref{test_sponza_1}, \ref{test_sponza_2} i \ref{test_sponza_3}.
 

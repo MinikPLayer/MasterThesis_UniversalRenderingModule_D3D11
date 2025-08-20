@@ -27,6 +27,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EngineDemo_SimpleCube", "Co
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EngineDemo_ManualDrawingLoop", "CoreDemos\EngineDemo_ManualDrawingLoop\CoreDemo_SimpleCube.vcxproj", "{5B9C0B4E-5DE6-4B68-957A-CFD51FDF1424}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EngineDemo_MultipleDrawCalls", "CoreDemos\EngineDemo_MultipleDrawCalls\CoreDemo_SimpleCube.vcxproj", "{B202A192-C39F-475C-A063-C4DECF188258}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -107,6 +109,14 @@ Global
 		{5B9C0B4E-5DE6-4B68-957A-CFD51FDF1424}.Release|Win32.Build.0 = Release|Win32
 		{5B9C0B4E-5DE6-4B68-957A-CFD51FDF1424}.Release|x64.ActiveCfg = Release|x64
 		{5B9C0B4E-5DE6-4B68-957A-CFD51FDF1424}.Release|x64.Build.0 = Release|x64
+		{B202A192-C39F-475C-A063-C4DECF188258}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B202A192-C39F-475C-A063-C4DECF188258}.Debug|Win32.Build.0 = Debug|Win32
+		{B202A192-C39F-475C-A063-C4DECF188258}.Debug|x64.ActiveCfg = Debug|x64
+		{B202A192-C39F-475C-A063-C4DECF188258}.Debug|x64.Build.0 = Debug|x64
+		{B202A192-C39F-475C-A063-C4DECF188258}.Release|Win32.ActiveCfg = Release|Win32
+		{B202A192-C39F-475C-A063-C4DECF188258}.Release|Win32.Build.0 = Release|Win32
+		{B202A192-C39F-475C-A063-C4DECF188258}.Release|x64.ActiveCfg = Release|x64
+		{B202A192-C39F-475C-A063-C4DECF188258}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -119,6 +129,7 @@ Global
 		{EFFAC726-010C-4234-98F1-E669AEC69736} = {305CB45C-6A69-4453-80FF-C8AA8327A71D}
 		{02FCEF13-CDC3-49EF-AEA8-58407E937D3B} = {305CB45C-6A69-4453-80FF-C8AA8327A71D}
 		{5B9C0B4E-5DE6-4B68-957A-CFD51FDF1424} = {305CB45C-6A69-4453-80FF-C8AA8327A71D}
+		{B202A192-C39F-475C-A063-C4DECF188258} = {305CB45C-6A69-4453-80FF-C8AA8327A71D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {30B56F05-918E-4616-8032-04DA8517F9FE}

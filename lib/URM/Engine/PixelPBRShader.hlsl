@@ -111,6 +111,7 @@ float3 CalculatePBR(PS_INPUT input, float3 albedo)
         Lo += (kD * albedo / PI + specular) * radiance * NdotL;
         
         ambient += float3(lightData.lights[i].ambientIntensity, lightData.lights[i].ambientIntensity, lightData.lights[i].ambientIntensity);
+        ambient *= lightData.lights[i].color;
     }
     
     ambient = ambient * albedo * material.ao;

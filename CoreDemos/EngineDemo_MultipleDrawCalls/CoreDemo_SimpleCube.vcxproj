@@ -21,10 +21,10 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{5B9C0B4E-5DE6-4B68-957A-CFD51FDF1424}</ProjectGuid>
+    <ProjectGuid>{B202A192-C39F-475C-A063-C4DECF188258}</ProjectGuid>
     <RootNamespace>CoreDemoSimpleCube</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>EngineDemo_ManualDrawingLoop</ProjectName>
+    <ProjectName>EngineDemo_MultipleDrawCalls</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -144,7 +144,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="EngineDemo_ManualDrawingLoop.cpp" />
+    <ClCompile Include="EngineDemo_MultipleDrawCalls.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="cube.glb">

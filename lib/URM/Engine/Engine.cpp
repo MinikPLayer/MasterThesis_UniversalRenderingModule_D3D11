@@ -171,7 +171,7 @@ namespace URM::Engine {
 	}
 
 	void Engine::Draw(RenderingParams& params, Scene& scene) {
-		this->Draw(params, mScene.GetMainCamera(), mScene.GetMeshes(), scene.GetLights());
+		this->Draw(params, scene.GetMainCamera(), scene.GetMeshes(), scene.GetLights());
 	}
 	
 	void Engine::Draw(RenderingParams& params) {
