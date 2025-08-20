@@ -110,6 +110,38 @@ int WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) {
 }
 \end{lstlisting}
 
+\subsection{Manualna kontrola procesu rysowania}
+Moduł silnika poza automatycznym systemem zarządzania przepływem działania programu, umożliwia także jego ręczną kontrolę z poziomu aplikacji klienta. Przedstawiona w tej sekcji aplikacja jest przykładem takiego podejścia. Zdarzeniem warunkowym może być dowolny sygnał, ale w przypadku dema proces rysowania odbywa się tylko jeśli użytkownik wciska przycisk "R" na klawiaturze. Kod reprezentujący sposób takiej pracy został przedstawiony na listingu \ref{lst:demo:engine:manualDrawingLoop}.
+
+\begin{lstlisting}[caption={Kod przykładowego programu manualnej kontroli przepływu działania programu w module silnika.}, label={lst:demo:engine:manualDrawingLoop}]
+	// Utworzenie instancji silnika z parametrami okna
+	Engine engine(...);
+	
+	// Przygotowanie sceny - dodanie modelu, kamery, oświetlenia
+	...
+	
+	// Pobranie uchwytu do klawiatury
+	auto keyboard = engine.GetScene().GetCore().GetKeyboard();
+	
+	// Ręczna pętla rysowania
+	float rotation = 0.0f;
+	while (!engine.ShouldClose()) {
+		// Aktualizacja zdarzeń - dzięki temu okno pozostaje reponsywne
+		engine.Update();
+		
+		// Rysowanie sceny tylko jeśli klawisz 'R' jest wciśnięty
+		if(keyboard.lock()->GetState().IsKeyDown(DirectX::Keyboard::R)) {
+			rotation += engine.GetTimer().GetDeltaTime() * 90.0f;
+			model->GetTransform().SetLocalRotation({ 0.0f, rotation, 0.0f });
+			
+			// Ręczne czyszczenie, rysowanie i prezentacja
+			engine.Clear(Color(0.3f, 0.5f, 1.0f));
+			engine.Draw(engine.renderParameters);
+			engine.Present(0);
+		}
+	}
+\end{lstlisting}
+
 \subsection{Sponza}
 Stworzona pierwotnie przez Marko Dabrovic'a, następnie ulepszona przez niemiecką firmę Crytek \cite{github:Khronos:Sponza}, a w 2022 roku ponownie usprawniona przez amerykańskiego giganta Intel \cite{Intel:GPUResearch:Sponza} reprezentacja rzeczywistego atrium pałacu Sponza, znajdującego się w Chorwackiej miejscowości Dubrovnik stała się jednym z najpopularniejszych modeli służących do testowania i porównywania programów grafiki 3D, a w szczególności modułów odpowiedzialnych za oświetlenie globalne. W ramach tej sekcji przedstawiona została najprostsza wersja od firmy Intel w dwóch wersjach - uproszczonej oraz PBR. W obu manualnie dobrane zostało oświetlenie oraz kolor nieba celem utworzenia kompozycji reprezentującej zbliżone do realnego zastosowanie modułu. W poniższej tabeli przedstawiona została także zmierzona wydajność renderowania, a wygenerowane zrzuty ekranu na rys. \ref{test_sponza_1}, \ref{test_sponza_2} i \ref{test_sponza_3}.
 
