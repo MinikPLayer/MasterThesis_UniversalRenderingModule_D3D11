@@ -39,6 +39,24 @@ Utworzenie takiego programu jest banalnie proste przy pomocy API utworzonego mod
 	}
 \end{lstlisting}
 
+\subsection{Wczytanie i wyświetlenie prostego modelu}
+Podstawowym i najważniejszym z zadań program renderującego jest rysowanie modeli w przestrzeni. Aby pokazać możliwości związane z tym tematem, kolejnym przykładem została aplikacja rozbudowująca przykład poprzedni o trójwymiarowy sześcian wyświetlany w utworzonym oknie. Moduł rdzeniowy oddaje do dyspozycji pełną kontrolę nad całym procesem aplikacji klienta, ułatwiając przy tym pracę nad niskopoziomowym API Direct3D, co pozwoliło na znaczącą redukcję złożoności tak powstałego programu do mniej niż 170 linijek kodu, a czego efekty zostały przedstawione na rys. \ref{demo_core_cube}. Przedstawiają one omawiany model z użytym niestandardowym programem cieniującym, wyświetlającym wartość wektora normalnego powierzchni jako jej kolor. 
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{images/demo_core_cube.png}
+	\caption{Kolorowy model sześcianu narysowany przy pomocy API modułu rdzeniowego.}
+	\label{demo_core_cube}
+\end{figure}
+
+\section{Moduł silnika}
+W poniższej sekcji przedstawione zostały dema wykorzystujące API warstwy silnika, mające na celu ukazanie możliwości oraz elastyczności opisywanego modułu.
+
+\subsection{Wczytanie i wyświetlenie prostego modelu - c.d.}
+Mimo względnie niskiej objętości kodu potrzebnego do utworzenia przykładowych aplikacji przy pomocy modułu rdzeniowego, jest on już na tym etapie wyraźnie złożony. Do działania wymagane jest kontrolowanie stanu modułu rdzeniowego, stanu rasteryzera, viewport'u, shader'ów, InputLayout, buforów stałych i zmiennych, a także wczytanych modeli. Moduł silnika przejmuje na siebie obowiązki związane z zarządzaniem tymi zasobami, udostępniając przy tym przejrzyste API, bez ograniczania możliwości hybrydowego użycia z niższymi warstwami. 
+
+Rekreacja 
+
 \subsection{Sponza}
 Stworzona pierwotnie przez Marko Dabrovic'a, następnie ulepszona przez niemiecką firmę Crytek \cite{github:Khronos:Sponza}, a w 2022 roku ponownie usprawniona przez amerykańskiego giganta Intel \cite{Intel:GPUResearch:Sponza} reprezentacja rzeczywistego atrium pałacu Sponza, znajdującego się w Chorwackiej miejscowości Dubrovnik stała się jednym z najpopularniejszych modeli służących do testowania i porównywania programów grafiki 3D, a w szczególności modułów odpowiedzialnych za oświetlenie globalne. W ramach tej sekcji przedstawiona została najprostsza wersja od firmy Intel w dwóch wersjach - uproszczonej oraz PBR. W obu manualnie dobrane zostało oświetlenie oraz kolor nieba celem utworzenia kompozycji reprezentującej zbliżone do realnego zastosowanie modułu. W poniższej tabeli przedstawiona została także zmierzona wydajność renderowania, a wygenerowane zrzuty ekranu na rys. \ref{test_sponza_1}, \ref{test_sponza_2} i \ref{test_sponza_3}.
 

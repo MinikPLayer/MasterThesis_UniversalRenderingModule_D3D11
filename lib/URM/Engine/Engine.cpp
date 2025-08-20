@@ -149,7 +149,7 @@ namespace URM::Engine {
 					m.BindTextures(mCore);
 				}
 				sceneMesh->material->Bind(mCore, URM::Core::Material::SEMANTIC_SHADER_CONSTANT_BUFFER_INDEX);
-				sceneMesh->material->UploadData(mCore, useTexture);
+				sceneMesh->material->Prepare(mCore, useTexture);
 
 				m.GetVertexBuffer().Bind(this->mCore, 0);
 				if (m.ContainsIndices()) {

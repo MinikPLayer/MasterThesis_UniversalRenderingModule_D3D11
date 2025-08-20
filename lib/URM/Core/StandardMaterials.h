@@ -14,13 +14,9 @@ namespace URM::Core {
 		}
 	};
 
-	class MaterialSimple : public Material {
-		static std::shared_ptr<Core::PixelShader> defaultShader;
-
-		std::shared_ptr<Core::PixelShader> GetShader(D3DCore& core) override;
+	class MaterialSimple : public MaterialWithData<MaterialSimpleData> {
+		const wchar_t* GetShaderFilePath() const override;
 	public:
-		MaterialSimpleData data;
-
 		void UploadData(D3DCore& core, bool useAlbedoTexture) override;
 		MaterialSimple(D3DCore& core, MaterialSimpleData data = MaterialSimpleData());
 	};
@@ -33,14 +29,9 @@ namespace URM::Core {
 		alignas(4) float ao = 1.0f;
 	};
 
-	class MaterialPBR : public Material {
-		static std::shared_ptr<Core::PixelShader> defaultShader;
-
-		std::shared_ptr<Core::PixelShader> GetShader(D3DCore& core) override;
-
+	class MaterialPBR : public MaterialWithData<MaterialPBRData> {
+		const wchar_t* GetShaderFilePath() const override;
 	public:
-		MaterialPBRData data;
-
 		void UploadData(D3DCore& core, bool useAlbedoTexture) override;
 		MaterialPBR(D3DCore& core, MaterialPBRData data = MaterialPBRData());
 	};

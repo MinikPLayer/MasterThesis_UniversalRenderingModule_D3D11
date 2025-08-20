@@ -2,40 +2,32 @@
 #include <URM/Engine/ModelObject.h>
 #include <URM/Engine/MeshObject.h>
 
-struct ScreenPositionMaterial : public URM::Core::Material {
-	static std::shared_ptr<URM::Core::PixelShader> screenPositionPixelShader;
-	struct Data {
-		Vector2 screenSize = { 1.0f, 1.0f };
-		int calculateLighting = 1;
-		int dummy;
-	};
+struct ScreenPositionMaterialData {
+	Vector2 screenSize = { 1.0f, 1.0f };
+	int calculateLighting = 1;
+	int dummy;
+};
 
+struct ScreenPositionMaterial : public URM::Core::MaterialWithData<ScreenPositionMaterialData>{
 protected:
-	Data mData;
 	bool mCalculateLighting = true;
 
-	std::shared_ptr<URM::Core::PixelShader> GetShader(URM::Core::D3DCore& core) override
-	{
-		if (screenPositionPixelShader == nullptr) {
-			screenPositionPixelShader = std::shared_ptr<URM::Core::PixelShader>(new URM::Core::PixelShader(core, L"ScreenPositionPixelShader.cso"));
-		}
-		return screenPositionPixelShader;
+	const wchar_t* GetShaderFilePath() const override {
+		return L"ScreenPositionPixelShader.cso";
 	}
 
 	void UploadData(URM::Core::D3DCore& core, bool useAlbedoTexture) override {
 		auto size = core.GetWindow().GetSize();
-		mData.screenSize = { static_cast<float>(size.width), static_cast<float>(size.height) };
-		mData.calculateLighting = mCalculateLighting ? 1 : 0;
-		this->mConstantBuffer.UpdateWithData(core, &mData);
+		this->data.screenSize = { static_cast<float>(size.width), static_cast<float>(size.height) };
+		this->data.calculateLighting = mCalculateLighting ? 1 : 0;
+		this->mConstantBuffer.UpdateWithData(core, &this->data);
 	}
 
 public:
-	ScreenPositionMaterial(URM::Core::D3DCore& core, bool calculateLighting = true) : Material(URM::Core::D3DConstantBuffer::Create<ScreenPositionMaterial::Data>(core, URM::Core::PIXEL)) {
+	ScreenPositionMaterial(URM::Core::D3DCore& core, bool calculateLighting = true) : MaterialWithData(core) {
 		this->mCalculateLighting = calculateLighting;
 	}
 };
-
-std::shared_ptr<URM::Core::PixelShader> ScreenPositionMaterial::screenPositionPixelShader = nullptr;
 
 void MaterialTest::OnInit(URM::Engine::Engine& engine) {
 	auto root = engine.GetScene().GetRoot().lock();
