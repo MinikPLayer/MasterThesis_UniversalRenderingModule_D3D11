@@ -1,2 +1,29 @@
 \chapter*{Załącznik A: Instrukcja użycia biblioteki}
-\addcontentsline{toc}{chapter}{Załącznik A: Instrukcja użycia biblioteki}.
+\addcontentsline{toc}{chapter}{Załącznik A: Instrukcja użycia biblioteki}
+W załączniku opisana została procedura użycia modułu URM na podstawie utworzenia przykładowego projektu i skonfigurowania go do potrzeb biblioteki. Na potrzeby przykładu użyty zostanie program Visual Studio 2022 oraz system budowy MSBuild. Do instalacji pakietów posłuży program vcpkg od firmy Microsoft. 
+
+Biblioteka może zostać zaimportowana w dwóch trybach:
+\begin{enumerate}
+	\item \textbf{Prekompilowana} - forma dystrybucji, w której moduł przyjmuje formę gotowych do użycia plików .lib, zawierających skompilowane funkcje biblioteki. Dzięki takiemu podejściu można uniknąć każdorazowego rekompilowania kodu przy tworzeniu projektu, a także potencjalnych problemów z kompatybilnością między różnymi wersjami kompilatora. 
+	\item \textbf{Kod źródłowy} - bezpośrednie dodanie projektów wraz z kodem źródłowym jako referencji do aplikacji klienta. Dzięki takiemu podejściu możliwa jest dowolna modyfikacja kodu biblioteki, ale kosztem konieczności jej ręcznego skompilowania oraz trudniejszej aktualizacji.
+\end{enumerate}
+
+\section*{Wspólna konfiguracja projektu}
+Niezależnie od wybranej wersji wymaganym od projektu jest ustawienie kilku kluczowych opcji konfiguracyjnych. 
+
+Ze względu na wykorzystanie zaawansowanych konceptów jak \textit{std::variant} i \textit{concepts}, moduł do swojego działania wymaga języka C++ w wersji 20 lub nowszej. Dodatkowo do poprawnej kompilacji wymagana jest też flaga \textit{/utf-8}, która wymusza na kompilatorze użycie kodowania UTF-8. Na koniec do poprawnego działania z WinAPI koniecznym jest też przestawienie użytego subsystemu na Windows.
+
+Poniżej znajduje się podsumowanie wymaganych ustawień:
+\begin{center}
+	\begin{tabular}{ |l r|}
+		\hline
+		\textbf{Ustawienie} & \textbf{Wartość} \\
+		\hline
+		General -> \textbf{C++ language standard}  & \textbf{>= C++20} \\
+		C/C++ -> Command Line -> \textbf{Additional Options} & \textbf{/utf-8} \\
+		Linker -> System -> \textbf{SubSystem} & \textbf{Windows} \\
+		\hline
+	\end{tabular}
+\end{center}
+
+\section*{Tryb prekompilowany}
