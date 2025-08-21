@@ -103,7 +103,7 @@ namespace URM::Engine {
 		// TODO: Add support for custom PixelConstantBuffer types.
 		auto lightsBufferValue = PixelLightBufferData();
 		size_t allLightsCount = lights.size();
-		for (int lightOffset = 0; lightOffset < allLightsCount; lightOffset += PixelLightBufferData::MAX_LIGHTS_COUNT) {
+		for (size_t lightOffset = 0; lightOffset < allLightsCount; lightOffset += PixelLightBufferData::MAX_LIGHTS_COUNT) {
 			if (lightOffset != 0) {
 				params.lightingPassParams.blendState.Bind(this->mCore);
 				params.lightingPassParams.depthStencilState.Bind(this->mCore);

@@ -24,7 +24,7 @@ namespace URM::Core {
 
 	class Window : NonCopyable {
 		friend class D3DCore;
-		friend LRESULT WndProdDispatcher(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+		friend LRESULT CALLBACK WndProdDispatcher(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 		static std::shared_ptr<DirectX::Keyboard> mKeyboard;
 		HWND mHandle = nullptr;

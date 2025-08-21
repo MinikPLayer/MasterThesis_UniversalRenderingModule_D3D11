@@ -6,7 +6,7 @@
 namespace URM::Core {
 	std::shared_ptr<DirectX::Keyboard> Window::mKeyboard = std::make_shared<DirectX::Keyboard>();
 
-	LRESULT CALLBACK WndProdDispatcher(const HWND hwnd, const UINT message, const WPARAM wParam, const LPARAM lParam) {
+	static LRESULT CALLBACK WndProdDispatcher(const HWND hwnd, const UINT message, const WPARAM wParam, const LPARAM lParam) {
 		Window* window;
 		if (message == WM_NCCREATE) {
 			window = static_cast<Window*>(reinterpret_cast<LPCREATESTRUCT>(lParam)->lpCreateParams);
