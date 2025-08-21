@@ -72,17 +72,25 @@ Po dostosowaniu ustawień warto przetestować poprawność konfiguracji. Najlepi
 \subsection*{Warstwa rdzeniowa}
 
 \subsection*{Warstwa silnika}
-Na listingu \ref{lst:appendix:engineDemo} przedstawiony został kod aplikacji klienta, który testuje wszystkie krytyczne aspekty konfiguracji w przypadku użycia modułu silnika. Do poprawnego działania wymagany jest plik modelu sześcianu \textbf{cube.glb}, jako którego użyć można załączonego w repozytorium URM \cite{GitHub:Minik:MasterThesisUniversalRenderingModuleD3D11} pliku w lokalizacji \textbf{(...)/URMBenchmarks/Assets/cube.glb}. Plik ten musi znajdować się w lokalizacji, z której wywoływany będzie program. Można ten proces zautomatyzować dodając do niego referencję przy pomocy \textbf{Add -> Existing Item} po prawym kliknięciu na projekt aplikacji w Visual Studio, a następnie wybierając jego właściwości i zmieniając \textbf{General -> Item Type} na \textbf{Copy file}.
+Na listingu \ref{lst:appendix:engineDemo} przedstawiony został kod aplikacji klienta, który testuje wszystkie krytyczne aspekty konfiguracji w przypadku użycia modułu silnika. Do poprawnego działania wymagany jest plik modelu sześcianu \textbf{cube.glb}, jako którego użyć można załączonego w repozytorium URM \cite{GitHub:Minik:MasterThesisUniversalRenderingModuleD3D11} pliku w lokalizacji \textbf{(...)/URMBenchmarks/Assets/cube.glb}. Plik ten musi znajdować się w lokalizacji, z której wywoływany będzie program. Można ten proces zautomatyzować dodając do niego referencję przy pomocy \textbf{Add -> Existing Item} po prawym kliknięciu na projekt aplikacji w Visual Studio, a następnie wybierając jego właściwości i zmieniając \textbf{General -> Item Type} na \textbf{Copy file}. Oczekiwany wynik został pokazany na rys. \ref{appendix_engine_demo}.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{images/appendix_engine_demo.png}
+	\caption{Oczekiwany rezultat poprawnie skonfigurowanej aplikacji klienta.}
+	\label{appendix_engine_demo}
+\end{figure}
+
 
 \begin{lstlisting}[caption={Aplikacja przykładowa wykorzystująca API modułu silnika}, label={lst:appendix:engineDemo}]
 	#include <URM/Engine/Engine.h>
 	#include <URM/Engine/CameraObject.h>
 	#include <URM/Engine/ModelObject.h>
 	
-	int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+	int WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 		// Utworzenie modułu silnika
 		URM::Engine::Engine engine(
-			URM::Core::WindowCreationParams(800, 600, "Hello from the client app", hInstance)
+			URM::Core::WindowCreationParams(800, 600, "Engine test", hInstance)
 		);
 		
 		// Pobranie referencji do głównego obiektu sceny
