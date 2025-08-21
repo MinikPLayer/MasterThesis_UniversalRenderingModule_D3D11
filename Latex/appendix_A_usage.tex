@@ -70,17 +70,48 @@ Pliki zasobów silnika zostaną automatycznie skompilowane i przeniesione do wyn
 Po dostosowaniu ustawień warto przetestować poprawność konfiguracji. Najlepiej dokonać tego przez próbę skompilowania i uruchomienia testowego programu, wykorzystującego nowo dodaną bibliotekę. Moduł Engine wykorzystuje wewnętrznie moduł rdzeniowy, także nie jest konieczne jego osobne sprawdzanie, jeśli w planach jest użycie modułu wysokopoziomowego. 
 
 \subsection*{Warstwa rdzeniowa}
+Do przetestowania poprawności konfiguracji do korzystania z warstwy rdzeniowej można użyć programu pokazanego na listingu \ref{lst:appendix:coreDemo}. Jest to proste demo, które w pętli czyści i wyświetla zawartość nowo otwartego okna z obsługą jego zdarzeń, co można zobaczyć na rys. \ref{appendix_core_demo}. Mimo swojej prostoty jest to wystarczające demo do sprawdzenia konfiguracji projektu aplikacji. 
+
+\begin{lstlisting}[caption={Aplikacja przykładowa wykorzystująca interfejs modułu rdzeniowego}, label={lst:appendix:coreDemo}]
+	#include <URM/Core/D3DCore.h>
+	
+	int WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
+		URM::Core::D3DCore core(
+			URM::Core::WindowCreationParams(800, 600, "Client app", hInstance)
+		);
+		
+		while (!core.GetWindow().IsDestroyed()) {
+			core.GetWindow().PollEvents();
+			core.ClearFramebuffer(Color(0.3, 0.5, 1.0, 1.0));
+			core.Present(1);
+		}
+		
+		return 0;
+	}
+\end{lstlisting}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{images/appendix_core_demo.png}
+	\caption{Oczekiwany rezultat poprawnie skonfigurowanej aplikacji klienta dla modułu rdzeniowego.}
+	\label{appendix_core_demo}
+\end{figure}
+
+\vfill
+\clearpage
 
 \subsection*{Warstwa silnika}
-Na listingu \ref{lst:appendix:engineDemo} przedstawiony został kod aplikacji klienta, który testuje wszystkie krytyczne aspekty konfiguracji w przypadku użycia modułu silnika. Do poprawnego działania wymagany jest plik modelu sześcianu \textbf{cube.glb}, jako którego użyć można załączonego w repozytorium URM \cite{GitHub:Minik:MasterThesisUniversalRenderingModuleD3D11} pliku w lokalizacji \textbf{(...)/URMBenchmarks/Assets/cube.glb}. Plik ten musi znajdować się w lokalizacji, z której wywoływany będzie program. Można ten proces zautomatyzować dodając do niego referencję przy pomocy \textbf{Add -> Existing Item} po prawym kliknięciu na projekt aplikacji w Visual Studio, a następnie wybierając jego właściwości i zmieniając \textbf{General -> Item Type} na \textbf{Copy file}. Oczekiwany wynik został pokazany na rys. \ref{appendix_engine_demo}.
+Na listingu \ref{lst:appendix:engineDemo} przedstawiony został kod aplikacji klienta, który testuje wszystkie krytyczne aspekty konfiguracji w przypadku użycia modułu silnika. Do poprawnego działania wymagany jest plik modelu sześcianu \textbf{cube.glb}, jako którego użyć można załączonego w repozytorium URM \cite{GitHub:Minik:MasterThesisUniversalRenderingModuleD3D11} pliku w lokalizacji \textbf{(...)/URMBenchmarks/Assets/cube.glb}. Plik ten musi znajdować się w folderze, z którego wywoływany będzie program. Można ten proces zautomatyzować dodając do niego referencję przy pomocy \textbf{Add -> Existing Item} po prawym kliknięciu na projekt aplikacji w Visual Studio, a następnie wybierając jego właściwości i zmieniając \textbf{General -> Item Type} na \textbf{Copy file}. Oczekiwany wynik został pokazany na rys. \ref{appendix_engine_demo}.
 
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=\textwidth]{images/appendix_engine_demo.png}
-	\caption{Oczekiwany rezultat poprawnie skonfigurowanej aplikacji klienta.}
+	\caption{Oczekiwany rezultat poprawnie skonfigurowanej aplikacji klienta dla modułu silnika.}
 	\label{appendix_engine_demo}
 \end{figure}
 
+\vfill
+\clearpage
 
 \begin{lstlisting}[caption={Aplikacja przykładowa wykorzystująca API modułu silnika}, label={lst:appendix:engineDemo}]
 	#include <URM/Engine/Engine.h>
