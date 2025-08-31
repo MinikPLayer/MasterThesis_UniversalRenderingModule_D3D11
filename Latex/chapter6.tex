@@ -7,7 +7,7 @@
 
 \subsection{Core}
 	Klasa będąca podstawą funkcjonowania całego modułu. 
-	Odpowiada za tworzenie oraz zarządzanie podstawowych zasobów używanych przez aplikacje oparte o Direct3D, takich jak Device, Context, RenderTarget(View), Swap Chain czy Framebuffer. Przy jego pomocy możliwy jest wybór trybu rysowania z listy reprezentowanej przez enum PrimitiveTopologies.
+	Odpowiada za tworzenie oraz zarządzanie podstawowymi zasobami używanymi przez aplikacje oparte o Direct3D, takich jak Device, Context, RenderTarget(View), Swap Chain czy Framebuffer. Przy jego pomocy możliwy jest wybór trybu rysowania z listy reprezentowanej przez enum PrimitiveTopologies.
 	Moduł zawiera także przez kompozycję odniesienie do obiektu klasy \textbf{Window}, która zawiera w sobie logikę odpowiedzialną za zarządzanie uchwytem do systemowego okna (i zasobami z tym związanymi) oraz odpowiedziami na zmianę jego stanu i rozmiaru.
 	Inicjalizacja obu elementów odbywa się przez przekazanie w konstruktorze obiektu \textbf{WindowCreationParams}, zawierającego podstawowe informacje o tworzonym oknie.
 	Diagram UML przedstawiony został na rys. \ref{UML_D3DCore}.
@@ -42,10 +42,10 @@
 	
 	W ramach tego segmentu zaimplementowane zostały następujące klasy:
 	\begin{itemize}
-		\item \textbf{Size2i}: Prosta struktura opisująca rozmiar w przestrzeni 2D. Używana na przykład do określania wielkości okna.
-		\item \textbf{TypeUtils}: Funkcje pomocnicze pobierania informacji o typach. Wykorzystywana między innymi do porównywania typów na podstawie wywołań generycznych.
-		\item \textbf{StringUtils}: Odpowiedzialna za operacje tekstowe. Udostępnia funkcjonalność konwersji między zmiennymi tekstowymi jednobajtowymi \textit{(std::string)} oraz dwu-bajtowymi \textit{(std::wstring)}, a także pobierania nazwy folderu ze ścieżki do pliku.
-		\item \textbf{FloatUtils}: Funkcjonalność ułatwiająca pracę z liczbami zmiennoprzecinkowymi. Dzięki metodom zawartym w tej klasie możliwe jest zbliżone porównywanie dwóch liczb typu float oraz określanie znaku tego typu liczb.
+		\item \textbf{Size2i}: Prosta struktura opisująca rozmiar w przestrzeni 2D. Używana między innymi do określania wielkości okna.
+		\item \textbf{TypeUtils}: Funkcje pomocnicze do pobierania informacji o typach. W większości wykorzystywane do porównywania typów w funkcjach szablonowych.
+		\item \textbf{StringUtils}: Klasa udostępniająca funkcjonalność konwersji między zmiennymi zawierającymi tekst kodowany jednobajtowo \textit{(std::string)} i dwubajtowo \textit{(std::wstring)}. Posiada także metodę pobierania nazwy folderu ze ścieżki do pliku.
+		\item \textbf{FloatUtils}: Funkcjonalność ułatwiająca pracę z liczbami zmiennoprzecinkowymi. Dzięki metodom zawartym w tej klasie możliwe jest porównywanie dwóch liczb typu float z uwzględnieniem ich niedokładności oraz określanie znaku tego typu liczb.
 		\item \textbf{TimeUtils}: Wykorzystywana do testowania wydajności kodu. Pozwala na wywołanie dowolnej funkcji mierząc przy tym jej czas wykonania.
 	\end{itemize}
 
@@ -69,9 +69,9 @@
 	\end{figure}
 	
 \subsection{Baza D3D}
-	Zbiór elementów będących warstwą abstrakcji nad niskopoziomowymi elementami pakietu Direct3D, wymaganych do jego użycia.
-	\textbf{D3DViewport} odpowiedzialny jest za określanie wymiarów okna widoku (Viewport), jak i zakresu głębi rysowanego obrazu.
-	Z kolei \textbf{D3DRasterizerState} pozwala na konfigurowanie parametrów procesu rasteryzacji, takich jak Culling Mode (definiowany przez enum CullModes) służący do pomijania wielokątów obróconych w złą stronę, tryb wypełnienia (przy pomocy enum FillModes), antyaliasingu, itp.
+	Zbiór elementów będących warstwą abstrakcji nad niskopoziomowymi elementami pakietu Direct3D, wymaganymi do jego użycia.
+	\textbf{D3DViewport} odpowiedzialny jest za określanie wymiarów widoku (Viewport), jak i zakresu głębi rysowanego obrazu.
+	Z kolei \textbf{D3DRasterizerState} pozwala na konfigurowanie parametrów procesu rasteryzacji, takich jak Culling Mode (definiowany przez enum CullModes) służący do pomijania wielokątów obróconych w złą stronę, tryb wypełnienia (przy pomocy enum FillModes), czy antyaliasingu.
 	Diagram przedstawiający strukturę opisywanych klas można zobaczyć na rys. \ref{UML_D3DUtils_1} oraz \ref{UML_D3DUtils_2}.
 	
 	\begin{figure}[h!]
@@ -92,10 +92,10 @@
 	\clearpage
 	
 \subsection{Bufory}
-	Kolejnym elementem koniecznym do poprawnego korzystania z API D3D są bufory, używane jako środek przesyłu danych 
-	Do ich łatwiejszej obsługi utworzona została klasa abstrakcyjna \textbf{ID3DBuffer} przedstawiona na rys. \ref{UML_Buffer}, której implementacje, \textbf{D3DVertexBuffer}, \textbf{D3DIndexBuffer} oraz \textbf{D3DConstantBuffer} stanowią rozwiązania do wykorzystania odpowiednio buforów wierzchołków, indeksów oraz stałych, a ich kompozycja została pokazana na rys. \ref{UML_Buffers}
+	Kolejnym elementem koniecznym do poprawnego korzystania z API D3D są bufory, używane jako forma przesyłu danych.
+	Do ich łatwiejszej obsługi utworzona została klasa abstrakcyjna \textbf{ID3DBuffer} przedstawiona na rys. \ref{UML_Buffer}, której implementacje - \textbf{D3DVertexBuffer}, \textbf{D3DIndexBuffer} oraz \textbf{D3DConstantBuffer} - stanowią rozwiązania do wykorzystania odpowiednio dla buforów wierzchołków, indeksów oraz stałych, a ich kompozycja została pokazana na rys. \ref{UML_Buffers}
 	Niektóre typy parametrów zostały pominięte na diagramie w celu poprawy czytelności.
-	Metoda \textit{Bind()} służy do ustawienia opisywanego przez obiekt obiektu jako aktywnego, a przy pomocy \textit{UpdateWithData(core, data)} możliwe jest zaktualizowanie danych zawartych w buforze.
+	Metoda \textit{Bind()} służy do ustawienia opisywanego przez instancję obiektu jako aktywnego, a przy pomocy \textit{UpdateWithData(core, data)} możliwe jest zaktualizowanie danych zawartych w buforze.
 		
 	\begin{figure}[h!]
 		\centering
@@ -116,9 +116,9 @@
 	
 \subsection{Mesh i typy wierzchołków}
 \label{SSMeshVertexTypeConcept}
-	Zbiór połączonych wielokątów wraz z opisującymi go metadanymi nazywany jest Mesh'em, którego schemat przedstawiony został na rys. \ref{UML_Mesh}.
+	Zbiór połączonych wielokątów wraz z opisującymi go metadanymi nazywany jest Mesh'em. Schemat zaimplementowanej reprezentacji został przedstawiony na rys. \ref{UML_Mesh}.
 	
-	Zgodnie z założeniami projektu i ten element został zaprojektowany w modularnej formie. Wykorzystując szablon typów pozwala na pracę z różnymi typami wierzchołków. Kilka typów standardowych zostało zaimplementowanych w ramach modułu \textbf{StandardVertexTypes}, opisanego na diagramie \ref{UML_VertexTypes}.
+	Zgodnie z założeniami projektu i ten element został zaprojektowany w modularnej formie. Wykorzystując mechanizm szablonów pozwala na pracę z różnymi strukturami wierzchołków. Kilka typów standardowych zostało zaimplementowanych w ramach modułu \textbf{StandardVertexTypes}, opisanego na diagramie \ref{UML_VertexTypes}.
 	
 	\begin{figure}[h!]
 		\centering
@@ -147,7 +147,7 @@
 	
 \subsection{Wczytywanie modeli}
 	Funkcje pomocnicze ułatwiające wczytywanie modeli z pliku udostępnione zostały w ramach metod statycznych klasy \textbf{ModelLoader}. Metoda \textit{LoadFromFile()} jako argument otrzymuje ścieżkę do pliku modelu w obsługiwanym formacie, a następnie zwraca strukturę drzewową, której wierzchołkami są obiekty klasy \textbf{ModelLoaderNode}. Każdy wierzchołek zwracanego drzewa posiada macierz transformacji względem rodzica, listę mesh'y oraz wierzchołków przynależnych. Zachowywana zostaje oryginalna relacja transformacji między obiektami z wczytywanego pliku.
-	Wraz z geometrią modelu wczytywane są także parametry metadanych do listy \textit{MaterialProperty} oraz przynależne do modelu tekstury. 
+	Wraz z geometrią modelu wczytywane są także parametry metadanych do listy obiektów typu \textit{MaterialProperty} oraz przynależne do modelu tekstury. 
 	
 	Ze względu na ograniczenia API Direct3D na tym etapie koniecznym było założenie standardowego typu wierzchołków, za który przyjęty został typ \textit{VertexPositionNormalTexture}, oznaczony dalej przy pomocy mechanizmu type alias jako \textbf{ModelLoaderVertexType}.
 	
@@ -194,7 +194,7 @@
 	\end{figure}
 	
 \subsection{Materiały}
-	Programy cieniujące poza odniesieniem do używanego kodu w ramach klasy \textit{Shader} potrzebują także informacji o parametrach wyświetlanego obiektu, takich jak jego kolor, użyta tekstura i inne właściwości powierzchni.	Do przechowywania tych informacji utworzona została abstrakcyjna klasa \textbf{Material}, a także jej 2 standardowe implementacje - \textbf{MaterialSimple} oraz \textbf{MaterialPBR}, opisujące odpowiednio uproszczony model oświetlenia z danymi powierzchni w strukturze \textbf{MaterialSimpleData} i bardziej złożony mechanizm oparty o PBR, gdzie dane materiału znajdują się w \textbf{MaterialPBRData}.
+	Programy cieniujące poza odniesieniem do używanego kodu w formie wskaźnika na obiekt klasy \textit{Shader}, potrzebują także informacji o parametrach wyświetlanego obiektu, takich jak jego kolor, użyta tekstura i inne właściwości powierzchni.	Do przechowywania tych informacji utworzona została abstrakcyjna klasa \textbf{Material}, a także jej 2 standardowe implementacje - \textbf{MaterialSimple} oraz \textbf{MaterialPBR}, opisujące odpowiednio uproszczony model oświetlenia z danymi powierzchni w strukturze \textbf{MaterialSimpleData} i bardziej złożony mechanizm oparty o PBR, gdzie dane materiału znajdują się w \textbf{MaterialPBRData}.
 	
 	Każda implementacja klasy \textit{Material} musi zdefiniować metodę \textit{GetShader()}, która zwraca referencję do obiektu programu cieniującego. Dzięki temu każdy materiał może posiadać odrębny, różniący się od innych shader i w ten sposób rozszerzać działanie modułu poprzez utworzenie zewnętrznych implementacji. Możliwe jest także mieszanie różnych typów materiałów (a tym samym shader'ów), gdyż jest on przypisany do mesh'y, a nie globalnie.
 
@@ -320,9 +320,6 @@
 		\caption{Uwzględnione w ramach modułu struktury danych do wykorzystania z mechanizmem ConstantBuffer.}
 		\label{UML_StandardConstantBuffers}
 	\end{figure}
-	
-	\vfill
-	\clearpage
 	
 \subsection{Engine}
 	Klasa silnika, opisana na rys \ref{UML_Engine} spaja większość opisanych do tego momentu funkcjonalności modułu. Odpowiedzialna jest między innymi za przechowywanie referencji do sceny i elementów warstwy \textit{Core} w ramach struktury \textbf{RenderingParams}, inicjowanie systemu renderującego oraz okna czy czyszczenie i prezentowanie bufora rysowania. Przede wszystkim odpowiada ona jednak za ostateczne rysowanie sceny, czego pełny mechanizm został przedstawiony w rozdziale \ref{ChapterSceneDrawingMethod}. 

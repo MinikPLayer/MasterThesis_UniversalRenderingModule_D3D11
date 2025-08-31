@@ -1,22 +1,22 @@
 \chapter*{Załącznik A: Instrukcja użycia biblioteki}
 \addcontentsline{toc}{chapter}{Załącznik A: Instrukcja użycia biblioteki}
 \markboth{}{Załącznik A: Instrukcja użycia biblioteki}
-W załączniku opisana została procedura użycia modułu URM na podstawie utworzenia przykładowego projektu i skonfigurowania go do potrzeb biblioteki. Na potrzeby przykładu użyty zostanie program Visual Studio 2022 z zainstalowanym pakietem \textbf{Game development with C++} oraz zintegrowany z nim system budowy MSBuild. Do instalacji pakietów posłuży skonfigurowany do pracy z Visual Studio program \textbf{vcpkg} od firmy Microsoft. 
+W załączniku opisana została procedura użycia modułu URM w formie poradnika utworzenia przykładowego projektu i skonfigurowania go pod potrzeby biblioteki. Do przykładu użyty zostanie program Visual Studio 2022 z zainstalowanym pakietem \textbf{Game development with C++} oraz zintegrowany z nim system budowy MSBuild. Do instalacji pakietów posłuży skonfigurowany do pracy z Visual Studio program \textbf{vcpkg} od firmy Microsoft. 
 
 Biblioteka może zostać zaimportowana w dwóch trybach:
 \begin{enumerate}
 	\item \textbf{Prekompilowana} - forma dystrybucji, w której moduł przyjmuje formę gotowych do użycia plików .lib, zawierających skompilowane funkcje biblioteki. Dzięki takiemu podejściu można uniknąć każdorazowego rekompilowania kodu przy tworzeniu projektu, a także potencjalnych problemów z kompatybilnością między różnymi wersjami kompilatora. 
-	\item \textbf{Kod źródłowy} - bezpośrednie dodanie projektów wraz z kodem źródłowym jako referencji do aplikacji klienta. Dzięki takiemu podejściu możliwa jest dowolna modyfikacja kodu biblioteki, ale kosztem konieczności jej ręcznego skompilowania oraz trudniejszej aktualizacji.
+	\item \textbf{Kod źródłowy} - bezpośrednie dodanie projektów wraz z kodem źródłowym jako referencji do aplikacji klienta. W takim przypadku możliwa jest dowolna modyfikacja kodu biblioteki, ale kosztem konieczności jej ręcznego skompilowania oraz trudniejszej aktualizacji.
 \end{enumerate}
 
 \section*{Wspólna konfiguracja projektu}
 Niezależnie od wybranej wersji wymaganym od projektu jest ustawienie kilku kluczowych opcji konfiguracyjnych oraz przygotowań.
 
-Wewnątrz kodu źródłowego biblioteki dostępnego na stronie projektu \cite{GitHub:Minik:MasterThesisUniversalRenderingModuleD3D11} znajdują się skrypty automatyzujące instalację wymaganych do działania bibliotek. Są to \textbf{vcpkg\_install.bat} oraz \textbf{vcpkg\_install\_x86.bat}, odpowiednio dla wersji 64bit i 32bit. Skrypty wywołują program \textit{vcpkg} z odpowiednimi parametrami, dzięki czemu możliwe będzie skompilowanie projektu. Tej operacji nie trzeba powtarzać dla kolejnych projektów, gdyż vcpkg przechowuje zainstalowane biblioteki we współdzielonej lokalizacji. Alternatywą bez konieczności instalacji vcpkg jest ręczne zainstalowanie bibliotek \textbf{directxtk}, \textbf{spdlog} oraz \textbf{assimp}.
+Wewnątrz kodu źródłowego biblioteki dostępnego na stronie projektu \cite{GitHub:Minik:MasterThesisUniversalRenderingModuleD3D11} znajdują się skrypty automatyzujące instalację wymaganych do działania bibliotek. Są to \textbf{vcpkg\_install.bat} oraz \textbf{vcpkg\_install\_x86.bat}, odpowiednio dla wersji 64bit i 32bit. Skrypty wywołują program \textit{vcpkg} z odpowiednimi parametrami, dzięki czemu można uniknąć ręcznej instalacji wymaganych bibliotek. Tej operacji nie trzeba powtarzać dla kolejnych projektów, gdyż vcpkg przechowuje zainstalowane biblioteki we współdzielonej lokalizacji. Alternatywą bez konieczności instalacji vcpkg jest ręczne zainstalowanie bibliotek \textbf{directxtk}, \textbf{spdlog} oraz \textbf{assimp}.
 
-Ze względu na wykorzystanie zaawansowanych konceptów jak \textit{std::variant} i \textit{concepts}, moduł do swojego działania wymaga języka w wersji \textbf{C++20} lub nowszej. Dodatkowo do poprawnej kompilacji wymagana jest też flaga \textbf{/utf-8}, która wymusza na kompilatorze użycie kodowania UTF-8. Na koniec do poprawnego działania z WinAPI koniecznym jest też przestawienie użytego subsystemu na \textbf{Windows}.
+Ze względu na wykorzystanie zaawansowanych konceptów jak \textit{std::variant} i \textit{concepts}, moduł do swojego działania wymaga języka w wersji \textbf{C++20} lub nowszej. Dodatkowo do poprawnej kompilacji wymagana jest także flaga \textbf{/utf-8}, która wymusza na kompilatorze użycie kodowania UTF-8. Na koniec do poprawnego działania z WinAPI koniecznym jest też przestawienie użytego subsystemu na \textbf{Windows}.
 
-Warto jest także ustawić parametr \textit{Debugging -> Working Directory} na wartość \textbf{\$(OutputPath)}, gdyż umożliwi to wczytywanie zasobów z katalogu wynikowego, do którego będą one automatycznie trafiać przy kompilacji.
+Warto jest też ustawić parametr \textit{Debugging -> Working Directory} na wartość \textbf{\$(OutputPath)}, gdyż umożliwi to wczytywanie zasobów z katalogu wynikowego, do którego będą one automatycznie trafiać przy kompilacji.
 
 Poniżej znajduje się podsumowanie wymaganych ustawień:
 
@@ -42,7 +42,7 @@ Pierwszym krokiem jest pobranie najnowszego pliku URM.zip z zakładki Releases z
 	\item \textbf{lib} - prekompilowane pliki modułu używane do kompilacji. 
 \end{itemize}
 
-Wspomniane katalogi należy rozpakować do wybranego folderu, najlepiej znajdującego się w ramach aplikacji klienckiej. W następnym kroku należy we właściwościach projektu wskazać lokalizację komponentów według następującego schematu:
+Wspomniane katalogi należy rozpakować do wybranego folderu, najlepiej znajdującego się w ramach katalogu aplikacji klienckiej. W następnym kroku należy we właściwościach projektu wskazać lokalizację komponentów według następującego schematu:
 
 \begin{itemize}
 	\item \textbf{C/C++ -> General -> Additional Include Directories}: ścieżka do katalogu \textbf{include} wewnątrz wypakowanego folderu. 
@@ -63,15 +63,15 @@ Projekty bibliotek znajdować się będą w katalogu \textbf{(...)/lib/URM/}. Ab
 
 Następnym krokiem wewnątrz programu Visual Studio jest dodanie referencji do nowych bibliotek. Można tego dokonać klikając prawym przyciskiem myszy na projekt aplikacji, a następnie wybierając \textbf{Add -> Reference}. Z nowego okna wybrać należy moduły, których zamierza się użyć.
 
-Ostatnim elementem koniecznym do działania jest wskazanie lokalizacji dla plików nagłówkowych. Można tego dokonać dodając ścieżkę do katalogu lib wewnątrz folderu z kodem modułu - \textbf{(...)/lib} - do pola \textbf{C/C++ -> General -> Additional Include Directories} we właściwościach projektu.
+Ostatnim elementem koniecznym do działania jest wskazanie lokalizacji dla plików nagłówkowych. Jest to możliwe poprzez dodanie ścieżki do katalogu \textbf{(...)/lib} do pola \textbf{C/C++ -> General -> Additional Include Directories} we właściwościach projektu.
 
 Pliki zasobów silnika zostaną automatycznie skompilowane i przeniesione do wynikowego folderu, także nie trzeba na tym polu nic dodatkowo konfigurować. 
 
 \section*{Przykładowa aplikacja testowa}
-Po dostosowaniu ustawień warto przetestować poprawność konfiguracji. Najlepiej dokonać tego przez próbę skompilowania i uruchomienia testowego programu, wykorzystującego nowo dodaną bibliotekę. Moduł Engine wykorzystuje wewnętrznie moduł rdzeniowy, także nie jest konieczne jego osobne sprawdzanie, jeśli w planach jest użycie modułu wysokopoziomowego. 
+Po dostosowaniu ustawień warto przetestować poprawność konfiguracji. Najlepiej dokonać tego przez próbę skompilowania i uruchomienia testowego programu, wykorzystującego nowo dodaną bibliotekę. Moduł Engine wykorzystuje wewnętrznie moduł rdzeniowy, także nie jest konieczne jego osobne sprawdzanie jeśli w planach jest użycie modułu wysokopoziomowego. 
 
 \subsection*{Warstwa rdzeniowa}
-Do przetestowania poprawności konfiguracji do korzystania z warstwy rdzeniowej można użyć programu pokazanego na listingu \ref{lst:appendix:coreDemo}. Jest to proste demo, które w pętli czyści i wyświetla zawartość nowo otwartego okna z obsługą jego zdarzeń, co można zobaczyć na rys. \ref{appendix_core_demo}. Mimo swojej prostoty jest to wystarczające demo do sprawdzenia konfiguracji projektu aplikacji. 
+Do przetestowania poprawności konfiguracji projektu korzystającego z warstwy rdzeniowej można użyć programu pokazanego na listingu \ref{lst:appendix:coreDemo}. Jest to proste demo, które w pętli czyści i wyświetla zawartość nowo otwartego okna z obsługą jego zdarzeń, co można zobaczyć na rys. \ref{appendix_core_demo}. Mimo swojej prostoty jest to wystarczająca funkcjonalność do sprawdzenia konfiguracji projektu aplikacji. 
 
 \begin{lstlisting}[caption={Aplikacja przykładowa wykorzystująca interfejs modułu rdzeniowego}, label={lst:appendix:coreDemo}]
 	#include <URM/Core/D3DCore.h>
@@ -102,7 +102,7 @@ Do przetestowania poprawności konfiguracji do korzystania z warstwy rdzeniowej 
 \clearpage
 
 \subsection*{Warstwa silnika}
-Na listingu \ref{lst:appendix:engineDemo} przedstawiony został kod aplikacji klienta, który testuje wszystkie krytyczne aspekty konfiguracji w przypadku użycia modułu silnika. Do poprawnego działania wymagany jest plik modelu sześcianu \textbf{cube.glb}, jako którego użyć można załączonego w repozytorium URM \cite{GitHub:Minik:MasterThesisUniversalRenderingModuleD3D11} pliku w lokalizacji \textbf{(...)/URMBenchmarks/Assets/cube.glb}. Plik ten musi znajdować się w folderze, z którego wywoływany będzie program. Można ten proces zautomatyzować dodając do niego referencję przy pomocy \textbf{Add -> Existing Item} po prawym kliknięciu na projekt aplikacji w Visual Studio, a następnie wybierając jego właściwości i zmieniając \textbf{General -> Item Type} na \textbf{Copy file}. Oczekiwany wynik został pokazany na rys. \ref{appendix_engine_demo}.
+Na listingu \ref{lst:appendix:engineDemo} przedstawiony został kod aplikacji klienta, który testuje wszystkie krytyczne aspekty konfiguracji w przypadku użycia modułu silnika. Do poprawnego działania wymagany jest plik modelu sześcianu \textbf{cube.glb}, jako którego użyć można załączonego w repozytorium URM \cite{GitHub:Minik:MasterThesisUniversalRenderingModuleD3D11} pliku w lokalizacji \textbf{(...)/URMBenchmarks/Assets/cube.glb}. Plik ten musi znajdować się w folderze, z którego wywoływany będzie program. Można ten proces zautomatyzować dodając do niego referencję przy pomocy \textbf{Add -> Existing Item} po prawym kliknięciu na projekt aplikacji w Visual Studio, a następnie wybierając właściwości nowo dodanego pliku i zmieniając \textbf{General -> Item Type} na \textbf{Copy file}. Oczekiwany wynik został pokazany na rys. \ref{appendix_engine_demo}.
 
 \begin{figure}[h!]
 	\centering

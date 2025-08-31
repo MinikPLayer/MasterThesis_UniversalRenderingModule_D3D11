@@ -5,7 +5,7 @@ Poza samymi testami zaimplementowane zostało także kilka programów typu demo,
 W pierwszej części opisane zostały szczegóły zaimplementowanych rozwiązań z perspektywy interfejsu dla aplikacji klienta. 
 
 \subsection{Minimalne okno i konfiguracja Direct3D 11}
-Podstawą prawie każdego projektu opartego o API Direct3D, a jednocześnie testem działania modułu rdzeniowego jest program, którego celem jest utworzenie minimalnej pętli Clear(), Present(), czego efektem będzie wyczyszczony stałym kolorem obraz na nowo otwartym oknie, a także obsługa interakcji użytkownika z tymże oknem.
+Podstawą prawie każdego projektu opartego o API Direct3D, a jednocześnie testem działania modułu rdzeniowego jest program, którego celem jest utworzenie minimalnej pętli Clear(), Present(). Efektem będzie wyczyszczony stałym kolorem obraz na nowo otwartym oknie, a także obsługa interakcji użytkownika z tymże oknem.
 
 Utworzenie takiego programu jest banalnie proste przy pomocy API utworzonego modułu i z wyłączeniem komentarzy wymaga od aplikacji klienckiej jedynie 10 linijek prostego kodu, przedstawionego na listingu \ref{lst:demo:core:minimalWindow}. Jako porównania użyć można wzorcowego projektu zawartego w programie Visual Studio, który realizuje taką samą funkcję, ale wykonuje to znacznie bardziej złożonym kodem o objętości około 1000 linijek.
 
@@ -40,7 +40,7 @@ Utworzenie takiego programu jest banalnie proste przy pomocy API utworzonego mod
 \end{lstlisting}
 
 \subsection{Wczytanie i wyświetlenie prostego modelu}
-Podstawowym i najważniejszym z zadań program renderującego jest rysowanie modeli w przestrzeni. Aby pokazać możliwości związane z tym tematem, kolejnym przykładem została aplikacja rozbudowująca przykład poprzedni o trójwymiarowy sześcian wyświetlany w utworzonym oknie. Moduł rdzeniowy oddaje do dyspozycji pełną kontrolę nad całym procesem aplikacji klienta, ułatwiając przy tym pracę nad niskopoziomowym API Direct3D, co pozwoliło na znaczącą redukcję złożoności tak powstałego programu do mniej niż 170 linijek kodu, a czego efekty zostały przedstawione na rys. \ref{demo_core_cube}. Przedstawiają one omawiany model z użytym niestandardowym programem cieniującym, wyświetlającym wartość wektora normalnego powierzchni jako jej kolor. 
+Podstawowym i najważniejszym z zadań programu renderującego jest rysowanie modeli w przestrzeni. Aby pokazać możliwości związane z tym tematem, kolejnym przykładem została aplikacja rozbudowująca przykład poprzedni o trójwymiarowy sześcian wyświetlany w utworzonym oknie. Moduł rdzeniowy oddaje do dyspozycji pełną kontrolę nad całym procesem aplikacji klienta, ułatwiając przy tym pracę nad niskopoziomowym API Direct3D, co pozwoliło na znaczącą redukcję złożoności tak powstałego programu do mniej niż 170 linijek kodu, czego efekty zostały pokazane na rys. \ref{demo_core_cube}. Przedstawiają one omawiany model z użytym niestandardowym programem cieniującym, wyświetlającym wartość wektora normalnego powierzchni jako jej kolor. 
 
 \begin{figure}[h!]
 	\centering
@@ -53,7 +53,7 @@ Podstawowym i najważniejszym z zadań program renderującego jest rysowanie mod
 \label{subsection_demo_engine_cube}
 Mimo względnie niskiej objętości kodu potrzebnego do utworzenia przykładowych aplikacji przy pomocy modułu rdzeniowego, jest on już na tym etapie wyraźnie złożony. Do działania wymagane jest kontrolowanie stanu modułu rdzeniowego, stanu rasteryzera, viewport'u, shader'ów, InputLayout, buforów stałych i zmiennych, a także wczytanych modeli. Moduł silnika przejmuje na siebie obowiązki związane z zarządzaniem tymi zasobami, udostępniając przy tym przejrzyste API, bez ograniczania możliwości hybrydowego użycia z niższymi warstwami. 
 
-Rekreacja wcześniej opisanego dema przy pomocy nowego API silnika było wyjątkowo proste i zmniejszyło objętość aplikacji klienta do około 30 linijek kodu. Kod opisywanego dema, będący jednocześnie przykładem użycia interfejsu modułu silnika został przedstawiony na listingu \ref{lst:demo:engine:cube}. Poza wyraźnym uproszczeniem pracy z takim systemem, konwersja na API silnika umożliwia też łatwe rozszerzenie funkcjonalności o dodatkowe modele, różne materiały i shader'y, czy oświetlenie. Pokazane to zostało na rys. \ref{demo_engine_cube}, gdzie do widocznej już wcześniej kolorowej kostki dodane zostały dwa bliźniacze do niej sześciany, wykorzystujące zupełnie inne materiały i programy cieniujące.
+Rekreacja wcześniej opisanego dema przy pomocy nowego API silnika była wyjątkowo prosta i zmniejszyła objętość aplikacji klienta do około 30 linijek. Kod opisywanego dema, będący jednocześnie przykładem użycia interfejsu modułu silnika został przedstawiony na listingu \ref{lst:demo:engine:cube}. Poza wyraźnym uproszczeniem pracy z takim systemem, konwersja na API silnika umożliwia też łatwe rozszerzenie funkcjonalności o dodatkowe modele, różne materiały i shader'y, czy oświetlenie. Pokazane to zostało na rys. \ref{demo_engine_cube}, gdzie do widocznego już wcześniej kolorowego sześcianu dodane zostały dwie bliźniacze do niego figury, wykorzystujące zupełnie inne materiały i programy cieniujące.
 
 \begin{lstlisting}[caption={Pełny kod programu wykorzystującego API silnika do wyświetlenia trzech sześcianów o różnych materiałach.}, label={lst:demo:engine:cube}]
 #include <URM/Engine/Engine.h>
@@ -144,7 +144,7 @@ Moduł silnika poza automatycznym systemem zarządzania przepływem działania p
 \end{lstlisting}
 
 \subsection{Zaawansowana kontrola nad procesem rysowania}
-Używając modułu Engine możliwe jest też zastosowanie bardziej złożonej kontroli nad procesem rysowania. Dotyczy to na przykład wielokrotnego wywołania funkcji rysującej dla różnych scen, czy konfiguracji kamera / modele / światła i taki mechanizm został zastosowany w tym przykładzie. Użyto tutaj 3 różnych wywołań metody \textit{engine.Draw()}. Pierwszy rysuje przygotowaną wcześniej scenę podpiętą do silnika, kolejny drugą, zupełnie niezależną scenę, a ostatni używa mesh'y z pierwszej, ale wykorzystuje przy tym inną kamerę oraz oświetlenie o innym kolorze i pozycji. Najważniejszy wycinek kodu odpowiedzialnego za rysowanie został pokazany na listingu \ref{lst:demo:engine:multipleDrawCalls}, a efekt na rys.  \ref{demo_engine_multiple_draw_calls}.
+Używając modułu Engine możliwe jest też zastosowanie bardziej złożonej kontroli nad procesem rysowania. Dotyczy to na przykład wielokrotnego wywołania funkcji rysującej dla różnych scen, czy konfiguracji kamera / modele / światła. Taki mechanizm został zastosowany w poniższym przykładzie. Użyto tutaj 3 różnych wywołań metody \textit{engine.Draw()}. Pierwsze rysuje przygotowaną wcześniej scenę podpiętą do silnika. Kolejne zapytanie renderuje drugą, zupełnie niezależną scenę, a ostatni używa mesh'y z pierwszej, ale wykorzystuje przy tym inną kamerę oraz oświetlenie o innym kolorze i pozycji. Najważniejszy wycinek kodu odpowiedzialnego za rysowanie został pokazany na listingu \ref{lst:demo:engine:multipleDrawCalls}, a efekt na rys. \ref{demo_engine_multiple_draw_calls}.
 
 \vfill
 \clearpage
@@ -193,7 +193,7 @@ Używając modułu Engine możliwe jest też zastosowanie bardziej złożonej ko
 \end{figure}
 
 \subsection{Hybrydowe użycie modułu rdzeniowego i silnika}
-Moduł został zaprojektowany i napisany w taki sposób, że programista aplikacji klienckiej w żadnym momencie nie jest ograniczony do tylko jednej metody rysowania. Korzystając z silnika nadal możliwe jest manualnie wywoływanie metod z działającego pod spodem interfejsu Core, a nawet bezpośrednie wysyłanie zapytań do API Direct3D. Taka funkcjonalność została pokazana w ramach opisywanego demo. Modyfikując kod z podrozdziału \ref{subsection_demo_engine_cube} dodane zostały ręczne zapytania wykorzystujące interfejs rdzeniowy modułu, rysujące na ekranie mały trójkąt w rogu. Dla czytelności usunięty został niestandardowy shader z głównego sześcianu. Kod to realizujący pokazano w listingu \ref{lst:demo:engine:hybridDrawing}, a efekt widoczny jest na rys. \ref{demo_engine_hybrid_drawing}.
+Moduł został zaprojektowany i napisany w taki sposób, że programista aplikacji klienckiej w żadnym momencie nie jest ograniczony do tylko jednej metody rysowania. Korzystając z silnika nadal możliwe jest manualnie wywoływanie metod z działającego pod spodem interfejsu Core, a nawet bezpośrednie wysyłanie zapytań do API Direct3D. Taka funkcjonalność została pokazana w ramach opisywanego demo. Modyfikując kod z podrozdziału \ref{subsection_demo_engine_cube} dodane zostały ręczne zapytania wykorzystujące interfejs modułu rdzeniowego, rysujące na ekranie mały trójkąt w rogu. Dla czytelności usunięty został niestandardowy shader z głównego sześcianu. Kod realizujący opisaną funkcjonalność pokazano w listingu \ref{lst:demo:engine:hybridDrawing}, a efekt można zobaczyć na rys. \ref{demo_engine_hybrid_drawing}.
 
 \vfill
 \clearpage
@@ -244,11 +244,14 @@ Moduł został zaprojektowany i napisany w taki sposób, że programista aplikac
 	\label{demo_engine_hybrid_drawing}
 \end{figure}
 
+\subsection{Podsumowanie}
+W tej części pokazana została funkcjonalność oraz elastyczność omawianego modułu, która nie powinna w żadnym stopniu ograniczać swobody programistom aplikacji klienckich, oddając przy tym do dyspozycji narzędzia ułatwiające pracę z niskopoziomowym API. 
+
 \section{Możliwości graficzne}
-Druga część rozdziału opisuje przykłady praktycznych zastosowań oraz graficznych możliwości zaimplementowanego modułu. Wszystkie opisane w tym segmencie dema opierają się o interfejs modułu silnikowego.
+Druga część rozdziału opisuje przykłady praktycznych zastosowań oraz graficznych możliwości programu. Wszystkie opisane w tym segmencie dema opierają się o interfejs modułu silnikowego.
 
 \subsection{Sponza}
-Stworzona pierwotnie przez Marko Dabrovic'a, następnie ulepszona przez niemiecką firmę Crytek \cite{github:Khronos:Sponza}, a w 2022 roku ponownie usprawniona przez amerykańskiego giganta Intel \cite{Intel:GPUResearch:Sponza} reprezentacja rzeczywistego atrium pałacu Sponza, znajdującego się w Chorwackiej miejscowości Dubrovnik stała się jednym z najpopularniejszych modeli służących do testowania i porównywania programów grafiki 3D, a w szczególności modułów odpowiedzialnych za oświetlenie globalne. W ramach tej sekcji przedstawiona została najprostsza wersja od firmy Intel w dwóch wersjach - uproszczonej oraz PBR. W obu manualnie dobrane zostało oświetlenie oraz kolor nieba celem utworzenia kompozycji reprezentującej zbliżone do realnego zastosowanie modułu. W poniższej tabeli przedstawiona została także zmierzona wydajność renderowania, a wygenerowane zrzuty ekranu na rys. \ref{test_sponza_1}, \ref{test_sponza_2} i \ref{test_sponza_3}.
+Stworzona pierwotnie przez Marko Dabrovic'a, następnie ulepszona przez niemiecką firmę Crytek \cite{github:Khronos:Sponza}, a w 2022 roku ponownie usprawniona przez amerykańskiego giganta Intel \cite{Intel:GPUResearch:Sponza} reprezentacja rzeczywistego atrium pałacu Sponza, znajdującego się w Chorwackiej miejscowości Dubrovnik stała się jednym z najpopularniejszych modeli służących do testowania i porównywania programów grafiki 3D, a w szczególności modułów odpowiedzialnych za oświetlenie globalne. W ramach tej sekcji przedstawiona została najprostsza wersja od firmy Intel w dwóch wersjach - uproszczonej oraz PBR. W obu manualnie dobrane zostało oświetlenie oraz kolor nieba celem utworzenia zbliżonej do siebie kompozycji o zachodzie słońca. W poniższej tabeli przedstawiona została także zmierzona wydajność renderowania, a wygenerowane zrzuty ekranu na rys. \ref{test_sponza_1}, \ref{test_sponza_2} i \ref{test_sponza_3}.
 
 \begin{center}
 	\begin{tabular}{ |l r r r|}
@@ -261,15 +264,14 @@ Stworzona pierwotnie przez Marko Dabrovic'a, następnie ulepszona przez niemieck
 		\hline
 	\end{tabular}
 \end{center}
-
 	
 \begin{figure}[h!]
 	\centering
-	\begin{subfigure}{.4\textwidth}
+	\begin{subfigure}{.45\textwidth}
 		\includegraphics[width=\textwidth]{images/demo_sponza_1.png}
 		\caption{Widok uproszczony.}
 	\end{subfigure}
-	\begin{subfigure}{.4\textwidth}
+	\begin{subfigure}{.45\textwidth}
 		\includegraphics[width=\textwidth]{images/demo_sponza_1_pbr.png}
 		\caption{Tryb PBR.}
 	\end{subfigure}
@@ -279,11 +281,11 @@ Stworzona pierwotnie przez Marko Dabrovic'a, następnie ulepszona przez niemieck
 
 \begin{figure}[h!]
 	\centering
-	\begin{subfigure}{.4\textwidth}
+	\begin{subfigure}{.45\textwidth}
 		\includegraphics[width=\textwidth]{images/demo_sponza_2.png}
 		\caption{Tryb klasyczny.}
 	\end{subfigure}
-	\begin{subfigure}{.4\textwidth}
+	\begin{subfigure}{.45\textwidth}
 		\includegraphics[width=\textwidth]{images/demo_sponza_2_pbr.png}
 		\caption{Widok PBR.}
 	\end{subfigure}
@@ -291,13 +293,16 @@ Stworzona pierwotnie przez Marko Dabrovic'a, następnie ulepszona przez niemieck
 	\label{test_sponza_2}
 \end{figure}
 
+\vfill
+\clearpage
+
 \begin{figure}[h!]
 	\centering
-	\begin{subfigure}{.4\textwidth}
+	\begin{subfigure}{.45\textwidth}
 		\includegraphics[width=\textwidth]{images/demo_sponza_4.png}
 		\caption{Shader uproszczony.}
 	\end{subfigure}
-	\begin{subfigure}{.4\textwidth}
+	\begin{subfigure}{.45\textwidth}
 		\includegraphics[width=\textwidth]{images/demo_sponza_4_pbr.png}
 		\caption{Wersja oparta o Physically Based Rendering.}
 	\end{subfigure}
@@ -305,11 +310,8 @@ Stworzona pierwotnie przez Marko Dabrovic'a, następnie ulepszona przez niemieck
 	\label{test_sponza_3}
 \end{figure}
 
-\vfill
-\clearpage
-
 \subsection{Demo detali - Roman Marble Plinth}
-Opisywany już w rozdziale testów model \textit{Roman Marble Ornate Plinth} z pakietu Quixel Megascans został głównym obiektem tej sekcji, ze względu na dużą ilość detali geometrii i tekstur. Przedstawiony w dwóch wersjach na rys. \ref{test_highpoly} model charakteryzuje się wysokim narzutem wydajnościowym przy rysowaniu, co dało wyraźny znak przy określaniu wydajności dema, czego szczegóły zostały przedstawione w poniższej tabeli.
+Opisywany już w rozdziale testów model \textit{Roman Marble Ornate Plinth} z pakietu Quixel Megascans został głównym obiektem tej sekcji, ze względu na dużą ilość detali geometrii i tekstur. Przedstawiony w dwóch wersjach na rys. \ref{test_highpoly} model charakteryzuje się wysokim narzutem wydajnościowym przy rysowaniu, co dało wyraźny znak przy określaniu wydajności dema. Szczegóły zostały przedstawione w poniższej tabeli.
 
 \begin{center}
 	\begin{tabular}{ |l r r r|}
@@ -339,17 +341,15 @@ Opisywany już w rozdziale testów model \textit{Roman Marble Ornate Plinth} z p
 \end{figure}
 
 \subsection{Materiały}
-Ostatnim demo przedstawiającym główne funkcjonalności modułu jest pokazanie możliwości zaimplementowanego systemu materiałów. Scena testu, pokazana na rys. \ref{demo_materials} składa się z 3 głównych części.
+Ostatnim demo przedstawiającym główne funkcjonalności modułu jest pokazanie możliwości zaimplementowanego systemu materiałów. Scena testu została pokazana na rys. \ref{demo_materials} i składa się z 3 głównych części.
  
-Głównym, środkowym elementem jest zbiór modeli kul o różnych parametrach materiałów. Elementy czerwone mają przypisany materiał typu PBR, a ich umieszczenie pokazuje różnice między jego parametrami. W osi pionowej od góry do dołu rośnie wartość chropowatości powierzchni - \textit{roughness}, a w poziomej od lewej do prawej parametr metaliczności. Kule zielone rysowane są przy pomocy uproszczonego materiału, a kolejne instancje zwiększają konfigurację chropowatości od lewej do prawej. 
-
-Pozostałe segmenty przyjmują postać wydłużonych w pionie sześcianów, pokazujących bezproblemową możliwość doimplementowania dodatkowych materiałów. Wykorzystują one nowy materiał i przypisany do niego shader, niebędący częścią oryginalnego modułu, zwracający kolor odpowiadający pozycji na ekranie. Jego dwie instancje różnią się włączeniem i wyłączeniem kalkulacji oświetlenia, odpowiednio dla lewej i prawej wersji. 
-
-Wygenerowana scena przedstawiona została na rys. \ref{demo_materials}.
-
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=\textwidth]{images/demo_materials.png}
 	\caption{Zrzut ekranu przedstawiający obiekty o różnych materiałach i programach cieniujących.}
 	\label{demo_materials}
 \end{figure}
+ 
+Głównym, środkowym elementem jest zbiór modeli kul o różnych parametrach materiałów. Elementy czerwone mają przypisany materiał typu PBR, a ich umieszczenie pokazuje różnice między jego parametrami. W osi pionowej od góry do dołu rośnie wartość chropowatości powierzchni - \textit{roughness}, a w poziomej od lewej do prawej parametr metaliczności. Kule zielone rysowane są przy pomocy uproszczonego materiału, a kolejne instancje od lewej do prawej zwiększają chropowatość powierzchni.
+
+Pozostałe segmenty przyjmują postać wydłużonych w pionie sześcianów, pokazujących bezproblemową możliwość doimplementowania dodatkowych materiałów. Wykorzystują one niestandardowy typ i przypisany do niego shader zwracający kolor odpowiadający pozycji na ekranie. Nie jest to część oryginalnego modułu i został dodany korzystając z interfejsu aplikacji klienckiej. Dwie instancje różnią się włączeniem i wyłączeniem kalkulacji oświetlenia, odpowiednio dla lewej i prawej wersji. 

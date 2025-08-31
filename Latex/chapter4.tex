@@ -1,15 +1,14 @@
 \chapter{Architektura oraz założenia systemu}
 Przed faktycznym rozpoczęciem prac nad złożonym systemem programowym należy najpierw zastanowić się nad jego architekturą.
 Ułatwia to określenie wymagań, celów, a także potencjalnych trudności które można napotkać w trakcie prac. 
-Daje to możliwość zrewidowania architektury zanim poświęci się dużą ilość czasu na pisanie systemu z błędną architekturą.
 
 \section{Rodzaje systemów rysujących}
-Założeniem projektu jest stworzenie uniwersalnego, modularnego systemu rysującego.
-Systemy tego typu przyjmują najczęściej formę punktu między dwoma ekstremami. 
+Głównym założeniem projektu jest stworzenie uniwersalnego, modularnego systemu rysującego.
+Systemy tego typu przyjmują najczęściej formę, którą można określić jako punkt między dwoma ekstremami. 
 
 \subsection{Moduł niezależny}
 \label{Subsection_module_types_engine}
-Po jednej stronie spektrum znajduje się system prawie całkowicie niezależny. System taki zbliżony jest swoim działaniem do  silników do gier, gdzie skrypt klienta zostaje periodycznie wywołany w celu zmiany wewnętrznego stanu modułu. Moduł jest w takim przypadku odpowiedzialny za większość kontroli przepływu programu, w tym operacji związanych z rysowaniem, inicjalizację okna, ruch kamery w odpowiedzi na interakcje z użytkownikiem, generowanie modelu 3D na podstawie pliku wejściowego, czy obliczanie zaawansowanych efektów świetlnych. Silnik przechowuje listę obiektów sceny wraz z ich parametrami, takimi jak translacja, materiał czy wzajemne relacje, które wykorzystuje do renderowania obrazu. 
+Po jednej stronie spektrum znajduje się system prawie całkowicie niezależny. Swoim działaniem jest zbliżony do silników do gier, gdzie skrypt klienta zostaje periodycznie wywołany w celu zmiany wewnętrznego stanu modułu. System jest w takim przypadku odpowiedzialny za większość kontroli przepływu programu, w tym operacji związanych z rysowaniem, inicjalizację okna, ruch kamery w odpowiedzi na interakcje z użytkownikiem, generowanie modelu 3D na podstawie pliku wejściowego, czy obliczanie zaawansowanych efektów świetlnych. Silnik przechowuje listę obiektów sceny wraz z ich parametrami, takimi jak translacja, materiał czy wzajemne relacje, które wykorzystuje do renderowania obrazu. 
 
 Zastosowanie takiej metody zwiększa potencjał wydajnościowy silnika oraz wyraźnie zmniejsza nakład pracy dla programisty piszącego aplikację kliencką. Pozwala to także na potencjalną całkowitą niezależność od użytego API graficznego oraz systemu operacyjnego, gdyż możliwa jest realizacja w formie interfejsu, której implementacje odpowiadać będą poszczególnym konfiguracjom. Dużą wadą jest jednak konieczność zmiany kodu i rekompilacji modułu w przypadku potrzeby dodania nowej funkcjonalności lub zmiany sposobu działania już istniejącej. 
 
@@ -27,9 +26,9 @@ Uproszczona wizualizacja przykładowej wymiany operacji systemu tego typu zosta�
 
 \subsection{Abstrakcja nad API}
 \label{Subsection_module_types_abstraction}
-Przeciwieństwem jest moduł będący abstrakcją nad niskopoziomowymi API graficznymi. Udostępnia on uniwersalne API niezależne od systemu operacyjnego oraz końcowego API graficznego, nie zabierając przy tym kontroli nad procesem renderowania. Aplikacja klienta zarządza przepływem programu, listą wyświetlanych obiektów oraz ich parametrami, a także nad dokładnym rozkładem czasowym oraz kolejnością wywoływanych metod. Ogranicza to złożoność modułu, który przejmuje na siebie utworzenie bardziej przystępnego dla programistów interfejsu oraz ewentualną abstrakcję nad API graficznym.
+Przeciwieństwem jest moduł będący abstrakcją nad niskopoziomowymi API graficznymi. Udostępnia on uniwersalne API niezależne od systemu operacyjnego oraz końcowego API graficznego, nie zabierając przy tym kontroli nad procesem renderowania. Aplikacja klienta zarządza przepływem programu, przechowywaniem i wyświetlaniem obiektów oraz ich parametrami, a także nad dokładnym rozkładem czasowym oraz kolejnością wywoływanych metod. Ogranicza to złożoność modułu, który przejmuje na siebie utworzenie bardziej przystępnego dla programistów interfejsu.
 
-Oczywistą wadą takiego rozwiązania jest zwiększony nakład pracy dla programisty aplikacji klienta. Ze względu na asynchroniczną charakterystykę współczesnych układów graficznych oraz ich złożoność ograniczony zostaje także potencjał wydajnościowy końcowej aplikacji. Możliwe jest jednak dowolne rozszerzanie funkcjonalności modułu bez konieczności znania i modyfikacji jego kodu źródłowego.
+Oczywistą wadą takiego rozwiązania jest zwiększony nakład pracy dla programisty aplikacji klienta. Ze względu na asynchroniczną charakterystykę współczesnych układów graficznych oraz ich złożoność ograniczony może zostać także potencjał wydajnościowy końcowej aplikacji. W zamian oddana jest możliwość dowolnego rozszerzania funkcjonalności modułu bez konieczności znania i modyfikacji jego kodu źródłowego.
 
 Analogiczna do rys. \ref{UML_Sequence_Module_Engine} wizualizacja dla wersji abstrakcji została pokazana na rys. \ref{UML_Sequence_Module_Abstraction}.
 
@@ -41,9 +40,9 @@ Analogiczna do rys. \ref{UML_Sequence_Module_Engine} wizualizacja dla wersji abs
 \end{figure}
 
 \section{Przyjęte założenia projektowe}
-Projektowany system przyjmuje formę hybrydową, korzystającą z zalet wszystkich przedstawionych podejść do projektowania tego typu systemu. 
+Projektowany system przyjmuje formę hybrydową, korzystającą z zalet obu przedstawionych podejść do projektowania tego typu systemu. 
 
-Głównym założeniem i podstawą implementacji zostanie utworzenie systemu warstwowego, pozwalającego na korzystanie z modułu jako abstrakcji nad API Direct3D 11 w warstwach niższych, a także na pracę w trybie niezależnym przy wyższych poziomach abstrakcji, które same będą korzystać z niższych elementów do swojego działania. Każdy z etapów umożliwiać będzie także dostęp do podległych mu komponentów. Dzięki temu możliwym będzie mieszanie ze sobą różnych paradygmatów nie ograniczając ani potencjalnej funkcjonalności, ani przystępności dla nowych projektów i programistów.
+Głównym założeniem i podstawą implementacji zostanie utworzenie systemu warstwowego, pozwalającego na korzystanie z modułu jako abstrakcji nad API Direct3D 11 w warstwach niższych, a także na pracę w trybie niezależnym przy wyższych poziomach abstrakcji, które same będą korzystać z niższych elementów do swojego działania. Każdy z etapów umożliwiać będzie także dostęp do podległych mu komponentów. Takie podejście umożliwia mieszanie ze sobą różnych paradygmatów nie ograniczając ani potencjalnej funkcjonalności, ani przystępności dla nowych projektów i programistów.
 
 Logistycznie projekt został podzielony na następujące warstwy:
 
@@ -53,9 +52,7 @@ Klasyczna warstwa abstrakcji. Grupuje często używane funkcje oraz struktury z 
 Warstwa ta udostępnia interfejs zbliżony konceptem do modułu abstrakcji z sekcji \ref{Subsection_module_types_abstraction}. 
 
 \subsection{\textbf{Scene} - Warstwa sceny}
-Na tym poziomie znajdują się wysokopoziomowe struktury oraz metody wczytywania i zarządzania sceną oraz jej komponentami. Automatyzowane jest tutaj między innymi wczytywanie z pliku pełnego modelu wraz z hierarchią, teksturami i parametrami materiałów. Segment ten odpowiada też za zachowanie wzajemnych relacji między obiektami z uwzględnieniem ich transformacji.
-
-Korzystanie z tego poziomu stanowi pomost między opisanymi typami modułów. Stanowi głównie rozwinięcie idei interfejsu nad API, gdzie aplikacja klienta odpowiedzialna jest za decyzje przepływu działania programu.
+Na tym poziomie znajdują się wysokopoziomowe struktury oraz metody wczytywania i zarządzania sceną oraz jej komponentami. Automatyzowane jest tutaj między innymi wczytywanie z pliku pełnego modelu wraz z jego teksturami i parametrami materiałów. Segment ten odpowiada też za zachowanie wzajemnych relacji między obiektami z uwzględnieniem ich transformacji.
 
 \subsection{\textbf{Engine} - Warstwa renderująca}
 Implementacja modułu typu niezależnego. Aplikacja klienta przekazuje przy inicjalizacji parametry sceny, pozycje oraz ustawienia modeli, wirtualnej kamery i oświetlenia. Wartości te mogą być modyfikowane w przekazanej do modułu funkcji typu callback, wywoływanej automatycznie przed rysowaniem kolejnej klatki obrazu, tak jak zostało to opisane w sekcji \ref{Subsection_module_types_engine}. Możliwe jest także przełączenie w tryb ręczny zbliżony do wersji z podrozdziału \ref{Subsection_module_types_abstraction}, w którym za wywoływanie funkcji rysowania oraz synchronizację odpowiedzialna jest aplikacja klienta. Na tym poziomie obecna jest także logika ułatwiająca pracę z buforami, oświetleniem, pakiet standardowych shader'ów czy menadżer zasobów.
@@ -68,5 +65,3 @@ Interakcja między aplikacją klienta, a modułem została przedstawiona na rys.
 	\caption{Diagram przedstawiający sposób działania modułu abstrakcji.}
 	\label{UML_Sequence_Module_Final}
 \end{figure}
-
-% TODO: Opisać docelowy format sceny.

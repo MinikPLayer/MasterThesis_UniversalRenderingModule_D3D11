@@ -67,7 +67,7 @@ przetestowanie różnych wersji API Direct3D, wybór języka programowania,
 bibliotek służących do zaawansowanych obliczeń matematycznych, wejścia z
 klawiatury i kontrolera, a także bibliotek pomocniczych do otwierania
 okna renderowania. Decyzja powinna być oparta o testy wydajności,
-wsparcie platformy docelowej, dostępną ilość informacji, jak i o bilans
+wsparcie platformy docelowej, jakość dokumentacji, jak i o bilans
 możliwości do złożoności API.
 
 % Usunięto błędną strukturę enumerate->enumerate
@@ -75,19 +75,19 @@ możliwości do złożoności API.
 
 Zanim zostaną podjęte jakiekolwiek decyzje na temat rysowania grafiki,
 należy mieć otwarte oraz skonfigurowane okno w taki sposób, aby było na
-czym rysować. Testy tego aspektu polegały na stworzeniu minimalnego kodu otwierającego
-okno zdolne do rysowania grafiki z wykorzystaniem DirectX.
+czym obraz rysować. Testy tego aspektu polegały na stworzeniu minimalnego kodu otwierającego
+okno zdolne do wyświetlania grafiki narysowanej z wykorzystaniem DirectX.
 
 \subsection{SDL2}
 
 Skrót od \emph{Simple DirectMedia Layer}. Jej drugie wydanie, napisane w
-języku C, to wieloplatformowa biblioteka abstrakcji nad niskopoziomowymi
+języku C to wieloplatformowa biblioteka abstrakcji nad niskopoziomowymi
 funkcjami API do obsługi audio, klawiatury, myszki, kontrolerów, czy
 akceleracji sprzętowej opartej o OpenGL, Direct3D, Metal, bądź Vulkan
 \cite{sdl:wiki:2024}. Oficjalnie wspiera systemy Windows, macOS, Linux, iOS oraz
 Android \cite{sdl:wiki:2024}. 
 
-Przy pomocy subsystemu okien SDL jest możliwe utworzenie okna, które
+Przy pomocy subsystemu okien SDL możliwe jest utworzenie okna, które
 następnie można wykorzystać jako powierzchnię rysowania dla zapytań
 Direct3D. Przykładowy sposób opisany pseudokodem został przedstawiony w ramach listingu \ref{lst:sdl2init}.
 
@@ -147,7 +147,7 @@ dla okna \emph{WndProc}, która implementuje obsługę różnego rodzaju
 sygnałów, które okno może otrzymać. 
 
 Ze względu na jej użyteczność, stabilność oraz najlepsze wsparcie dla
-DirectX w dalszej części projektu do obsługi okna użyte zostanie WinAPI. Rozważana była natomiast jeszcze jedna opcja opisana poniżej.
+DirectX, w dalszej części projektu do obsługi okna użyte zostanie WinAPI. Rozważana była natomiast jeszcze jedna opcja opisana poniżej.
 
 \subsection{UWP / Windows App SDK}
 
@@ -155,8 +155,8 @@ Skrót od \emph{Universal Windows Platform}. UWP zostało utworzone jako
 zunifikowana platforma API aplikacji dla systemów Windows, konsol Xbox,
 czy urządzeń mobilnych opartych na Windows Phone. Platforma została
 opracowana z myślą o bezpieczeństwie poprzez użycia odizolowanego
-środowiska, wydajności, wygodzie oraz wieloplatformowości. Microsoft
-stopniowo zaleca przejście ze standardu UWP do Windows App SDK o bardzo
+środowiska, a także na wydajności, wygodzie oraz wieloplatformowości. Microsoft wycofuje jednak wsparcie dla tego standardu i
+stopniowo zaleca przejście z UWP na Windows App SDK o bardzo
 podobnym API oraz architekturze. DirectX 11 oraz DirectX 12 posiadają oficjalne wsparcie dla tego
 backendu \cite{ms:dxuwp:2024}, wraz z oficjalnymi szablonami projektów do programu
 Visual Studio \cite{ms:dxuwpui:2024}. UWP posiada jednak wyraźne wady w postaci zamkniętej architektury oraz
@@ -178,18 +178,16 @@ wymaganego kodu oraz potencjalnych możliwości rozwoju. Do lepszego przedstawie
 
 \subsection{Direct3D 9}
 
-% Usunięto \begin{quote} i \end{quote}
 Wydany w 2002r. był jednym z najbardziej popularnych wyborów wśród
 twórców gier aż do wydania DirectX 11. Dzięki swojej prostocie użycia
 oraz wsparciu szerokiej gamy systemów operacyjnych od Windows 98 wzwyż
-\cite{falconfly:dxredist:2024} pozwalał na dotarcie do dużej grupy odbiorców niewielkim
-nakładem pracy. Pomagał w tym także fakt, że wydanie to było bazowym API
+\cite{falconfly:dxredist:2024} pozwalał na dotarcie do szerokiej grupy odbiorców niewielkim
+nakładem pracy. Pomagał w tym także fakt, że lekko zmodyfikowana wersja była bazowym API
 graficznym konsoli Xbox 360 \cite{ms:xbox360bp:2024}. Preferowanym językiem obsługi DirectX 9 jest C++ i to w tym języku
-implementowany był program testowy. Program testowy został rozbity na 2 części -- inicjalizację wykonywaną
+implementowany był program testowy. Został on rozbity na 2 części - inicjalizację wykonywaną
 raz oraz rysowanie wywoływane co klatkę obrazu. Taka organizacja pozwala
 na lepsze rozdzielenie poszczególnych fragmentów oraz uniknięcie
 problemów związanych z wyciekami pamięci. W ramach listingów \ref{lst:d3d9:init} oraz \ref{lst:d3d9:render} przedstawione zostały opisane pseudokodem fragmenty, potrzebne do implementacji programu testowego.
-% Usunięto \end{quote}
 
 \begin{lstlisting}[caption={Pseudokod inicjalizacji Direct3D 9}, label={lst:d3d9:init}]
 	void init() {
@@ -239,18 +237,14 @@ wydany jako następca dziewiątki DirectX 11.
 
 \subsection{Managed DirectX}
 
-% Usunięto \begin{quote} i \end{quote}
-Managed DirectX jest wydaną w 2002r. biblioteką, mającą na celu
+Managed DirectX jest wydaną w 2002 roku biblioteką, mającą na celu
 przeniesienie API DirectX 9 do świata języka C\# i framework'u .NET,
 upraszczając w ten sposób proces pisania niskopoziomowych aplikacji
-akcelerowanych sprzętowo. Wydana została jedynie wersja pierwsza z planowaną drugą, która została
-wycofana na rzecz Microsoft XNA i nigdy nie została upubliczniona. Ze
-względu na to MDX posiada obsługę jedynie dla DirectX w wersji 9 oraz
+akcelerowanych sprzętowo. Wydana została jedynie wersja pierwsza z planowaną drugą, wycofaną
+na rzecz Microsoft XNA. Ze względu na to MDX posiada obsługę jedynie dla DirectX w wersji 9 oraz
 architektury x86, bez wsparcia dla x64. Przykładowy pseudokod przedstawiający implementację testowej aplikacji
 został przedstawiony w ramach listingów \ref{lst:manageddx:init} i \ref{lst:manageddx:drawing}.
-% Usunięto \end{quote}
 
-% Zmieniono styl na csharpstyle, zachowując oryginalną treść
 \begin{lstlisting}[caption={Funkcja inicjalizacji przy pomocy Managed DirectX}, label={lst:manageddx:init}]
 	void init() {
 		CreateWindow();
@@ -291,10 +285,10 @@ został przedstawiony w ramach listingów \ref{lst:manageddx:init} i \ref{lst:ma
 \subsection{Direct3D 11}
 
 Niebezpośredni następca DirectX 9. Pomiędzy nimi wydana została wersja
-10, ale nie zdobyła ona nadmiernej popularności i była jedynie iteracją,
+10, ale nie zdobyła ona zbyt dużej popularności będąc jedynie iteracją
 przygotowującą na wydanie jedenaste, które stało się de facto podstawą
 dla większości gier i programów wydanych w trakcie ósmej generacji
-konsol do gier. DirectX 11 jest także podstawowym API graficznym systemu
+konsol do gier. Rozwinięcie DirectX 11 jest także podstawowym API graficznym systemu
 Windows 8 / 8.1 oraz konsoli Xbox One \cite{ms:raisingbar:2024}. Pod względem architektury to wydanie jest krokiem w stronę
 niskopoziomowej obsługi akceleracji sprzętowej, oddając deweloperom do
 dyspozycji wyraźnie większą kontrolę nad sprzętem i jego
@@ -359,9 +353,9 @@ na 2 główne funkcje - inicjalizacja i rysowanie, które zostały przedstawione
 \end{lstlisting}
 
 Opisany pseudokod nie oddaje w pełni złożoności oraz kontroli jaką
-oddaje w ręce programisty DirectX 11. Program wykonujący tą samą funkcję
+daje w ręce programisty DirectX 11. Program wykonujący tą samą funkcję
 podwoił swoją objętość względem wersji 9, ale pozwala to na znacznie
-większą kontrolę nad pełnym procesem rysowania. Jest to nadal tylko
+większą kontrolę nad pełnym procesem rysowania. Jest to jednak nadal tylko
 ułamek kontroli, jaką oddaje jego następca.
 
 \subsection{Direct3D 12}
@@ -371,19 +365,18 @@ postrzegania i użytkowania API graficznego. Direct3D 12 oddaje w ręce
 programisty kontrolę nad większością części procesu rysowania grafiki
 3D. Wadą takiego podejścia jest zdecydowane zwiększenie nakładu pracy
 wymaganego do prawie każdej operacji. Szczególny nacisk po stronie
-programisty został położony na zarządzenie pamięcią, w tym zarządzanie
+programisty został położony na zarządzenie pamięcią, w tym
 używanymi zasobami i zwalnianie ich w odpowiednim czasie. Zwalnia to
 sterownik z konieczności pełnienia tej roli, co przekłada się na
 wyraźnie zwiększoną wydajność, ale może prowadzić do wycieków pamięci i
-bardziej złożonej architektury programu. Nawet bardzo uproszczony pseudokod przykładu jest złożony, przez co ten fragment został pominięty dla poprawy czytelności.
+bardziej złożonej architektury programu. Nawet bardzo uproszczony pseudokod przykładu jest zbyt złożony do czytelnego przedstawienia, przez co ten fragment został pominięty.
 
 API Direct3D 12 jest biblioteką bardziej zaawansowaną niż jest to
 wymagane dla tego projektu, szczególnie uwzględniając prowadzenie go w
 pojedynkę oraz złożoność wersji dwunastej. W związku z tym wykorzystane
-zostanie API Direct3D 11, będące wypośrodkowaniem między możliwościami i
-nowoczesnością, a złożonością dla programisty. Z tego względu w dalszych
+zostanie API Direct3D 11, będące wypośrodkowaniem między możliwościami i złożonością dla programisty. Z tego względu w dalszych
 przykładach oraz finalnym projekcie użyty zostanie język C++ z IDE
-Microsoft Visual Studio oraz kompilatorem Microsoft Visual C++.
+Microsoft Visual Studio 2022 oraz kompilatorem Microsoft Visual C++.
 
 \section{Wczytywanie tekstur}
 
@@ -407,7 +400,7 @@ zaprojektowanych jako pomoc przy pisaniu programów wykorzystujących API
 DirectX 11 \cite{github:directxtk:2024}. Zaprojektowany jako następca wycofanej biblioteki
 D3DX \cite{walbourn:directxtk:2024}. Pakiet został później przeportowany do użycia z DirectX
 12 \cite{github:directxtk12:2024}. Zawiera między innymi moduły odpowiedzialne za rysowanie
-sprite'ów 2D (SpriteBatch), rysowanie tekstu 2D (SpriteFont),
+sprite'ów 2D (SpriteBatch) i tekstu 2D (SpriteFont),
 wczytywanie modeli 3D (Model), czy rozszerzenie o często używane typy
 wierzchołków (VertexTypes) \cite{walbourn:directxtk:2024}.
 
@@ -422,15 +415,14 @@ obsługi tekstur w projekcie wybrany został DirectXTK.
 \section{Wczytywanie modeli 3D}
 
 Kolejnym po teksturach formatem często wykorzystywanym w silnikach 3D są
-trójwymiarowe modele obiektów. Mogą one przyjmować postać plików o
+trójwymiarowe modele obiektów. Mogą one przyjmować postać plików w
 formatach takich jak FBX, CMO, DAE, OBJ, czy glTF.
 
 \subsection{DirectXTK}
 
 Wspomniana już przy okazji wczytywania tekstur biblioteka pomocnicza
 DirectX Tool Kit zawiera także komponent odpowiedzialny za wczytywanie
-modeli. Jego użycie jest proste i intuicyjne, do tego dobrze pasowałoby
-do użycia razem z elementem tekstur.
+modeli. Jego użycie jest proste i intuicyjne, do tego dobrze współpracuje z komponentem wczytującym tekstury.
 
 Użycie DirectXTK posiada jednak znaczącą wadę, a jest nią ograniczenie
 do formatów CMO oraz SDKMESH \cite{github:directxtk:model:2024}. Brak wsparcia dla popularnych
@@ -446,13 +438,13 @@ triangulacji, czy optymalizacji wierzchołków. Użycie assimp jest bardziej zł
 opisane w licznych poradnikach oraz dokumentacji.
 
 Ze względu na wsparcie większej ilości formatów oraz wyraźnie lepszą
-dokumentację jak i wsparcie społeczności, do projektu użyta zostanie
+dokumentację jak i dużą społeczność, do projektu użyta zostanie
 biblioteka Assimp.
 
 \section{Biblioteka pomocnicza operacji matematycznych}
 
 Do wydajnego rysowania trójwymiarowego potrzebne jest wykonywanie dużej
-ilości złożonych operacji matematycznych, w szczególności operacji
+ilości złożonych operacji matematycznych, w szczególności kalkulacji
 macierzowych oraz wektorowych. Większość z nich odbywa się po stronie
 API oraz karty graficznej i programista nie musi się nad nimi
 zastanawiać, lecz część z tych operacji musi być wykonywania także po
@@ -462,14 +454,13 @@ takich operacji powstało kilka bibliotek ułatwiających to zadanie.
 \subsection{DirectXMath}
 
 Podstawowa biblioteka pomocnicza używana przez większość projektów
-opartych o DirectX. Wykorzystuje rozszerzenia typu SIMD (\emph{Single
+opartych o DirectX. Wykorzystuje instrukcje typu SIMD (\emph{Single
 Instruction Multiple Data}) do wydajnego wykonywania złożonych operacji
 opartych o algebrę liniową. Biblioteka wspiera architektury x86, x64
 oraz ARM/ARM64.
 
 Dzięki swojej konstrukcji oraz założeniom DXMath oddaje programiście
-bardzo dużą kontrolę nad swoim działaniem, co pozwala na lepsze
-zrozumienie działania oraz wyraźną poprawę wydajności. Odbywa się to
+bardzo dużą kontrolę nad swoim działaniem, co zwiększa potencjał na poprawę wydajności. Odbywa się to
 niestety kosztem prostoty oraz czytelności kodu. Aby zaradzić na ten
 problem powstał wrapper SimpleMath.
 
@@ -478,10 +469,10 @@ problem powstał wrapper SimpleMath.
 Wrapper nad DirectXMath. SimpleMath będący elementem DirectXTK upraszcza
 większość operacji DXMath i zwalnia programistę z konieczności myślenia
 w paradygmacie SIMD. Upraszcza to pracę z kodem oraz poprawia jego
-czytelność, kosztem niewielkiego kosztu wydajnościowego. Biblioteka
+czytelność, kosztem niewielkiego nakładu wydajnościowego. Biblioteka
 skonstruowana jest w taki sposób, aby nadal możliwe było korzystanie z
-DirectXMath w krytycznych dla wydajności sekcjach kodu, więc większość
-kosztów wydajnościowych może zostać wyraźnie zredukowanych, bez straty
+DirectXMath w krytycznych dla wydajności sekcjach kodu, dzięki czemu
+koszty wydajnościowe mogą zostać zredukowane, bez straty
 na czytelności kodu \cite{github:directxtk:simplemath:2024}. Z tego względu SimpleMath został wybrany
 jako wykorzystana w projekcie biblioteka obsługi równań liniowych.
 
@@ -489,25 +480,6 @@ jako wykorzystana w projekcie biblioteka obsługi równań liniowych.
 
 Poniżej przedstawione zostało podsumowanie użytych w projekcie
 bibliotek.
-
-% \begin{longtable}
-% \toprule
-
-% \begin{minipage}
-% 	\textbf{Kategoria}
-% \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-% 	\textbf{Wybrana biblioteka}
-% \end{minipage} \\
-% \midrule
-% \endhead
-% API systemu okien & WinAPI \\
-% API graficzne & DirectX 11 \\
-% Język programowania & C++ \\
-% Wczytywanie tekstur & DirectXTK / WICTextureLoader \\
-% Wczytywanie modeli & Assimp \\
-% Biblioteka pomocnicza do równań matematycznych & DirectXTK / SimpleMath \\
-% \bottomrule
-% \end{longtable}
 
 \begin{center}
 	\begin{tabular}{ |l r| }
