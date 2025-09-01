@@ -10,19 +10,21 @@
 	Każdy oparty o \textit{AutoTest} skrypt musi posiadać wartość mierzalną, nazwaną w uproszczeniu ilością (\textit{count}). Zwiększenie tej wartości powinno z założenia liniowo zmniejszać wydajność renderowania, a co za tym idzie zwiększać czas generowania klatki obrazu. Informacja o długości rysowania jest następnie agregowana przez 100 wpisów przy pomocy obiektu klasy \textbf{AverageAccumulator} do wartości średniej, która zostaje przyrównana z czasem oczekiwanym, definiowanym przez test za pomocą metody \textit{GetTargetFPS()}. Na podstawie wzajemnej proporcji tych wartości obliczana jest teoretyczna ilość potrzebnych do dodania elementów, aby osiągnąć zamierzony cel. Przed zwiększeniem ilości mierzalnej za pomocą funkcji \textit{IncreaseCount()}, rozmiar zwiększenia zostaje pomniejszony przez pomnożenie o wartość z wirtualnej metody \textit{GetTargetCurveMultiplier()}, co ma na celu zmniejszenie prawdopodobieństwa przeszacowania celu. Cykl ten powtarzany jest aż do zejścia czasu rysowania klatki poniżej progu. Następnym krokiem jest stopniowa powtarzanie operacji, ale zmniejszając ilość o 1 za pomocą \textit{DecreaseCount()} zamiast zwiększać, aż do ponownego przekroczenia docelowej długości renderowania w trzech bezpośrednio następujących po sobie pomiarach. Taka forma pomiaru pozwala na powtarzalne określenie maksymalnej ilości elementów spełniających założony cel wydajnościowy. Wykres czasu klatki z przykładowego testu oświetlenia został przedstawiony w całości na rys. \ref{Test_LightsTest_FullFrameTime} oraz ograniczony do partii autoregulacji na rys. \ref{Test_LightsTest_AutoFrameTime}.
 	
 	\begin{figure}[h!]
-		\begin{subfigure}{.5\textwidth}
+\begin{center}
+		\begin{subfigure}{.45\textwidth}
 			\centering
 			\includegraphics[width=\textwidth]{images/LightsTestResult_full.png}
 			\caption{Pełny wykres czasu generowania klatki.}
 			\label{Test_LightsTest_FullFrameTime}
 		\end{subfigure}
-		\begin{subfigure}{.5\textwidth}
+		\begin{subfigure}{.45\textwidth}
 			\centering
 			\includegraphics[width=\textwidth]{images/LightsTestResult_auto.png}
-			\caption{Czas rysowania obrazu ograniczony do fragmentu autoregulacji.}
+			\caption{Czas rysowania obrazu dla fragmentu autoregulacji.}
 			\label{Test_LightsTest_AutoFrameTime}
 		\end{subfigure}
 		\caption{Wykres pokazujący działanie mechanizmu \textit{AutoTest} podczas testu oświetlenia.}
+\end{center}
 	\end{figure}
 	
 	\subsection{Eliminacja błędów}

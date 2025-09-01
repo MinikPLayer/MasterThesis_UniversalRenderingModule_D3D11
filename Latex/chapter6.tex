@@ -196,7 +196,9 @@
 \subsection{Materiały}
 	Programy cieniujące poza odniesieniem do używanego kodu w formie wskaźnika na obiekt klasy \textit{Shader}, potrzebują także informacji o parametrach wyświetlanego obiektu, takich jak jego kolor, użyta tekstura i inne właściwości powierzchni.	Do przechowywania tych informacji utworzona została abstrakcyjna klasa \textbf{Material}, a także jej 2 standardowe implementacje - \textbf{MaterialSimple} oraz \textbf{MaterialPBR}, opisujące odpowiednio uproszczony model oświetlenia z danymi powierzchni w strukturze \textbf{MaterialSimpleData} i bardziej złożony mechanizm oparty o PBR, gdzie dane materiału znajdują się w \textbf{MaterialPBRData}.
 	
-	Każda implementacja klasy \textit{Material} musi zdefiniować metodę \textit{GetShader()}, która zwraca referencję do obiektu programu cieniującego. Dzięki temu każdy materiał może posiadać odrębny, różniący się od innych shader i w ten sposób rozszerzać działanie modułu poprzez utworzenie zewnętrznych implementacji. Możliwe jest także mieszanie różnych typów materiałów (a tym samym shader'ów), gdyż jest on przypisany do mesh'y, a nie globalnie.
+	Każda implementacja klasy \textit{Material} musi zdefiniować metodę \textit{GetShaderFilePath()}, która zwraca ścieżkę do programu cieniującego. Dzięki temu każdy materiał może posiadać odrębny, różniący się od innych shader i w ten sposób rozszerzać działanie modułu poprzez utworzenie zewnętrznych implementacji. Materiał przypisany jest do mesh'a, a nie globalnie, co pozwala na mieszanie różnych materiałów w ramach jednej sceny.
+	
+	Wczytane shader'y są przechowywane w słowniku \textit{mPixelShadersCache}, który przechowuje pary \textit{ścieżka} - \textit{shader} do późniejszego wykorzystania.
 
 	\vfill
 	\clearpage
@@ -210,10 +212,10 @@
 
 	
 \section{Engine}
-	Podczas implementacji z przyczyn logistycznych zintegrowana została warstwa sceny oraz renderująca w ramach jednego projektu. Mimo tego zachowane zostało założenie budowy modularnej oraz możliwość użycia poszczególnych elementów bez konieczności korzystania z pozostałych na tym samym lub wyższym logicznie poziomie.
+	W tej sekcji opisana została budowa warstwy silnika, będącej implementacją funkcjonalnego modułu renderującego.
 	
 \subsection{Scene}
-	Główna struktura zawierająca pełne informacje o rysowanej scenie, której diagram został przedstawiony na rys. \ref{UML_Scene}. Przechowuje ona współdzieloną referencję do głównego wierzchołka struktury obiektów, kamery ustawionej jako głównej, menadżera zasobów oraz struktury rdzeniowej \textit{(D3DCore)}. Posiada ona także listę odniesień do istniejących w scenie świateł oraz mesh'y, co pozwala na optymalizację ich rysowania ze względu na eliminację konieczności każdorazowego przechodzenia sceny w ich poszukiwaniu podczas procesu renderowania.
+	Główna struktura zawierająca pełne informacje o rysowanej scenie, której diagram został przedstawiony na rys. \ref{UML_Scene}. Przechowuje ona współdzieloną referencję do głównego wierzchołka struktury hierarchii obiektów, kamery ustawionej jako głównej, menadżera zasobów oraz struktury rdzeniowej \textit{(D3DCore)}. Posiada ona także listę odniesień do istniejących w scenie świateł oraz mesh'y, co pozwala na optymalizację ich rysowania ze względu na eliminację konieczności każdorazowego przechodzenia sceny w ich poszukiwaniu podczas renderowania.
 	
 	\begin{figure}[h!]
 		\centering
@@ -224,9 +226,9 @@
 	
 	
 \subsection{Obiekt sceny}
-	Klasa opisująca wierzchołek struktury drzewowej opisującej rysowany świat. Jest ona jednocześnie klasą bazową, z której dziedziczyć mogą obiekty implementujące wyspecjalizowane funkcjonalności. Posiada w swojej kompozycji odniesienie do sceny w której się znajduje, a także do \textit{"rodzica"} oraz listę \textit{"dzieci"} danego wierzchołka. 
+	Klasa opisująca wierzchołek hierarchicznej struktury drzewowej opisującej rysowany świat. Jest ona jednocześnie klasą bazową, z której dziedziczyć mogą obiekty implementujące wyspecjalizowane funkcjonalności. Posiada w swojej kompozycji odniesienie do sceny w której się znajduje, a także do \textit{"rodzica"} oraz listę \textit{"dzieci"} danego wierzchołka. 
 	
-	Ważnym elementem jest skomponowany obiekt klasy \textbf{Transform}, opisujący transformację przestrzenną obiektu w scenie. Przechowuje te informacje za pomocą macierzy transformacji, a także wyliczonych na jej podstawie wektory pozycji, skali oraz rotacji w dwóch wersjach - względem rodzica oraz globalnej. Do ich zmiany oddane zostały metody \textit{GetLocal\{Position/Rotation/Scale\}} do ustalania parametrów w przestrzeni lokalnej oraz \textit{Set\{Position/Rotation\}} do odmiany globalnej. Funkcje te wykonują automatyczną rekalkulację przestrzenną obiektu oraz jego dzieci. W ten sposób możliwe jest zachowanie relacji transformacji w hierarchii sceny bez konieczności zarządzania tym procesem z perspektywy programisty.
+	Ważnym elementem jest skomponowany obiekt klasy \textbf{Transform}, opisujący transformację przestrzenną obiektu w scenie. Przechowuje te informacje za pomocą macierzy transformacji, a także wyliczonych na jej podstawie wektorów pozycji, skali oraz rotacji w dwóch wersjach - względem rodzica oraz globalnej. Do ich zmiany w przestrzeni lokalnej oddane zostały metody \textit{GetLocal\{Position/Rotation/Scale\}} oraz \textit{Set\{Position/Rotation\}} do odmiany globalnej. Funkcje te wykonują automatyczną rekalkulację przestrzenną obiektu oraz jego dzieci. W ten sposób możliwe jest zachowanie relacji transformacji w hierarchii sceny bez konieczności zarządzania tym procesem z perspektywy programisty.
 	
 	Kompozycja oraz relacje między opisanymi klasami zostały pokazane na rys. \ref{UML_SceneObject}.
 	
@@ -241,9 +243,9 @@
 	\end{figure}
 	
 \subsection{Manager zasobów}
-	Większość zasobów w ramach modułu jest automatycznie zarządzana przy pomocy inteligentnych wskaźników. Wczytywanie niektórych danych, takich jak modeli czy tekstur jest jednak czasochłonne i posiada nieunikniony narzut obliczeniowy. Przy wielokrotnym wykorzystaniu takich obiektów warto wprowadzić mechanizm typu cache, który przechowywać będzie referencje do już wczytanych elementów celem ich użycia zamiast ponownego ładowania od zera.
+	Większość zasobów w ramach modułu jest automatycznie zarządzana przy pomocy inteligentnych wskaźników. Wczytywanie niektórych danych, takich jak modeli czy tekstur jest jednak czasochłonne i posiada nieunikniony narzut obliczeniowy. Przy wielokrotnym wykorzystaniu takich obiektów warto wprowadzić mechanizm typu cache, który przechowywać będzie referencje do już wczytanych elementów celem ich ponownego użycia zamiast wczytywania od zera.
 	
-	Implementacją takiego mechanizmu w module jest \textbf{AssetManager}, przedstawiony na rys. \ref{UML_AssetManager}. Przechowuje on wczytane modele oraz tekstury w postaci słowników wykorzystujących typ std::map z C++ STL w celach optymalizacyjnych. Modele wczytane przy pomocy metody \textit{GetModel()} są automatycznie dodawane do cache'u, a każde kolejne wywołanie tej metody z tą samą ścieżką zwracać będzie już wczytany do pamięci model zamiast ponownego wczytywania i dekodowania z dysku.
+	Implementacją takiego mechanizmu w module jest \textbf{AssetManager}, przedstawiony na rys. \ref{UML_AssetManager}. Przechowuje on wczytane modele oraz tekstury w postaci słowników wykorzystujących typ std::map z C++ STL w celach optymalizacyjnych. Modele wczytane przy pomocy metody \textit{GetModel()} są automatycznie dodawane do cache'u, a każde kolejne wywołanie tej metody z tą samą ścieżką zwracać będzie już wczytany do pamięci model zamiast ponownego dekodowania z dysku.
 	
 	W niektórych przypadkach konieczne jest wyczyszczenie cache'u (na przykład przy zmianie sceny). Do tego celu oddana została metoda ClearAll(), która usuwa referencje do modeli i tekstur z managera. Nie są one jednak automatycznie zwalniane, gdyż referencje do nich nadal mogą istnieć w innych miejscach. Za ostateczne zwalnianie pamięci odpowiedzialny jest opisywany wcześniej mechanizm inteligentnych wskaźników.
 	
@@ -258,9 +260,9 @@
 \subsection{Obiekty modeli}
 	Najważniejszym elementem w świecie programu do trójwymiarowej grafiki komputerowej są mesh'e oraz składające się z nich modele. W celu umieszczenia ich w hierarchii sceny i świata utworzone zostały klasy odpowiednio \textbf{ModelObject} oraz \textbf{MeshObject}, których schemat przedstawiony został na rys. \ref{UML_SceneObjects_Model}. Dla poprawienia czytelności diagramu typy parametrów konstruktorów zostały pominięte.
 	
-	\textit{ModelObject} odpowiedzialny jest za wczytanie modelu z pliku przy pomocy klasy \textit{AssetManager}, a następnie odpowiednie umieszczenie jego wierzchołków wraz z odpowiednimi transformacjami na scenie. Każdy pusty wierzchołek zostaje dodany jako obiekt klasy \textit{SceneObject}, a elementy zawierające mesh jako \textit{MeshObject} z zachowaniem odpowiedniej struktury między nimi.
+	\textit{ModelObject} odpowiedzialny jest za wczytanie modelu z pliku z uwzględnieniem cache'u przy pomocy \textit{AssetManager}, a następnie odpowiednie umieszczenie jego wierzchołków wraz z odpowiednimi transformacjami na scenie. Każdy pusty wierzchołek zostaje dodany jako obiekt klasy \textit{SceneObject}, a elementy zawierające mesh jako \textit{MeshObject} z zachowaniem odpowiedniej hierarchii między nimi.
 	
-	Po załadowaniu danych o geometrii z pliku wykonywana jest także próba odczytu parametrów przypisanego do niej materiału. Odpowiedzialna za to metoda \textit{TryDeduceMaterial(...)} analizuje elementy wczytanej w pierwszym etapie listy \textit{MaterialProperties}, z której wykonuje próbę dedukcji wspieranych parametrów materiału po ich nazwach. Mechanizm ten opiera swoje działanie o słownik materialPropertiesMap, zawierający mapę łączącą tekstową nazwę parametru zakodowaną w plikach modeli z obiektem typu \textbf{MaterialData}. Zawiera on informacje o spodziewanym typie z enum \textbf{MaterialProperties} oraz oczekiwanej liczbie elementów tablicy danych, dzięki której możliwa jest automatyczna weryfikacja poprawności wczytanego opisu i uniknięcie wyjścia poza zakres tablicy przy jego odczycie.
+	Po załadowaniu danych o geometrii z pliku wykonywana jest także próba odczytu parametrów przypisanego do niej materiału. Odpowiedzialna za to metoda \textit{TryDeduceMaterial(...)} analizuje elementy wczytanej w pierwszym etapie listy \textit{MaterialProperties}, z której wykonuje próbę dedukcji wspieranych parametrów materiału po ich nazwach. Mechanizm ten opiera swoje działanie o słownik materialPropertiesMap, zawierający mapę łączącą tekstową nazwę parametru, zakodowaną w plikach modeli z obiektem typu \textbf{MaterialData}. Zawiera on informacje o spodziewanym typie danych z enum \textbf{MaterialProperties} oraz o oczekiwanej liczbie elementów tablicy. Dzięki temu możliwa jest automatyczna weryfikacja poprawności wczytanego opisu i uniknięcie wyjścia poza zakres tablicy przy jego odczycie.
 	
 	Do poprawnego działania mesh wymaga odniesienia do obiektu rdzeniowego typu \textit{D3DCore}, którego pobranie możliwe jest dopiero gdy obiekt znajduje się na scenie. W związku z tym wczytanie modeli z pliku następuje dopiero w momencie dodania obiektu \textit{ModelObject} do świata, czyli w implementacji metody \textit{OnAdded()}, a nie przy tworzeniu instancji klasy.
 	
@@ -272,13 +274,13 @@
 	\end{figure}
 
 \subsection{Obiekt światła}
-	Kolejnym zdefiniowanym jako element sceny obiektem jest przedstawiony na rys. \ref{UML_SceneObjects_Light} \textbf{LightObject}, reprezentujący wirtualne źródło światła. Zaimplementowane zostały 2 wersje oświetlenia - uproszczona oraz PBR, dzielące ze sobą wspólne parametry opisujące punkt oświetlenia:
+	Kolejnym zdefiniowanym jako element sceny obiektem jest przedstawiony na rys. \ref{UML_SceneObjects_Light} \textbf{LightObject}, reprezentujący wirtualne źródło światła. Zaimplementowane zostały 2 wersje oświetlenia - uproszczona oraz PBR, dzielące ze sobą wspólne parametry:
 	\begin{itemize}
 		\item \textbf{Kolor (color)} - wartość opisująca składowe RGB źródła światła.
 		\item \textbf{Parametr zaniku z odległością (attenuationExponent)} - pozawala na kontrolę siły zanikania intensywności światła z odległością. Przyjmuje on pozycję zmiennej w równaniu \(I = I_z / d^a\), gdzie \(I\) jest jasnością wynikową, \(I_z\) intensywnością źródła, \(d\) odległością od punktu źródłowego, a \(a\) wartością \textit{attenuationExponent}.
 		\item \textbf{Intensywność komponentu otoczenia (ambientIntensity)} - opisuje poziom natężenia oświetlenia symulującego oświetlenie globalne. Składnik ten jest niezależny od kąta padania światła i zostaje nałożony uniwersalnie na wszystkie powierzchnie, uwzględniając jedynie odległość od źródła.
-		\item \textbf{Intensywność komponentu rozproszonego (diffuseIntensity)} - natężenie światła odbitego niebezpośrednio. Przyjmuje wartość cosine z kąta między powierzchnią, źródłem światła, a kamerą.
-		\item \textbf{Intensywność komponentu wziernikowego (specularIntensity)} - moc bezpośredniego odbicia światła, bezpośrednio zależnego od kąta padania oraz parametrów materiału.
+		\item \textbf{Intensywność komponentu rozproszonego (diffuseIntensity)} - natężenie światła odbitego niebezpośrednio. Przyjmuje wartość funkcji \(cos\) z kąta między powierzchnią, źródłem światła, a kamerą.
+		\item \textbf{Intensywność komponentu wziernikowego (specularIntensity)} - moc odbicia światła, bezpośrednio zależnego od kąta padania oraz parametrów materiału.
 		\item \textbf{Intensywność w trybie PBR} - ze względu na swoją charakterystykę przy kalkulacjach opartych o PBR większość sceny sprawia wrażenie mniej oświetlonej od trybu uproszczonego. Aby zapobiec takiemu zachowaniu i zbliżyć poziom jasności obu trybów wprowadzony został opisywany parametr, będący mnożnikiem intensywności światła ignorowanym w uproszczonej wersji.
 	\end{itemize}
 	
@@ -292,9 +294,9 @@
 	\end{figure}
 	
 \subsection{Obiekt kamery}
-	Samo rysowanie sceny byłoby mało użyteczne, jeśli nie istniałby sposób aby się po niej poruszać. Do tego celu oddana została klasa \textbf{CameraObject}, której funkcjonalność opiera się na abstrakcji nad złożonymi transformacjami sceny w formie prostego obiektu w przestrzeni sceny. Przechowuje ona informacje o parametrach rysowania, takich jak dystans odcięcia bliskiego \textit{(mNearPlane)} oraz dalekiego \textit{(mFarPlane)}, a także pola widzenia w formie kąta pionowej składowej \textit{(mFov)}. Na ich podstawie możliwe jest obliczenie macierzy projekcji \textit{(CalculateProjectionMatrix())} oraz widoku \textit{(CalculateViewMatrix())}, wykorzystywanych w dalszej części do transformacji rysowanego świata.
+	Samo rysowanie sceny byłoby mało użyteczne, jeśli nie istniałby sposób na określenie punktu, z którego ten proces miałby się odbywać. Do tego celu oddana została klasa \textbf{CameraObject}, której funkcjonalność opiera się na abstrakcji nad złożonymi transformacjami sceny w formie prostego obiektu umieszczonego w przestrzeni. Przechowuje ona informacje o parametrach rysowania, takich jak dystans odcięcia bliskiego \textit{(mNearPlane)} oraz dalekiego \textit{(mFarPlane)}, czy pole widzenia w formie kąta pionowej składowej \textit{(mFov)}. Na ich podstawie możliwe jest obliczenie macierzy projekcji \textit{(CalculateProjectionMatrix())} oraz widoku \textit{(CalculateViewMatrix())}, wykorzystywanych w dalszej części do transformacji rysowanego świata.
 	
-	Bardzo częstym sposobem podejścia do tematu kamery w aplikacjach grafiki komputerowej jest wersja sterowana przez użytkownika. Implementacja takiej funkcjonalności znajduje się w klasie \textbf{FlyCameraObject}, która automatyzuje odczytywanie wejścia użytkownika z klawiatury i na ich podstawie oraz parametrów prędkości porusza i obraca wirtualną kamerą w świecie aplikacji.
+	Bardzo częstym sposobem podejścia do tematu kamery w aplikacjach grafiki komputerowej jest wersja sterowana przez użytkownika. Implementacja takiej funkcjonalności znajduje się w klasie \textbf{FlyCameraObject}, która automatyzuje odczytywanie wejścia od użytkownika z klawiatury i na tej podstawie oraz parametrów prędkości porusza i obraca wirtualną kamerą w świecie aplikacji.
 	
 	Schemat opisywanych klas został pokazany na rys. \ref{UML_SceneObjects_Camera}.
 	
@@ -306,11 +308,11 @@
 	\end{figure}
 	
 \subsection{Struktury buforów stałych}
-	Do poprawnego działania dane ze sceny muszą zostać przekazane do programów cieniujących. Mechanizm udostępniony przez klasę \textit{D3DConstantBuffer} opiera swoje działanie o zdefiniowane struktury danych, przekazywanych następnie przez mechanizm ConstantBuffer z pakietu Direct3D. W ramach modułu udostępniony został standard schematu przekazywania danych oraz 4 podstawowe struktury, pokazane na rys. \ref{UML_StandardConstantBuffers}. Schemat indeksów buforów został zdefiniowany w celu ujednolicenia działania shader'ów i dla ułatwienia pracy został zawarty jako stałe \textit{SEMANTIC\_SHADER\_CONSTANT\_BUFFER\_INDEX} w ramach klas podstawowych.
+	Do poprawnego działania dane ze sceny muszą zostać przekazane do programów cieniujących. Mechanizm udostępniony przez klasę \textit{D3DConstantBuffer} opiera swoje działanie o zdefiniowane struktury danych, przekazywane następnie do API przez mechanizm ConstantBuffer z pakietu Direct3D. W ramach modułu udostępniony został standard schematu przekazywania danych oraz 4 podstawowe struktury pokazane na rys. \ref{UML_StandardConstantBuffers}. Schemat indeksów buforów został zdefiniowany w celu ujednolicenia działania shader'ów i dla ułatwienia pracy został zawarty jako stałe \textit{SEMANTIC\_SHADER\_CONSTANT\_BUFFER\_INDEX} w ramach klas podstawowych.
 	\begin{itemize}
-		\item \textbf{VertexConstantBuffer} - podstawowe dane o rysowanym obiekcie, takie jak macierz WorldViewProjection, wykorzystywana do ustalania ostatecznej pozycji w przestrzeni oraz  WorldMatrix z jej odwrotnością do obliczania wektorów pomocniczych oświetlenia. Zgodnie ze schematem przekazywany jest w ramach rejestru \textbf{b0}.
-		\item \textbf{PixelConstantBufferData} - zawiera informacje o pozycji kamery w przestrzeni, konieczne do poprawnego wyliczania oświetlenia. Przekazywana w rejestrze \textbf{b1}.
-		\item \textbf{ConstantBuffer materiału} - definiowany oraz przekazywany przez używany materiał. Standardowo jego wartość zostaje przypisana w rejestrze \textbf{b2}.
+		\item \textbf{VertexConstantBuffer} - podstawowe dane o rysowanym obiekcie, takie jak macierz WorldViewProjection, wykorzystywana do ustalania ostatecznej pozycji w przestrzeni oraz WorldMatrix z jej odwrotnością do obliczania wektorów pomocniczych oświetlenia. Zgodnie ze schematem przekazywany jest w ramach rejestru \textbf{b0}.
+		\item \textbf{PixelConstantBufferData} - zawiera informacje o pozycji kamery w przestrzeni, koniecznej do poprawnego wyliczania oświetlenia. Przekazywana w rejestrze \textbf{b1}.
+		\item \textbf{ConstantBuffer materiału} - bufor definiowany oraz przekazywany przez używany materiał. Standardowo jego wartość zostaje przypisana w rejestrze \textbf{b2}.
 		\item \textbf{PixelLightBufferData} - informacje o źródłach światła w rysowanej przestrzeni. Przyjmuje formę tablicy elementów typu \textbf{PixelLight}, będącego przekazywaną do shader'a reprezentacją obiektu \textit{LightObject}. Bufor przypisany jest w rejestrze \textbf{b3}.
 	\end{itemize}
 	
@@ -322,15 +324,15 @@
 	\end{figure}
 	
 \subsection{Engine}
-	Klasa silnika, opisana na rys \ref{UML_Engine} spaja większość opisanych do tego momentu funkcjonalności modułu. Odpowiedzialna jest między innymi za przechowywanie referencji do sceny i elementów warstwy \textit{Core} w ramach struktury \textbf{RenderingParams}, inicjowanie systemu renderującego oraz okna czy czyszczenie i prezentowanie bufora rysowania. Przede wszystkim odpowiada ona jednak za ostateczne rysowanie sceny, czego pełny mechanizm został przedstawiony w rozdziale \ref{ChapterSceneDrawingMethod}. 
+	Klasa silnika - opisana na rys \ref{UML_Engine} - spaja większość opisanych do tego momentu funkcjonalności modułu. Odpowiedzialna jest między innymi za przechowywanie referencji do sceny i elementów warstwy \textit{Core} w ramach struktury \textbf{RenderingParams}, inicjowanie systemu renderującego oraz okna, czy czyszczenie i prezentowanie bufora rysowania. Przede wszystkim odpowiada ona jednak za ostateczne rysowanie sceny, czego pełny mechanizm został przedstawiony w rozdziale \ref{ChapterSceneDrawingMethod}. 
 	
 	Silnik operuje w dwóch, niezależnych od siebie trybach:
 	\begin{itemize}
 		\item \textbf{Tryb ręczny} - programista wykorzystuje metody udostępnione w ramach modułu do ręcznego rysowania sceny. Są to głównie \textit{Clear()}, \textit{Update()}, grupa metod \textit{Draw(...)} oraz \textit{Present()}. Służą one odpowiednio do czyszczenia bufora, aktualizacji komponentów (okno oraz instancja klasy \textit{Timer}), rysowania przekazanych w parametrach elementów oraz wyświetlania wygenerowanej klatki na ekran. Taka metoda działania umożliwia pełną kontrolę nad procesem rysowania, co może być przydatne na przykład przez integrację okna modułu z zewnętrzną aplikacją, która rysuje złożoną scenę dopiero w momencie wciśnięcia przycisku przez użytkownika. Dzięki udostępnieniu wielu wariantów metody \textit{Draw()}, w tym takich przyjmujących ręcznie mesh'e, oświetlenie oraz kamerę, możliwa jest też implementacja bardziej złożonych funkcjonalności rysowania, takich jak segmentowanie obiektów na warstwy czy efekty wymagające do działania rysowania wieloetapowego \textit{(Multipass Rendering)}.
-		\item \textbf{Tryb automatyczny} - w tym trybie klasa przejmuje na siebie wszystkie obowiązki związane z obsługą zdarzeń komponentów i rysowaniem sceny. Metoda \textit{RunLoop()} (lub jej odpowiednik śledzący czas wykonywania poszczególnych kroków - \textit{RunLoopTrace()}) przejmuje kontrolę nad wątkiem ją wywołującym aż do zamknięcia okna. Podczas tego czasu wywoływany jest w pętli proces składający się z wywołań metod \textit{Clear()}, \textit{Update()}, \textit{Draw()} i \textit{Present()}, a jako parametry rysowania przyjmowana jest wartość ze zmiennej \textit{renderParameters}.
+		\item \textbf{Tryb automatyczny} - w tym trybie klasa przejmuje na siebie wszystkie obowiązki związane z obsługą zdarzeń komponentów i rysowaniem sceny. Metoda \textit{RunLoop()} - lub jej odpowiednik śledzący czas wykonywania poszczególnych kroków - \textit{RunLoopTrace()} - przejmuje kontrolę nad wątkiem ją wywołującym aż do zamknięcia okna. W międzyczasie wywoływany jest w pętli proces składający się z wywołań metod \textit{Clear()}, \textit{Update()}, \textit{Draw()} i \textit{Present()}, a jako parametry rysowania przyjmowana jest wartość ze zmiennej \textit{renderParameters}.
 	\end{itemize}
 	
-	Silnik zawiera w sobie także instancję klasy \textbf{Timer}, która odpowiedzialna jest za śledzenie czasu między klatkami obrazu \textit{(deltaTime)} oraz od rozpoczęcia pracy programu \textit{(elapsedTime)}. Jej wykorzystanie możliwe jest w ramach mechanizmu OnUpdate, wywołującego wewnątrz metody Update() funkcję, do której odniesienie znajduje się w publicznej zmiennej onUpdate. Jako parametr przekazywana jest instancja klasy \textit{Engine}, co pozwala na wykorzystanie jej komponentów przez programistę i obiekty sceny, także w trybie automatycznym.
+	Silnik zawiera w sobie także instancję klasy \textbf{Timer}, która odpowiedzialna jest za śledzenie czasu między klatkami obrazu - \textit{deltaTime} - oraz od rozpoczęcia pracy programu - \textit{elapsedTime}. Jej wykorzystanie możliwe jest w ramach mechanizmu OnUpdate - wewnątrz metody Update() wywoływana jest funkcja, do której odniesienie znajduje się w publicznej zmiennej onUpdate. Jako parametr przekazywana jest instancja klasy \textit{Engine} - co pozwala na wykorzystanie jej komponentów przez programistę - a także obiekty sceny, także w trybie automatycznym.
 	
 	\begin{figure}[h!]
 		\centering
